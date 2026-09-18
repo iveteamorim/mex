@@ -37,6 +37,47 @@ const KNOWN_RUNTIMES = new Set([
   "linux", "macos", "windows", "wasm", "webassembly",
 ]);
 
+/**
+ * Architectural and descriptive labels that name a part of a system rather
+ * than something installable (#4). The complement to the acronym pattern
+ * below: a single word like "Frontend" has the shape of a package name, so
+ * only a list can catch it.
+ *
+ * Several of these — `server`, `client`, `queue`, `middleware`, `platform` —
+ * are also real npm packages. That is safe here and would not be safe in the
+ * claim extractor: a project that genuinely depends on one declares it in a
+ * manifest, the lookup below finds it, and nothing is reported either way.
+ * The list only suppresses a warning about a package nothing declares.
+ */
+const NON_PACKAGE_LABELS = new Set([
+  "frontend", "backend", "fullstack", "full-stack",
+  "database", "storage", "persistence",
+  "middleware", "infrastructure", "infra", "platform",
+  "authentication", "authorization",
+  "caching", "queue", "queues", "scheduler", "workers",
+  "server", "client", "monorepo", "tooling", "observability",
+  "testing", "deployment", "orchestration", "gateway", "firewall",
+]);
+
+/**
+ * An acronym names an architectural concept — `SPA`, `CRUD`, `MVC`, `SSR`,
+ * `DDD` — not a package, so a claim written this way can never be satisfied
+ * by a manifest.
+ *
+ * Deliberately narrow: one unseparated word. A capitalized package spelling
+ * keeps its separators (`PINO-HTTP`, `GRAPHQL-WS`, `YOUTUBE.JS`, `@SCOPE/PKG`)
+ * and is still checked.
+ *
+ * The residual cost, accepted: a package with a name short enough to be
+ * written in capitals (`cors`, `ajv`, `d3`) stops being reported once it is
+ * dropped from the manifest, because nothing in the name separates that from
+ * an acronym. Version claims are unaffected — `**D3 7.0**` is still compared
+ * against the manifest below.
+ */
+function isConceptAcronym(value: string): boolean {
+  return /^[A-Z][A-Z0-9]*$/.test(value);
+}
+
 /** Check that claimed dependencies exist in manifests */
 export function checkDependencies(
   claims: Claim[],
@@ -58,6 +99,10 @@ export function checkDependencies(
 
     // Skip known runtimes/platforms — they won't be in package.json
     if (KNOWN_RUNTIMES.has(name)) continue;
+
+    // Skip what a stack section calls a part of the system rather than a
+    // package: "Frontend", "Observability", "SPA" (#4).
+    if (NON_PACKAGE_LABELS.has(name) || isConceptAcronym(claim.value)) continue;
 
     // Fuzzy match: "React" → "react", "Express" → "express"
     const found = findDependency(deps, name);
