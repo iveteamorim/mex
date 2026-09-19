@@ -1,27 +1,57 @@
 import { describe, expect, it, vi } from "vitest";
 import { runGraphQuery, runGraphScope, runImpact, type AgentCommandDeps } from "../src/graph/cli-agent.js";
 import type { GraphEngine } from "../src/graph/engine.js";
-import type { GraphNode } from "../src/graph/types.js";
-import { __setTransport, captureCommand, flush } from "../src/telemetry/index.js";
-import { mkdtempSync, rmSync } from "node:fs";
+import type { GraphEdge, GraphNode } from "../src/graph/types.js";
+import { __resetTelemetryForTest, __setTelemetryEndpointForTest, __setTransport, captureCommand, flush, getTelemetryInspection } from "../src/telemetry/index.js";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createServer } from "node:http";
 
 function node(id: string, name: string, file = "src/a.ts", line = 1): GraphNode {
   return { id, name, kind: "function", qualifiedName: name, filePath: file, language: "typescript", startLine: line, endLine: line + 1, startColumn: 0, endColumn: 1, updatedAt: 1 };
 }
 
-function deps(): { deps: AgentCommandDeps; output: string[]; close: ReturnType<typeof vi.fn> } {
+function deps(indexedSources: Record<string, string> = {}): {
+  deps: AgentCommandDeps;
+  output: string[];
+  close: ReturnType<typeof vi.fn>;
+} {
   const leaf = node("function:leaf", "leaf");
   const parent = node("function:parent", "parent", "src/parent.ts", 4);
   const top = node("function:top", "top", "src/top.ts", 7);
   const nodes = [leaf, parent, top];
+  const edges: GraphEdge[] = [
+    {
+      source: parent.id, target: leaf.id, kind: "calls", line: 5, column: 2,
+      confidence: 1, resolutionMethod: "typescript-compiler", provenance: "typescript-compiler",
+    },
+    {
+      source: top.id, target: parent.id, kind: "calls", line: 8, column: 2,
+      confidence: 1, resolutionMethod: "typescript-compiler", provenance: "typescript-compiler",
+    },
+  ];
   const graph: GraphEngine = {
     build: vi.fn(), sync: vi.fn(), close: vi.fn(),
     getNode: (id) => nodes.find((entry) => entry.id === id) ?? null,
-    searchNodes: (query) => nodes.filter((entry) => entry.name.includes(query)),
+    searchNodes: (query) => nodes.filter((entry) => entry.name.toLowerCase().includes(query.toLowerCase())),
     getCallers: (id) => id === leaf.id ? [parent] : id === parent.id ? [top] : [],
     getCallees: (id) => id === top.id ? [parent] : id === parent.id ? [leaf] : [],
+    getIncoming: (id) => edges.filter((edge) => edge.target === id).map((edge) => ({
+      edge, node: nodes.find((entry) => entry.id === edge.source)!,
+    })),
+    getOutgoing: (id) => edges.filter((edge) => edge.source === id).map((edge) => ({
+      edge, node: nodes.find((entry) => entry.id === edge.target)!,
+    })),
+    getIndexedFiles: () => Object.entries(indexedSources).map(([path, source]) => ({
+      path,
+      contentHash: createHash("sha256").update(source).digest("hex"),
+      parseStatus: "ok" as const,
+      diagnosticCount: 0,
+      errorCoverage: 0,
+      nodeCount: nodes.filter((entry) => entry.filePath === path).length,
+    })),
   };
   const close = vi.fn();
   const db = {
@@ -65,17 +95,74 @@ describe("agent graph commands", () => {
     }
   });
 
-  it("scope emits seeds and their one-hop neighborhood as hydrated facts", () => {
+  it("abstains when a targeted symbol lookup has only fuzzy matches", () => {
+    // A real empty root: an empty store legitimately adds `filesIndexed: 0`
+    // coverage context to the abstention, and the walk needs a readable cwd.
+    const root = mkdtempSync(join(tmpdir(), "mex-query-abstain-"));
+    try {
+      const fixture = deps();
+      runGraphQuery("where-defined", "lea", root, fixture.deps);
+      expect(fixture.output.map((line) => JSON.parse(line))).toEqual([
+        { type: "error", code: "TARGET_NOT_FOUND", target: "lea", filesIndexed: 0 },
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("minimal Scope pins a named seed and hydrates its reliable typed neighborhood", () => {
     const fixture = deps();
-    runGraphScope("leaf", "/repo", fixture.deps);
-    const facts = fixture.output.map((line) => JSON.parse(line)).filter((row) => row.type === "fact");
-    expect(facts.map((row) => row.id)).toEqual(["function:leaf", "function:parent"]);
+    runGraphScope("Leaf", "/repo", fixture.deps, { detail: "minimal" });
+    const rows = fixture.output.map((line) => JSON.parse(line));
+    expect(rows[0]).toMatchObject({ type: "meta", protocolVersion: 3, detail: "minimal" });
+    expect(rows[1]).toMatchObject({ type: "health" });
+    const facts = rows.filter((row) => row.type === "fact");
+    expect(facts.map((row) => row.id)).toEqual(["function:leaf", "function:parent", "function:top"]);
     expect(facts[0]).toMatchObject({
-      type: "fact", kind: "function", name: "leaf", qualifiedName: "leaf",
-      filePath: "src/a.ts", callerCount: 1, calleeCount: 0, sourceIncluded: false,
+      type: "fact", kind: "function", name: "leaf",
+      filePath: "src/a.ts", callerCount: 1, calleeCount: 0,
     });
+    expect(facts[0]).not.toHaveProperty("qualifiedName");
     expect(facts[0]).not.toHaveProperty("source");
     expect(facts[0]).not.toHaveProperty("callers");
+    expect(facts[0]).not.toHaveProperty("sourceIncluded");
+  });
+
+  it("returns line-numbered source and a directed flow in one default Scope call", () => {
+    const root = mkdtempSync(join(tmpdir(), "mex-scope-v3-"));
+    try {
+      const sources = {
+        "src/a.ts": "export function leaf() {\n  return 1;\n}\n",
+        "src/parent.ts": "\n\n\nexport function parent() {\n  return leaf();\n}\n",
+        "src/top.ts": "\n\n\n\n\n\nexport function top() {\n  return parent();\n}\n",
+      };
+      mkdirSync(join(root, "src"));
+      for (const [path, source] of Object.entries(sources)) writeFileSync(join(root, path), source);
+      const fixture = deps(sources);
+
+      runGraphScope("Top", root, fixture.deps);
+      const rows = fixture.output.map((line) => JSON.parse(line));
+      expect(rows[0]).toMatchObject({ type: "meta", protocolVersion: 3, detail: "source" });
+      const sourceRecords = rows.filter((row) => row.type === "source");
+      expect(sourceRecords.length).toBeGreaterThan(0);
+      expect(JSON.stringify(sourceRecords)).toMatch(/7: export function top/);
+      const flows = rows.filter((row) => row.type === "flow");
+      const flowSteps = flows.flatMap((flow) => flow.steps);
+      expect(flows.some((flow) => flow.steps.length === 2
+        && flow.steps[0].source === "function:top" && flow.steps[0].target === "function:parent"
+        && flow.steps[1].source === "function:parent" && flow.steps[1].target === "function:leaf")).toBe(true);
+      expect(flowSteps.length).toBeLessThanOrEqual(8);
+      expect(rows.findIndex((row) => row.type === "source")).toBeLessThan(rows.findIndex((row) => row.type === "flow"));
+      expect(rows.at(-1)).toMatchObject({
+        type: "summary", returnedEdges: flowSteps.length, suggestedNextCommands: [],
+        returnedFiles: expect.arrayContaining(["src/top.ts", "src/parent.ts", "src/a.ts"]),
+      });
+      fixture.output.length = 0;
+      runGraphScope("Top", root, fixture.deps);
+      expect(fixture.output.map((line) => JSON.parse(line)).filter((row) => row.type === "flow")).toEqual(flows);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it("scope degrades to a machine-readable error when the graph is absent", () => {
@@ -135,6 +222,48 @@ describe("agent graph commands", () => {
       expect(results[0]).toMatchObject({ type: "result", relation: "where-defined", name: "leaf" });
     } finally {
       __setTransport(null);
+      process.chdir(cwd);
+      if (home === undefined) delete process.env.MEX_HOME;
+      else process.env.MEX_HOME = home;
+      if (env.dnt === undefined) delete process.env.DO_NOT_TRACK; else process.env.DO_NOT_TRACK = env.dnt;
+      if (env.telemetry === undefined) delete process.env.MEX_TELEMETRY; else process.env.MEX_TELEMETRY = env.telemetry;
+      if (env.dev === undefined) delete process.env.MEX_DEV; else process.env.MEX_DEV = env.dev;
+      rmSync(isolated, { recursive: true, force: true });
+    }
+  });
+
+  it("bounds offline telemetry for a machine-facing graph command", async () => {
+    const fixture = deps();
+    const server = createServer(() => { /* Deliberately never respond. */ });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address() as { port: number };
+    const cwd = process.cwd();
+    const home = process.env.MEX_HOME;
+    const env = { dnt: process.env.DO_NOT_TRACK, telemetry: process.env.MEX_TELEMETRY, dev: process.env.MEX_DEV };
+    const isolated = mkdtempSync(join(tmpdir(), "mex-bounded-offline-command-"));
+    try {
+      process.chdir(isolated);
+      process.env.MEX_HOME = isolated;
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.MEX_TELEMETRY;
+      delete process.env.MEX_DEV;
+      __resetTelemetryForTest();
+      __setTelemetryEndpointForTest(`http://127.0.0.1:${address.port}/batch/`);
+
+      const started = Date.now();
+      captureCommand("graph scope");
+      runGraphScope("leaf", "/repo", fixture.deps, { detail: "minimal" });
+      await flush();
+
+      // Allow scheduler headroom in CI while requiring the request to be cancelled
+      // and its event retained. Whole-process timing is measured by the benchmark.
+      expect(Date.now() - started).toBeLessThan(2_000);
+      expect(getTelemetryInspection().queue).toMatchObject({ state: "available", events: 1 });
+      expect(fixture.output.some((line) => JSON.parse(line).type === "summary")).toBe(true);
+    } finally {
+      __resetTelemetryForTest();
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
       process.chdir(cwd);
       if (home === undefined) delete process.env.MEX_HOME;
       else process.env.MEX_HOME = home;

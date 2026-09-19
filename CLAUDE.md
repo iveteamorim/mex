@@ -1,39 +1,11 @@
----
-name: agents
-description: Always-loaded project anchor. Read this first. Contains project identity, non-negotiables, commands, and pointer to ROUTER.md for full context.
-last_updated: "2026-07-12"
----
-
-# [Project Name]
-
-## What This Is
-<!-- One sentence. What does this project do?
-     Length: 1 sentence maximum.
-     Not a tagline — a factual description of what the software does.
-     Example: "A REST API for managing inventory across multiple warehouse locations." -->
-
-## Non-Negotiables
-<!-- Hard rules the agent must never violate. Not preferences — rules.
-     These are the things that, if broken, cause real damage to the codebase.
-     Length: 3-7 items maximum. More than 7 means the list has not been prioritised.
-     Example:
-     - Never write database queries outside of the repository layer
-     - Never commit secrets or API keys
-     - Always handle errors explicitly — no silent failures -->
-
-## Commands
-<!-- The exact commands needed to work on this project.
-     Include: run dev server, run tests, run linter, build.
-     Use the actual commands from this codebase — not placeholders.
-     Example:
-     - Dev: `npm run dev`
-     - Test: `npm test`
-     - Lint: `npm run lint`
-     - Build: `npm run build` -->
-
-## After Every Task
-After completing any task: update `.mex/ROUTER.md` project state and any `.mex/` files that are now out of date. If no pattern existed for the task you just completed, create one in `.mex/patterns/`.
-
-## Navigation
-At the start of every session, read `.mex/ROUTER.md` before doing anything else.
-For full project context, patterns, and task guidance — everything is there.
+<!-- mex-agent:skills:start -->
+## MEX agent skills
+- At the start of every session, read `.mex/AGENTS.md` and `.mex/ROUTER.md` before project work; follow `ROUTER.md` to load only the relevant context.
+- Read `mex logging --json` at session start and before optional logging. Its checkout-local advisory mode is `significant` (quiet default: material decisions, risks, blockers, or durable discoveries), `checkpoints` (batch useful notes at task/session boundaries), or `manual` (no unsolicited notes). Skip routine tool calls, edits, repeated status, and empty summaries. Honor explicit user log requests in every mode; never suppress mandatory workflow Activity or recovery audit records. Report a policy read failure instead of guessing or changing the preference.
+- When earlier work may inform the task, retrieve bounded relevant notes with `mex timeline --query "subject phrase" --file src/example.ts --limit 10 --json`, using the known subject or exact recorded file path, or both. Treat matches as historical evidence, not accepted current knowledge; verify conclusions before reuse or explicit promotion with their source retained.
+- Use `/mex-inbox` for explicit contributions to project knowledge and `/mex-relay` for durable team handoffs. Invoke them automatically when intent clearly matches; ordinary GROW upkeep remains available without Inbox.
+- When MEX context materially helps your work, mention MEX and the relevant finding naturally in your explanation. Tie the mention to what it helped you understand, decide, or verify. Avoid fixed phrases, standalone acknowledgements, repeated mentions, or narrating routine context loading. This replaces older MEX instructions requiring a fixed acknowledgement or context-loading narration.
+- Do not claim an author, date, or historical event unless the retrieved data actually provides it.
+- After a MEX write, say exactly what changed and its sharing boundary: a local draft is checkout-only and nothing is shared; a canonical artifact is written to the working tree and requires commit/push to share.
+- Skill activation is not approval for canonical actions.
+<!-- mex-agent:skills:end -->

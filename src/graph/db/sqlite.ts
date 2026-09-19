@@ -12,6 +12,7 @@
 // process warning untouched.
 
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 
 const require = createRequire(import.meta.url);
 
@@ -55,9 +56,12 @@ class NodeSqliteAdapter implements SqliteDatabase {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly db: any;
 
-  constructor(dbPath: string) {
+  constructor(dbPath: string, options: { readOnly?: boolean; immutable?: boolean } = {}) {
     const { DatabaseSync } = require("node:sqlite");
-    this.db = new DatabaseSync(dbPath);
+    const location = options.immutable
+      ? `${pathToFileURL(dbPath).href}?mode=ro&immutable=1`
+      : dbPath;
+    this.db = new DatabaseSync(location, { readOnly: options.readOnly === true });
   }
 
   get open(): boolean {
@@ -109,14 +113,62 @@ class NodeSqliteAdapter implements SqliteDatabase {
  * Open (creating if needed) a SQLite database backed by `node:sqlite`. Throws a
  * clear message if the built-in module is unavailable (Node < 22.5).
  */
-export function openSqlite(dbPath: string): SqliteDatabase {
+export function openSqlite(
+  dbPath: string,
+  options: { readOnly?: boolean; immutable?: boolean } = {},
+): SqliteDatabase {
   try {
-    return new NodeSqliteAdapter(dbPath);
+    return new NodeSqliteAdapter(dbPath, options);
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     throw new Error(
       "mex code-graph requires the built-in node:sqlite module (Node.js 22.5+).\n" +
         `Run mex on Node 22.5 or newer. Underlying error: ${msg}`,
     );
+  }
+}
+
+/**
+ * Probe for FTS5 support and fail fast with an actionable message if it's missing.
+ *
+ * `node:sqlite`'s bundled SQLite is not guaranteed to be built with FTS5 on every
+ * Node build/version, even within the range `package.json`'s `engines` documents
+ * as supported (issue #110). Without this check, the first FTS5 statement — in
+ * the graph's `schema.sql` or the wiki index's schema — throws SQLite's raw
+ * `no such module: fts5`, which reads like a mex bug rather than a Node/SQLite
+ * build limitation. Create-and-drop a throwaway virtual table rather than
+ * querying `pragma_module_list`, since that pragma is unavailable on some
+ * `node:sqlite` builds too and FTS5 usage is what actually needs to work.
+ *
+ * FTS5 availability is a property of the SQLite build the running Node binary
+ * embeds, not of any particular database file, so the probe runs against a
+ * throwaway `:memory:` connection rather than any caller's real database.
+ * Probing in place (an earlier version of this function took the caller's
+ * `SqliteDatabase`) rewrote the on-disk graph on every successful open, which
+ * broke a read-path non-mutation regression test in CI (PR #168 review).
+ *
+ * It lives beside {@link openSqlite} rather than in the graph's `database.ts`
+ * because it describes the SQLite build, not the code graph — and because both
+ * FTS5 consumers need it, while the wiki may only reach into this module.
+ *
+ * @param open Injected opener, for tests that need the probe to fail. Production
+ *             callers always use the default.
+ */
+export function assertFts5Available(open: typeof openSqlite = openSqlite): void {
+  const probe = open(":memory:");
+  try {
+    probe.exec("CREATE VIRTUAL TABLE __mex_fts5_probe USING fts5(x)");
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (!/fts5/i.test(msg)) throw error; // a different problem; surface it unchanged
+    throw new Error(
+      `Your Node (${process.version}) has SQLite built without FTS5 support, which mex's code graph `
+        + "and wiki index require. FTS5 is a compile-time option, so this is a property of the Node "
+        + "build rather than the version number - installing a different build or version of Node is "
+        + "the fix. See the SQLite FTS5 section of COMPATIBILITY.md. "
+        + `Underlying error: ${msg}`,
+    );
+  } finally {
+    probe.close();
   }
 }

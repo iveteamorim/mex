@@ -1,0 +1,2775 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-investigation-not-release-budget",
+  "date": "2026-09-09",
+  "source": {
+    "branch": "codex/0.8.1",
+    "head": "35bfc075888706d6b105b39b0d711ff7a588b551",
+    "sourceFiles": 708,
+    "compilerSourceBytes": 10591819,
+    "sourceCorpusDigest": "c2e8bdbbfd66963b9fdf549235105732d3424021af43de7a4f55cfca9094fd50",
+    "manifestHash": "a4f5457f66e5c393a9eda8711c3ff5a7fc198e3382a46f4eda82c323005e78e8"
+  },
+  "environment": {
+    "os": "macOS 26.0.1",
+    "architecture": "arm64",
+    "node": "22.17.1",
+    "v8": "12.4.254.21-node.27",
+    "sqlite": "3.50.0",
+    "typescript": "5.9.3",
+    "webTreeSitter": "0.25.10"
+  },
+  "method": {
+    "cpuProfilerIntervalMicroseconds": 2000,
+    "externalRssSampleIntervalMilliseconds": 1000,
+    "diagnosticGC": "three forced GCs, 100ms apart, after close",
+    "supervisorDurationSeconds": 600,
+    "supervisorSampledRssLimitMiB": 4608,
+    "engineOnly": true,
+    "liveHubRunning": false,
+    "telemetryDisabled": true
+  },
+  "runs": {
+    "real-baseline": {
+      "variant": "baseline",
+      "repeatedFullWork": false,
+      "v8OldSpaceMiB": null,
+      "cycles": [
+        {
+          "durationMs": 312942,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 312942
+          },
+          "nativePreparesCumulative": 399775,
+          "nativePreparesSincePreviousSync": 399775,
+          "returnMemory": {
+            "heapUsed": 2420390688,
+            "heapTotal": 2511323136,
+            "rss": 1092485120,
+            "external": 39085747,
+            "arrayBuffers": 3402528,
+            "maxRSSKiB": 2057904
+          },
+          "postGcMemory": {
+            "heapUsed": 54255424,
+            "heapTotal": 98074624,
+            "rss": 1221197824,
+            "external": 36242231,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 2057904
+          }
+        }
+      ],
+      "noop": {
+        "filesIndexed": 0,
+        "nodesCreated": 0,
+        "edgesCreated": 0,
+        "durationMs": 311
+      },
+      "processLifetime": {
+        "label": "real-baseline",
+        "dbPath": "<experiment>/real-baseline.sqlite",
+        "elapsedMs": 314516.87429199996,
+        "memory": {
+          "rss": 1225916416,
+          "heapTotal": 97812480,
+          "heapUsed": 54370056,
+          "external": 36242231,
+          "arrayBuffers": 559012
+        },
+        "resourceUsage": {
+          "userCPUTime": 292068175,
+          "systemCPUTime": 16656055,
+          "maxRSS": 2057904,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 607416,
+          "majorPageFault": 666,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 1,
+          "ipcSent": 0,
+          "ipcReceived": 3,
+          "signalsCount": 124884,
+          "voluntaryContextSwitches": 125256,
+          "involuntaryContextSwitches": 922716
+        },
+        "prepares": 400510
+      },
+      "stages": [
+        {
+          "stage": "process-start",
+          "elapsedMs": 0,
+          "heapUsedBytes": 4895408,
+          "rssBytes": 41795584,
+          "lifetimeMaxRssKiB": 45920,
+          "cpuMicroseconds": {
+            "user": 33432,
+            "system": 167716
+          },
+          "nativePrepares": 0,
+          "metadata": {}
+        },
+        {
+          "stage": "module-loaded",
+          "elapsedMs": 203,
+          "heapUsedBytes": 37256136,
+          "rssBytes": 149471232,
+          "lifetimeMaxRssKiB": 145968,
+          "cpuMicroseconds": {
+            "user": 258423,
+            "system": 188897
+          },
+          "nativePrepares": 0,
+          "metadata": {}
+        },
+        {
+          "stage": "discover-start",
+          "elapsedMs": 500,
+          "heapUsedBytes": 43250088,
+          "rssBytes": 176553984,
+          "lifetimeMaxRssKiB": 172416,
+          "cpuMicroseconds": {
+            "user": 407312,
+            "system": 241724
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "discover-end",
+          "elapsedMs": 624,
+          "heapUsedBytes": 57263680,
+          "rssBytes": 196411392,
+          "lifetimeMaxRssKiB": 191808,
+          "cpuMicroseconds": {
+            "user": 483121,
+            "system": 308929
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "files": 708
+          }
+        },
+        {
+          "stage": "compiler-start",
+          "elapsedMs": 659,
+          "heapUsedBytes": 56554400,
+          "rssBytes": 197410816,
+          "lifetimeMaxRssKiB": 192784,
+          "cpuMicroseconds": {
+            "user": 509868,
+            "system": 323183
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "sourceBytes": 10591819,
+            "inputFiles": 709
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 690,
+          "heapUsedBytes": 62094760,
+          "rssBytes": 213221376,
+          "lifetimeMaxRssKiB": 208224,
+          "cpuMicroseconds": {
+            "user": 549704,
+            "system": 325757
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "roots": 7
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 1233,
+          "heapUsedBytes": 188120728,
+          "rssBytes": 337248256,
+          "lifetimeMaxRssKiB": 331216,
+          "cpuMicroseconds": {
+            "user": 1606681,
+            "system": 401461
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "sourceFiles": 292
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 3826,
+          "heapUsedBytes": 561624088,
+          "rssBytes": 718209024,
+          "lifetimeMaxRssKiB": 701376,
+          "cpuMicroseconds": {
+            "user": 6489666,
+            "system": 638657
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "owned": 7
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 3827,
+          "heapUsedBytes": 561658672,
+          "rssBytes": 718225408,
+          "lifetimeMaxRssKiB": 701392,
+          "cpuMicroseconds": {
+            "user": 6490049,
+            "system": 638788
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "roots": 95
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 4687,
+          "heapUsedBytes": 299624376,
+          "rssBytes": 828981248,
+          "lifetimeMaxRssKiB": 813360,
+          "cpuMicroseconds": {
+            "user": 7946261,
+            "system": 777243
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "sourceFiles": 929
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 12663,
+          "heapUsedBytes": 707320320,
+          "rssBytes": 954056704,
+          "lifetimeMaxRssKiB": 937008,
+          "cpuMicroseconds": {
+            "user": 19884996,
+            "system": 1233250
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "owned": 96
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 12663,
+          "heapUsedBytes": 707357416,
+          "rssBytes": 954056704,
+          "lifetimeMaxRssKiB": 937008,
+          "cpuMicroseconds": {
+            "user": 19885128,
+            "system": 1233394
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "roots": 6
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 13013,
+          "heapUsedBytes": 826958528,
+          "rssBytes": 1035976704,
+          "lifetimeMaxRssKiB": 1011696,
+          "cpuMicroseconds": {
+            "user": 20415260,
+            "system": 1289658
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "sourceFiles": 289
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 13332,
+          "heapUsedBytes": 898200680,
+          "rssBytes": 1100578816,
+          "lifetimeMaxRssKiB": 1074784,
+          "cpuMicroseconds": {
+            "user": 21181835,
+            "system": 1336952
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "owned": 6
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 13332,
+          "heapUsedBytes": 898205928,
+          "rssBytes": 1100578816,
+          "lifetimeMaxRssKiB": 1074784,
+          "cpuMicroseconds": {
+            "user": 21182169,
+            "system": 1337092
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "roots": 442
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 14449,
+          "heapUsedBytes": 1223080000,
+          "rssBytes": 1425457152,
+          "lifetimeMaxRssKiB": 1392256,
+          "cpuMicroseconds": {
+            "user": 22564545,
+            "system": 1548575
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "sourceFiles": 1216
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 34250,
+          "heapUsedBytes": 1987876680,
+          "rssBytes": 1710768128,
+          "lifetimeMaxRssKiB": 1964592,
+          "cpuMicroseconds": {
+            "user": 46168548,
+            "system": 2782959
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "owned": 442
+          }
+        },
+        {
+          "stage": "compiler-end",
+          "elapsedMs": 46805,
+          "heapUsedBytes": 1970172176,
+          "rssBytes": 1769897984,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 61857190,
+            "system": 4121250
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "files": 701,
+            "projects": 5
+          }
+        },
+        {
+          "stage": "grammar-start",
+          "elapsedMs": 46806,
+          "heapUsedBytes": 1970864392,
+          "rssBytes": 1770913792,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 61858359,
+            "system": 4121624
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "grammar-end",
+          "elapsedMs": 46830,
+          "heapUsedBytes": 1961558592,
+          "rssBytes": 1775304704,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 61878934,
+            "system": 4129430
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "materialize-end",
+          "elapsedMs": 47206,
+          "heapUsedBytes": 2026791072,
+          "rssBytes": 1595162624,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 62254586,
+            "system": 4200857
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fallback-resolution-start",
+          "elapsedMs": 47206,
+          "heapUsedBytes": 2026795000,
+          "rssBytes": 1595162624,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 62254660,
+            "system": 4200936
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fallback-resolution-end",
+          "elapsedMs": 47310,
+          "heapUsedBytes": 2064475120,
+          "rssBytes": 1583710208,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 62365969,
+            "system": 4222332
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fingerprints-start",
+          "elapsedMs": 47344,
+          "heapUsedBytes": 2064352904,
+          "rssBytes": 1572552704,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 62405835,
+            "system": 4230245
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fingerprints-end",
+          "elapsedMs": 48744,
+          "heapUsedBytes": 2107445696,
+          "rssBytes": 1391083520,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 64021814,
+            "system": 4317565
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "fingerprints": 23376
+          }
+        },
+        {
+          "stage": "old-graph-start",
+          "elapsedMs": 48752,
+          "heapUsedBytes": 2109588712,
+          "rssBytes": 1389543424,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 64029008,
+            "system": 4319128
+          },
+          "nativePrepares": 1390,
+          "metadata": {}
+        },
+        {
+          "stage": "old-graph-end",
+          "elapsedMs": 50731,
+          "heapUsedBytes": 2202368048,
+          "rssBytes": 1302118400,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 65253075,
+            "system": 4509759
+          },
+          "nativePrepares": 33535,
+          "metadata": {
+            "nodes": 32143,
+            "fingerprints": 22597
+          }
+        },
+        {
+          "stage": "clear-start",
+          "elapsedMs": 51018,
+          "heapUsedBytes": 2211790576,
+          "rssBytes": 1302200320,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 65346835,
+            "system": 4553306
+          },
+          "nativePrepares": 33535,
+          "metadata": {}
+        },
+        {
+          "stage": "clear-end",
+          "elapsedMs": 54864,
+          "heapUsedBytes": 2211795536,
+          "rssBytes": 1169342464,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 66865127,
+            "system": 5720947
+          },
+          "nativePrepares": 33535,
+          "metadata": {}
+        },
+        {
+          "stage": "source-chunks-end",
+          "elapsedMs": 56453,
+          "heapUsedBytes": 2213735816,
+          "rssBytes": 1157726208,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 68392404,
+            "system": 5819827
+          },
+          "nativePrepares": 44833,
+          "metadata": {}
+        },
+        {
+          "stage": "insert-nodes-end",
+          "elapsedMs": 59605,
+          "heapUsedBytes": 2222031288,
+          "rssBytes": 1179418624,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 70932386,
+            "system": 6152929
+          },
+          "nativePrepares": 77954,
+          "metadata": {}
+        },
+        {
+          "stage": "insert-edges-end",
+          "elapsedMs": 68483,
+          "heapUsedBytes": 2229366176,
+          "rssBytes": 1261764608,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 77199148,
+            "system": 7561833
+          },
+          "nativePrepares": 350266,
+          "metadata": {
+            "edges": 87048
+          }
+        },
+        {
+          "stage": "insert-fingerprints-end",
+          "elapsedMs": 306868,
+          "heapUsedBytes": 2227539120,
+          "rssBytes": 938196992,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 288646831,
+            "system": 15510549
+          },
+          "nativePrepares": 350316,
+          "metadata": {}
+        },
+        {
+          "stage": "aliases-end",
+          "elapsedMs": 310671,
+          "heapUsedBytes": 2419725568,
+          "rssBytes": 1283719168,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291493233,
+            "system": 15890074
+          },
+          "nativePrepares": 399764,
+          "metadata": {}
+        },
+        {
+          "stage": "fts-end",
+          "elapsedMs": 310882,
+          "heapUsedBytes": 2419729944,
+          "rssBytes": 1253113856,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291568295,
+            "system": 15917629
+          },
+          "nativePrepares": 399764,
+          "metadata": {}
+        },
+        {
+          "stage": "invariants-end",
+          "elapsedMs": 311445,
+          "heapUsedBytes": 2419737776,
+          "rssBytes": 1205698560,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291631590,
+            "system": 15966388
+          },
+          "nativePrepares": 399767,
+          "metadata": {}
+        },
+        {
+          "stage": "publication-end",
+          "elapsedMs": 313144,
+          "heapUsedBytes": 2419749936,
+          "rssBytes": 1083965440,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291694162,
+            "system": 16398730
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "sync-returned",
+          "elapsedMs": 313202,
+          "heapUsedBytes": 2420390688,
+          "rssBytes": 1092485120,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291697939,
+            "system": 16436343
+          },
+          "nativePrepares": 399775,
+          "metadata": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 312942
+          }
+        },
+        {
+          "stage": "engine-closed",
+          "elapsedMs": 313474,
+          "heapUsedBytes": 2420395464,
+          "rssBytes": 1092272128,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291699534,
+            "system": 16487541
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "after-forced-gc",
+          "elapsedMs": 313878,
+          "heapUsedBytes": 54255424,
+          "rssBytes": 1221197824,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291829537,
+            "system": 16589557
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "noop-returned",
+          "elapsedMs": 314190,
+          "heapUsedBytes": 66648368,
+          "rssBytes": 1226457088,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 291984142,
+            "system": 16645931
+          },
+          "nativePrepares": 400510,
+          "metadata": {
+            "filesIndexed": 0,
+            "nodesCreated": 0,
+            "edgesCreated": 0,
+            "durationMs": 311
+          }
+        },
+        {
+          "stage": "after-noop-gc",
+          "elapsedMs": 314516,
+          "heapUsedBytes": 54354248,
+          "rssBytes": 1225916416,
+          "lifetimeMaxRssKiB": 2057904,
+          "cpuMicroseconds": {
+            "user": 292067874,
+            "system": 16655872
+          },
+          "nativePrepares": 400510,
+          "metadata": {}
+        }
+      ]
+    },
+    "real-outer": {
+      "variant": "outer-owned fingerprint transaction",
+      "repeatedFullWork": false,
+      "v8OldSpaceMiB": null,
+      "cycles": [
+        {
+          "durationMs": 99449,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 99449
+          },
+          "nativePreparesCumulative": 399775,
+          "nativePreparesSincePreviousSync": 399775,
+          "returnMemory": {
+            "heapUsed": 1517693248,
+            "heapTotal": 1956265984,
+            "rss": 606912512,
+            "external": 39365811,
+            "arrayBuffers": 3682592,
+            "maxRSSKiB": 1828608
+          },
+          "postGcMemory": {
+            "heapUsed": 52125632,
+            "heapTotal": 95502336,
+            "rss": 707641344,
+            "external": 36238605,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 1828608
+          }
+        }
+      ],
+      "noop": {
+        "filesIndexed": 0,
+        "nodesCreated": 0,
+        "edgesCreated": 0,
+        "durationMs": 394
+      },
+      "processLifetime": {
+        "label": "real-outer",
+        "dbPath": "<experiment>/real-outer.sqlite",
+        "elapsedMs": 101308.909166,
+        "memory": {
+          "rss": 712998912,
+          "heapTotal": 95502336,
+          "heapUsed": 52243816,
+          "external": 36238605,
+          "arrayBuffers": 559012
+        },
+        "resourceUsage": {
+          "userCPUTime": 86888927,
+          "systemCPUTime": 13056038,
+          "maxRSS": 1828608,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 462936,
+          "majorPageFault": 274,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 3,
+          "signalsCount": 41292,
+          "voluntaryContextSwitches": 86614,
+          "involuntaryContextSwitches": 580921
+        },
+        "prepares": 400510
+      },
+      "stages": [
+        {
+          "stage": "process-start",
+          "elapsedMs": 0,
+          "heapUsedBytes": 4895472,
+          "rssBytes": 47267840,
+          "lifetimeMaxRssKiB": 46160,
+          "cpuMicroseconds": {
+            "user": 38394,
+            "system": 988076
+          },
+          "nativePrepares": 0,
+          "metadata": {}
+        },
+        {
+          "stage": "module-loaded",
+          "elapsedMs": 201,
+          "heapUsedBytes": 37200432,
+          "rssBytes": 151863296,
+          "lifetimeMaxRssKiB": 148304,
+          "cpuMicroseconds": {
+            "user": 262748,
+            "system": 1006207
+          },
+          "nativePrepares": 0,
+          "metadata": {}
+        },
+        {
+          "stage": "discover-start",
+          "elapsedMs": 547,
+          "heapUsedBytes": 41888264,
+          "rssBytes": 177979392,
+          "lifetimeMaxRssKiB": 173808,
+          "cpuMicroseconds": {
+            "user": 419447,
+            "system": 1063358
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "discover-end",
+          "elapsedMs": 760,
+          "heapUsedBytes": 56165112,
+          "rssBytes": 196116480,
+          "lifetimeMaxRssKiB": 191520,
+          "cpuMicroseconds": {
+            "user": 508119,
+            "system": 1144260
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "files": 708
+          }
+        },
+        {
+          "stage": "compiler-start",
+          "elapsedMs": 804,
+          "heapUsedBytes": 56802600,
+          "rssBytes": 197771264,
+          "lifetimeMaxRssKiB": 193136,
+          "cpuMicroseconds": {
+            "user": 536169,
+            "system": 1166719
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "sourceBytes": 10591819,
+            "inputFiles": 709
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 867,
+          "heapUsedBytes": 60381192,
+          "rssBytes": 213417984,
+          "lifetimeMaxRssKiB": 208416,
+          "cpuMicroseconds": {
+            "user": 578362,
+            "system": 1171409
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "roots": 7
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 1576,
+          "heapUsedBytes": 185618936,
+          "rssBytes": 348045312,
+          "lifetimeMaxRssKiB": 339888,
+          "cpuMicroseconds": {
+            "user": 1811123,
+            "system": 1298051
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "sourceFiles": 292
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 4783,
+          "heapUsedBytes": 554925760,
+          "rssBytes": 709722112,
+          "lifetimeMaxRssKiB": 693088,
+          "cpuMicroseconds": {
+            "user": 7761933,
+            "system": 1717155
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-contracts/tsconfig.json",
+            "owned": 7
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 4784,
+          "heapUsedBytes": 554991312,
+          "rssBytes": 709787648,
+          "lifetimeMaxRssKiB": 693152,
+          "cpuMicroseconds": {
+            "user": 7762275,
+            "system": 1717291
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "roots": 95
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 5762,
+          "heapUsedBytes": 769707168,
+          "rssBytes": 930414592,
+          "lifetimeMaxRssKiB": 908608,
+          "cpuMicroseconds": {
+            "user": 9286086,
+            "system": 1914296
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "sourceFiles": 929
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 16310,
+          "heapUsedBytes": 1287632112,
+          "rssBytes": 1342783488,
+          "lifetimeMaxRssKiB": 1373824,
+          "cpuMicroseconds": {
+            "user": 24380730,
+            "system": 2844307
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/hub-web/tsconfig.json",
+            "owned": 96
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 16310,
+          "heapUsedBytes": 1287637584,
+          "rssBytes": 1342783488,
+          "lifetimeMaxRssKiB": 1373824,
+          "cpuMicroseconds": {
+            "user": 24380841,
+            "system": 2844421
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "roots": 6
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 16759,
+          "heapUsedBytes": 1407701904,
+          "rssBytes": 1354547200,
+          "lifetimeMaxRssKiB": 1373824,
+          "cpuMicroseconds": {
+            "user": 24898050,
+            "system": 2943506
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "sourceFiles": 289
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 17087,
+          "heapUsedBytes": 1457494632,
+          "rssBytes": 1370292224,
+          "lifetimeMaxRssKiB": 1373824,
+          "cpuMicroseconds": {
+            "user": 25364709,
+            "system": 3008931
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/packages/mex-mcp/tsconfig.json",
+            "owned": 6
+          }
+        },
+        {
+          "stage": "ts-project-start",
+          "elapsedMs": 17088,
+          "heapUsedBytes": 1457498968,
+          "rssBytes": 1370292224,
+          "lifetimeMaxRssKiB": 1373824,
+          "cpuMicroseconds": {
+            "user": 25364796,
+            "system": 3009079
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "roots": 442
+          }
+        },
+        {
+          "stage": "ts-program-created",
+          "elapsedMs": 18252,
+          "heapUsedBytes": 440671704,
+          "rssBytes": 1440350208,
+          "lifetimeMaxRssKiB": 1406592,
+          "cpuMicroseconds": {
+            "user": 26969552,
+            "system": 3179551
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "sourceFiles": 1216
+          }
+        },
+        {
+          "stage": "ts-project-end",
+          "elapsedMs": 37452,
+          "heapUsedBytes": 1210058912,
+          "rssBytes": 1257455616,
+          "lifetimeMaxRssKiB": 1539600,
+          "cpuMicroseconds": {
+            "user": 50878058,
+            "system": 4147203
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "config": "<repo>/tsconfig.json",
+            "owned": 442
+          }
+        },
+        {
+          "stage": "compiler-end",
+          "elapsedMs": 48921,
+          "heapUsedBytes": 1068317480,
+          "rssBytes": 1806123008,
+          "lifetimeMaxRssKiB": 1778704,
+          "cpuMicroseconds": {
+            "user": 65351144,
+            "system": 5304210
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "files": 701,
+            "projects": 5
+          }
+        },
+        {
+          "stage": "grammar-start",
+          "elapsedMs": 48922,
+          "heapUsedBytes": 1069021176,
+          "rssBytes": 1806221312,
+          "lifetimeMaxRssKiB": 1778704,
+          "cpuMicroseconds": {
+            "user": 65352302,
+            "system": 5304366
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "grammar-end",
+          "elapsedMs": 48939,
+          "heapUsedBytes": 1062625496,
+          "rssBytes": 1809448960,
+          "lifetimeMaxRssKiB": 1778704,
+          "cpuMicroseconds": {
+            "user": 65368169,
+            "system": 5307426
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "materialize-end",
+          "elapsedMs": 49268,
+          "heapUsedBytes": 1128552944,
+          "rssBytes": 1824210944,
+          "lifetimeMaxRssKiB": 1782288,
+          "cpuMicroseconds": {
+            "user": 65743952,
+            "system": 5351962
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fallback-resolution-start",
+          "elapsedMs": 49268,
+          "heapUsedBytes": 1128556864,
+          "rssBytes": 1824210944,
+          "lifetimeMaxRssKiB": 1782288,
+          "cpuMicroseconds": {
+            "user": 65744026,
+            "system": 5352023
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fallback-resolution-end",
+          "elapsedMs": 49368,
+          "heapUsedBytes": 1164540256,
+          "rssBytes": 1836253184,
+          "lifetimeMaxRssKiB": 1804352,
+          "cpuMicroseconds": {
+            "user": 65862257,
+            "system": 5368141
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fingerprints-start",
+          "elapsedMs": 49398,
+          "heapUsedBytes": 1178104848,
+          "rssBytes": 1841774592,
+          "lifetimeMaxRssKiB": 1804352,
+          "cpuMicroseconds": {
+            "user": 65897094,
+            "system": 5370552
+          },
+          "nativePrepares": 708,
+          "metadata": {}
+        },
+        {
+          "stage": "fingerprints-end",
+          "elapsedMs": 50783,
+          "heapUsedBytes": 1206845184,
+          "rssBytes": 1866874880,
+          "lifetimeMaxRssKiB": 1823120,
+          "cpuMicroseconds": {
+            "user": 67509844,
+            "system": 5435396
+          },
+          "nativePrepares": 708,
+          "metadata": {
+            "fingerprints": 23376
+          }
+        },
+        {
+          "stage": "old-graph-start",
+          "elapsedMs": 50791,
+          "heapUsedBytes": 1208991472,
+          "rssBytes": 1871626240,
+          "lifetimeMaxRssKiB": 1827760,
+          "cpuMicroseconds": {
+            "user": 67516956,
+            "system": 5436666
+          },
+          "nativePrepares": 1390,
+          "metadata": {}
+        },
+        {
+          "stage": "old-graph-end",
+          "elapsedMs": 54004,
+          "heapUsedBytes": 1300395424,
+          "rssBytes": 1804451840,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 68797618,
+            "system": 5613765
+          },
+          "nativePrepares": 33535,
+          "metadata": {
+            "nodes": 32143,
+            "fingerprints": 22597
+          }
+        },
+        {
+          "stage": "clear-start",
+          "elapsedMs": 54302,
+          "heapUsedBytes": 1309906272,
+          "rssBytes": 1756643328,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 68893055,
+            "system": 5659608
+          },
+          "nativePrepares": 33535,
+          "metadata": {}
+        },
+        {
+          "stage": "clear-end",
+          "elapsedMs": 65855,
+          "heapUsedBytes": 1309911392,
+          "rssBytes": 1005617152,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 70627231,
+            "system": 8119231
+          },
+          "nativePrepares": 33535,
+          "metadata": {}
+        },
+        {
+          "stage": "source-chunks-end",
+          "elapsedMs": 67646,
+          "heapUsedBytes": 1313267752,
+          "rssBytes": 968933376,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 72142657,
+            "system": 8253877
+          },
+          "nativePrepares": 44833,
+          "metadata": {}
+        },
+        {
+          "stage": "insert-nodes-end",
+          "elapsedMs": 71751,
+          "heapUsedBytes": 1321599880,
+          "rssBytes": 1073446912,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 74707253,
+            "system": 8708563
+          },
+          "nativePrepares": 77954,
+          "metadata": {}
+        },
+        {
+          "stage": "insert-edges-end",
+          "elapsedMs": 87503,
+          "heapUsedBytes": 1327931528,
+          "rssBytes": 598540288,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 81391924,
+            "system": 10583306
+          },
+          "nativePrepares": 350266,
+          "metadata": {
+            "edges": 87048
+          }
+        },
+        {
+          "stage": "insert-fingerprints-end",
+          "elapsedMs": 91853,
+          "heapUsedBytes": 1326138216,
+          "rssBytes": 643776512,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 83550904,
+            "system": 11832649
+          },
+          "nativePrepares": 350316,
+          "metadata": {}
+        },
+        {
+          "stage": "aliases-end",
+          "elapsedMs": 95727,
+          "heapUsedBytes": 1517018216,
+          "rssBytes": 855343104,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86296689,
+            "system": 12143422
+          },
+          "nativePrepares": 399764,
+          "metadata": {}
+        },
+        {
+          "stage": "fts-end",
+          "elapsedMs": 96186,
+          "heapUsedBytes": 1517026392,
+          "rssBytes": 841351168,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86367884,
+            "system": 12174171
+          },
+          "nativePrepares": 399764,
+          "metadata": {}
+        },
+        {
+          "stage": "invariants-end",
+          "elapsedMs": 96898,
+          "heapUsedBytes": 1517034208,
+          "rssBytes": 827834368,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86432019,
+            "system": 12221468
+          },
+          "nativePrepares": 399767,
+          "metadata": {}
+        },
+        {
+          "stage": "publication-end",
+          "elapsedMs": 99648,
+          "heapUsedBytes": 1517046344,
+          "rssBytes": 596983808,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86498158,
+            "system": 12724562
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "sync-returned",
+          "elapsedMs": 99705,
+          "heapUsedBytes": 1517693248,
+          "rssBytes": 606912512,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86501184,
+            "system": 12759014
+          },
+          "nativePrepares": 399775,
+          "metadata": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 99449
+          }
+        },
+        {
+          "stage": "engine-closed",
+          "elapsedMs": 100208,
+          "heapUsedBytes": 1517698304,
+          "rssBytes": 612597760,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86503063,
+            "system": 12909110
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "after-forced-gc",
+          "elapsedMs": 100589,
+          "heapUsedBytes": 52125632,
+          "rssBytes": 707641344,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86632693,
+            "system": 12985786
+          },
+          "nativePrepares": 399775,
+          "metadata": {}
+        },
+        {
+          "stage": "noop-returned",
+          "elapsedMs": 100984,
+          "heapUsedBytes": 64573400,
+          "rssBytes": 713375744,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86811938,
+            "system": 13046215
+          },
+          "nativePrepares": 400510,
+          "metadata": {
+            "filesIndexed": 0,
+            "nodesCreated": 0,
+            "edgesCreated": 0,
+            "durationMs": 394
+          }
+        },
+        {
+          "stage": "after-noop-gc",
+          "elapsedMs": 101308,
+          "heapUsedBytes": 52219672,
+          "rssBytes": 712998912,
+          "lifetimeMaxRssKiB": 1828608,
+          "cpuMicroseconds": {
+            "user": 86888515,
+            "system": 13055857
+          },
+          "nativePrepares": 400510,
+          "metadata": {}
+        }
+      ]
+    },
+    "real-outer-repeat": {
+      "variant": "outer-owned fingerprint transaction",
+      "repeatedFullWork": true,
+      "v8OldSpaceMiB": null,
+      "cycles": [
+        {
+          "durationMs": 90237,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 90237
+          },
+          "nativePreparesCumulative": 399092,
+          "nativePreparesSincePreviousSync": 399092,
+          "returnMemory": {
+            "heapUsed": 1575282424,
+            "heapTotal": 1665564672,
+            "rss": 1246035968,
+            "external": 39554259,
+            "arrayBuffers": 3871040,
+            "maxRSSKiB": 1942112
+          },
+          "postGcMemory": {
+            "heapUsed": 54262416,
+            "heapTotal": 96239616,
+            "rss": 1298399232,
+            "external": 36242231,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 1942112
+          }
+        },
+        {
+          "durationMs": 79186,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 79186
+          },
+          "nativePreparesCumulative": 751207,
+          "nativePreparesSincePreviousSync": 352115,
+          "returnMemory": {
+            "heapUsed": 1565474288,
+            "heapTotal": 1635024896,
+            "rss": 998522880,
+            "external": 39008905,
+            "arrayBuffers": 3329312,
+            "maxRSSKiB": 1942112
+          },
+          "postGcMemory": {
+            "heapUsed": 54125696,
+            "heapTotal": 96862208,
+            "rss": 1060143104,
+            "external": 36238605,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 1942112
+          }
+        },
+        {
+          "durationMs": 82681,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 82681
+          },
+          "nativePreparesCumulative": 1103322,
+          "nativePreparesSincePreviousSync": 352115,
+          "returnMemory": {
+            "heapUsed": 442125376,
+            "heapTotal": 1652080640,
+            "rss": 1566867456,
+            "external": 36314761,
+            "arrayBuffers": 635168,
+            "maxRSSKiB": 2009120
+          },
+          "postGcMemory": {
+            "heapUsed": 55052568,
+            "heapTotal": 97910784,
+            "rss": 1544208384,
+            "external": 36238605,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 2009120
+          }
+        }
+      ],
+      "noop": {
+        "filesIndexed": 0,
+        "nodesCreated": 0,
+        "edgesCreated": 0,
+        "durationMs": 308
+      },
+      "processLifetime": {
+        "label": "real-outer-repeat",
+        "dbPath": "<experiment>/real-outer-repeat.sqlite",
+        "elapsedMs": 255477.405042,
+        "memory": {
+          "rss": 1548910592,
+          "heapTotal": 97910784,
+          "heapUsed": 54985240,
+          "external": 36238605,
+          "arrayBuffers": 559012
+        },
+        "resourceUsage": {
+          "userCPUTime": 254841692,
+          "systemCPUTime": 29758297,
+          "maxRSS": 2009120,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 938710,
+          "majorPageFault": 281,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 7,
+          "signalsCount": 103350,
+          "voluntaryContextSwitches": 160786,
+          "involuntaryContextSwitches": 1196418
+        },
+        "prepares": 1104057
+      },
+      "stages": []
+    },
+    "real-outer-stmtcache-repeat": {
+      "variant": "outer-owned fingerprint transaction; bounded statement reuse",
+      "repeatedFullWork": true,
+      "v8OldSpaceMiB": null,
+      "cycles": [
+        {
+          "durationMs": 75620,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 75620
+          },
+          "nativePreparesCumulative": 42,
+          "nativePreparesSincePreviousSync": 42,
+          "returnMemory": {
+            "heapUsed": 2460181016,
+            "heapTotal": 2536325120,
+            "rss": 1989935104,
+            "external": 40030219,
+            "arrayBuffers": 4347000,
+            "maxRSSKiB": 2286192
+          },
+          "postGcMemory": {
+            "heapUsed": 54260880,
+            "heapTotal": 94928896,
+            "rss": 1952088064,
+            "external": 36242231,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 2286192
+          }
+        },
+        {
+          "durationMs": 67490,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 67490
+          },
+          "nativePreparesCumulative": 83,
+          "nativePreparesSincePreviousSync": 41,
+          "returnMemory": {
+            "heapUsed": 1469165896,
+            "heapTotal": 2019557376,
+            "rss": 1855848448,
+            "external": 38681225,
+            "arrayBuffers": 3001632,
+            "maxRSSKiB": 2344768
+          },
+          "postGcMemory": {
+            "heapUsed": 54118408,
+            "heapTotal": 100007936,
+            "rss": 1792851968,
+            "external": 36238605,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 2344768
+          }
+        },
+        {
+          "durationMs": 80050,
+          "result": {
+            "filesIndexed": 708,
+            "nodesCreated": 33121,
+            "edgesCreated": 87048,
+            "health": {
+              "ok": 708,
+              "partial": 0,
+              "failed": 0
+            },
+            "durationMs": 80050
+          },
+          "nativePreparesCumulative": 124,
+          "nativePreparesSincePreviousSync": 41,
+          "returnMemory": {
+            "heapUsed": 2417504904,
+            "heapTotal": 2506244096,
+            "rss": 1220722688,
+            "external": 39000713,
+            "arrayBuffers": 3321120,
+            "maxRSSKiB": 2582560
+          },
+          "postGcMemory": {
+            "heapUsed": 54943000,
+            "heapTotal": 97386496,
+            "rss": 1270890496,
+            "external": 36238605,
+            "arrayBuffers": 559012,
+            "maxRSSKiB": 2582560
+          }
+        }
+      ],
+      "noop": {
+        "filesIndexed": 0,
+        "nodesCreated": 0,
+        "edgesCreated": 0,
+        "durationMs": 447
+      },
+      "processLifetime": {
+        "label": "real-outer-stmtcache-repeat",
+        "dbPath": "<experiment>/real-outer-stmtcache-repeat.sqlite",
+        "elapsedMs": 227436.207041,
+        "memory": {
+          "rss": 1272430592,
+          "heapTotal": 97386496,
+          "heapUsed": 54875048,
+          "external": 36238605,
+          "arrayBuffers": 559012
+        },
+        "resourceUsage": {
+          "userCPUTime": 222677045,
+          "systemCPUTime": 26588721,
+          "maxRSS": 2582560,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 548096,
+          "majorPageFault": 271,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 7,
+          "signalsCount": 86498,
+          "voluntaryContextSwitches": 130722,
+          "involuntaryContextSwitches": 897660
+        },
+        "prepares": 141
+      },
+      "stages": []
+    },
+    "real-outer-stmtcache-heap1024": {
+      "variant": "outer-owned transaction and bounded statement reuse",
+      "v8OldSpaceMiB": 1024,
+      "failure": {
+        "status": "failed",
+        "signal": "SIGABRT",
+        "pid": 66966,
+        "cause": "V8 heap exhaustion",
+        "proof": [
+          "node::OOMErrorHandler",
+          "v8::internal::V8::FatalProcessOutOfMemory",
+          "v8::internal::Heap::FatalProcessOutOfMemory"
+        ],
+        "lastInstrumentedStage": "ts-program-created:root tsconfig",
+        "observedDurationMs": 48046,
+        "maxSampledRssKiB": 1299952,
+        "seedAndFailedDatabaseSha256": "0b6dd1f8e161f19e4a15111f125a83d2245f01c01e791f21e38f2c8a4a61af41",
+        "sourceSpoolAfterFatalExitBytes": 10594835,
+        "sourceSpoolCleanup": "removed exact newly created experiment spool; older unrelated spools left alone"
+      },
+      "lastStage": {
+        "stage": "ts-program-created",
+        "elapsedMs": 17059,
+        "rss": 859701248,
+        "heapTotal": 474742784,
+        "heapUsed": 431751336,
+        "external": 2259388,
+        "arrayBuffers": 141707,
+        "maxRSSKiB": 1171936,
+        "cpu": {
+          "user": 28993085,
+          "system": 2321754
+        },
+        "prepares": 17,
+        "metadata": {
+          "config": "<repo>/tsconfig.json",
+          "sourceFiles": 1216
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Single workstation and real source corpus; profiler and host overhead; not calibrated release timings.",
+    "RSS, physical footprint, live heap and external memory are different overlapping metrics.",
+    "First repeated-series startup briefly overlapped the end of parity validation; use it for retention, not precise timing.",
+    "Repeated full work uses a nonempty source hint without changing actual source bytes.",
+    "Three GC observations per series cannot exclude native leaks or a slow retained-memory slope.",
+    "Fingerprint experiment omits nested savepoint only in a temporary bundle; production standalone API must retain atomicity.",
+    "Statement reuse experiment caches at most256native statements per database, clears on close; production iterators/reentrancy remain to be designed.",
+    "Initial supervisor depended on successful ps samples for deadline checks; later heap experiment independently checks deadline and escalates termination."
+  ],
+  "sqliteMicrobenchmarks": [
+    {
+      "n": 1000,
+      "mode": "nested",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 56.41541600000001,
+      "cpuMs": 67.638,
+      "processPeakRSSBeforeValidation": 97040,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "1c9ea9d097db0b965be99f5b899b6a6beefbdc5642f4f724f2e364eef1824a9d"
+    },
+    {
+      "n": 1000,
+      "mode": "outer",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 33.072708000000006,
+      "cpuMs": 43.442,
+      "processPeakRSSBeforeValidation": 83280,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "1c9ea9d097db0b965be99f5b899b6a6beefbdc5642f4f724f2e364eef1824a9d"
+    },
+    {
+      "n": 1000,
+      "mode": "chunked",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 39.47562500000001,
+      "cpuMs": 50.065,
+      "processPeakRSSBeforeValidation": 88272,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "1c9ea9d097db0b965be99f5b899b6a6beefbdc5642f4f724f2e364eef1824a9d"
+    },
+    {
+      "n": 1000,
+      "mode": "nested",
+      "tempStore": "FILE",
+      "fail": false,
+      "failure": null,
+      "writeMs": 173.860084,
+      "cpuMs": 149.595,
+      "processPeakRSSBeforeValidation": 82592,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "1c9ea9d097db0b965be99f5b899b6a6beefbdc5642f4f724f2e364eef1824a9d"
+    },
+    {
+      "n": 2000,
+      "mode": "nested",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 268.033542,
+      "cpuMs": 280.795,
+      "processPeakRSSBeforeValidation": 146448,
+      "counts": {
+        "parent": 2000,
+        "buckets": 64000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "5ad06faa071e9c5c931a0f2ccc3598635ca2b574ed901e3ebbd5003e25511271"
+    },
+    {
+      "n": 2000,
+      "mode": "outer",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 63.546583999999996,
+      "cpuMs": 84.881,
+      "processPeakRSSBeforeValidation": 111872,
+      "counts": {
+        "parent": 2000,
+        "buckets": 64000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "5ad06faa071e9c5c931a0f2ccc3598635ca2b574ed901e3ebbd5003e25511271"
+    },
+    {
+      "n": 2000,
+      "mode": "chunked",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 85.14824999999999,
+      "cpuMs": 109.148,
+      "processPeakRSSBeforeValidation": 119424,
+      "counts": {
+        "parent": 2000,
+        "buckets": 64000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "5ad06faa071e9c5c931a0f2ccc3598635ca2b574ed901e3ebbd5003e25511271"
+    },
+    {
+      "n": 2000,
+      "mode": "nested",
+      "tempStore": "FILE",
+      "fail": false,
+      "failure": null,
+      "writeMs": 270.42029199999996,
+      "cpuMs": 277.097,
+      "processPeakRSSBeforeValidation": 111392,
+      "counts": {
+        "parent": 2000,
+        "buckets": 64000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "5ad06faa071e9c5c931a0f2ccc3598635ca2b574ed901e3ebbd5003e25511271"
+    },
+    {
+      "n": 4000,
+      "mode": "nested",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 1679.4848339999999,
+      "cpuMs": 1721.625,
+      "processPeakRSSBeforeValidation": 227728,
+      "counts": {
+        "parent": 4000,
+        "buckets": 128000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "e4e0df844494989c2361eaf5171c22a6cfacb3a07067af80cfc0ee085a47d47f"
+    },
+    {
+      "n": 4000,
+      "mode": "outer",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 141.15587499999998,
+      "cpuMs": 184.957,
+      "processPeakRSSBeforeValidation": 161616,
+      "counts": {
+        "parent": 4000,
+        "buckets": 128000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "e4e0df844494989c2361eaf5171c22a6cfacb3a07067af80cfc0ee085a47d47f"
+    },
+    {
+      "n": 4000,
+      "mode": "chunked",
+      "tempStore": "MEMORY",
+      "fail": false,
+      "failure": null,
+      "writeMs": 209.59279199999997,
+      "cpuMs": 253.153,
+      "processPeakRSSBeforeValidation": 170512,
+      "counts": {
+        "parent": 4000,
+        "buckets": 128000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "e4e0df844494989c2361eaf5171c22a6cfacb3a07067af80cfc0ee085a47d47f"
+    },
+    {
+      "n": 4000,
+      "mode": "nested",
+      "tempStore": "FILE",
+      "fail": false,
+      "failure": null,
+      "writeMs": 564.145292,
+      "cpuMs": 612.788,
+      "processPeakRSSBeforeValidation": 161136,
+      "counts": {
+        "parent": 4000,
+        "buckets": 128000
+      },
+      "fkViolations": 0,
+      "rollbackExact": null,
+      "digest": "e4e0df844494989c2361eaf5171c22a6cfacb3a07067af80cfc0ee085a47d47f"
+    },
+    {
+      "n": 1000,
+      "mode": "nested",
+      "tempStore": "MEMORY",
+      "fail": true,
+      "failure": "FOREIGN KEY constraint failed",
+      "writeMs": 16.521791000000007,
+      "cpuMs": 27.439,
+      "processPeakRSSBeforeValidation": 87776,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": true,
+      "digest": "1eb0fa708e16ec0d06388a444d10adc8d624f20a8527627095bb4bef3bf8a37b"
+    },
+    {
+      "n": 1000,
+      "mode": "outer",
+      "tempStore": "MEMORY",
+      "fail": true,
+      "failure": "FOREIGN KEY constraint failed",
+      "writeMs": 12.76279199999999,
+      "cpuMs": 23.636,
+      "processPeakRSSBeforeValidation": 80768,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": true,
+      "digest": "1eb0fa708e16ec0d06388a444d10adc8d624f20a8527627095bb4bef3bf8a37b"
+    },
+    {
+      "n": 1000,
+      "mode": "chunked",
+      "tempStore": "MEMORY",
+      "fail": true,
+      "failure": "FOREIGN KEY constraint failed",
+      "writeMs": 15.415667,
+      "cpuMs": 26.35,
+      "processPeakRSSBeforeValidation": 85760,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": true,
+      "digest": "1eb0fa708e16ec0d06388a444d10adc8d624f20a8527627095bb4bef3bf8a37b"
+    },
+    {
+      "n": 1000,
+      "mode": "nested",
+      "tempStore": "FILE",
+      "fail": true,
+      "failure": "FOREIGN KEY constraint failed",
+      "writeMs": 50.757875,
+      "cpuMs": 59.243,
+      "processPeakRSSBeforeValidation": 80880,
+      "counts": {
+        "parent": 1000,
+        "buckets": 32000
+      },
+      "fkViolations": 0,
+      "rollbackExact": true,
+      "digest": "1eb0fa708e16ec0d06388a444d10adc8d624f20a8527627095bb4bef3bf8a37b"
+    }
+  ],
+  "parityChecks": [
+    {
+      "labels": [
+        "real-baseline",
+        "real-outer-repeat",
+        "real-outer-stmtcache-repeat"
+      ],
+      "allEqual": true,
+      "excludedColumns": {
+        "nodes": [
+          "updated_at"
+        ],
+        "edges": [
+          "id"
+        ],
+        "files": [
+          "indexed_at"
+        ],
+        "unresolved_refs": [
+          "id"
+        ],
+        "node_aliases": [
+          "created_at"
+        ],
+        "source_chunks": [
+          "id"
+        ],
+        "schema_versions": [
+          "applied_at"
+        ],
+        "project_metadata": [
+          "updated_at"
+        ],
+        "node_fingerprints": [
+          "ref"
+        ]
+      },
+      "snapshotExcluded": [
+        "indexedAt",
+        "lastSuccessfulIndexAt"
+      ],
+      "results": {
+        "real-baseline": {
+          "tables": {
+            "_mex_grounded_source": {
+              "rows": 13,
+              "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+            },
+            "edges": {
+              "rows": 87048,
+              "sha256": "f4d6dc24d3ba892aae8368cfa3a646c21df8e258dab5761779c850d55b879a61"
+            },
+            "files": {
+              "rows": 708,
+              "sha256": "59653fd28a849882736b4a1f59f088d1d25e42bf898da3cbc3a7668daed2cd21"
+            },
+            "import_bindings": {
+              "rows": 11062,
+              "sha256": "92de1ec993b07fdd838b4253255a848edce82d3263c2b804c27a3c9d7b68ed54"
+            },
+            "lsh_buckets": {
+              "rows": 748032,
+              "sha256": "f87bd5290d4282281805e952f1c6ee49099a95f0f030885970a4537a95f4ade8"
+            },
+            "node_aliases": {
+              "rows": 1465,
+              "sha256": "495f16e9b73f4fb8aa2f8b757e9d43da446b6df340b8ee9cff1de669b80308af"
+            },
+            "node_fingerprints": {
+              "rows": 23376,
+              "sha256": "4014ca2ecc981b15f9800b32a8250dda83b6e90cfd056fa419c7ac5bfab03273"
+            },
+            "nodes": {
+              "rows": 33121,
+              "sha256": "abb2cd9fe0a142766d249d3bc84aee12b3be52d68c52c6b63a16205622481501"
+            },
+            "project_metadata": {
+              "rows": 9,
+              "sha256": "75c72d2d96d0284c399b1a7cba61be4665a10faee651612acc6ba31a1cc7a698"
+            },
+            "schema_versions": {
+              "rows": 4,
+              "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+            },
+            "source_chunks": {
+              "rows": 4587,
+              "sha256": "ead9cc9cd850c4d20b6e2dd169927d27570eeb87f379da0954ca289b3a96587e"
+            },
+            "unresolved_refs": {
+              "rows": 87154,
+              "sha256": "295ad1cfb16b0fd0a22aaf9542e77270d2156b827ef65d954c00e11dd848ea5d"
+            }
+          },
+          "foreignKeyViolations": [],
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "fts": {
+            "graph": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "f5e96f006be23247cc7004e17b44b9093cd3255210075d0c1043bc5aadb470ba"
+            },
+            "compiler": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "bcabe6b0ce020c5a8fa892430a89b09f3105c58e7bbcc4e892fa0d6900293082"
+            },
+            "relay": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "2c58bea0e096e68446c2032249a55593505eea7b5e395d895d2f8b9d2727e287"
+            },
+            "fingerprint": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "ee4552ac447f2dc476d0fc46e8e143a75c272e4bf32fdb5aacae9dc50b50e6f8"
+            }
+          }
+        },
+        "real-outer-repeat": {
+          "tables": {
+            "_mex_grounded_source": {
+              "rows": 13,
+              "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+            },
+            "edges": {
+              "rows": 87048,
+              "sha256": "f4d6dc24d3ba892aae8368cfa3a646c21df8e258dab5761779c850d55b879a61"
+            },
+            "files": {
+              "rows": 708,
+              "sha256": "59653fd28a849882736b4a1f59f088d1d25e42bf898da3cbc3a7668daed2cd21"
+            },
+            "import_bindings": {
+              "rows": 11062,
+              "sha256": "92de1ec993b07fdd838b4253255a848edce82d3263c2b804c27a3c9d7b68ed54"
+            },
+            "lsh_buckets": {
+              "rows": 748032,
+              "sha256": "f87bd5290d4282281805e952f1c6ee49099a95f0f030885970a4537a95f4ade8"
+            },
+            "node_aliases": {
+              "rows": 1465,
+              "sha256": "495f16e9b73f4fb8aa2f8b757e9d43da446b6df340b8ee9cff1de669b80308af"
+            },
+            "node_fingerprints": {
+              "rows": 23376,
+              "sha256": "4014ca2ecc981b15f9800b32a8250dda83b6e90cfd056fa419c7ac5bfab03273"
+            },
+            "nodes": {
+              "rows": 33121,
+              "sha256": "abb2cd9fe0a142766d249d3bc84aee12b3be52d68c52c6b63a16205622481501"
+            },
+            "project_metadata": {
+              "rows": 9,
+              "sha256": "75c72d2d96d0284c399b1a7cba61be4665a10faee651612acc6ba31a1cc7a698"
+            },
+            "schema_versions": {
+              "rows": 4,
+              "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+            },
+            "source_chunks": {
+              "rows": 4587,
+              "sha256": "ead9cc9cd850c4d20b6e2dd169927d27570eeb87f379da0954ca289b3a96587e"
+            },
+            "unresolved_refs": {
+              "rows": 87154,
+              "sha256": "295ad1cfb16b0fd0a22aaf9542e77270d2156b827ef65d954c00e11dd848ea5d"
+            }
+          },
+          "foreignKeyViolations": [],
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "fts": {
+            "graph": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "f5e96f006be23247cc7004e17b44b9093cd3255210075d0c1043bc5aadb470ba"
+            },
+            "compiler": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "bcabe6b0ce020c5a8fa892430a89b09f3105c58e7bbcc4e892fa0d6900293082"
+            },
+            "relay": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "2c58bea0e096e68446c2032249a55593505eea7b5e395d895d2f8b9d2727e287"
+            },
+            "fingerprint": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "ee4552ac447f2dc476d0fc46e8e143a75c272e4bf32fdb5aacae9dc50b50e6f8"
+            }
+          }
+        },
+        "real-outer-stmtcache-repeat": {
+          "tables": {
+            "_mex_grounded_source": {
+              "rows": 13,
+              "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+            },
+            "edges": {
+              "rows": 87048,
+              "sha256": "f4d6dc24d3ba892aae8368cfa3a646c21df8e258dab5761779c850d55b879a61"
+            },
+            "files": {
+              "rows": 708,
+              "sha256": "59653fd28a849882736b4a1f59f088d1d25e42bf898da3cbc3a7668daed2cd21"
+            },
+            "import_bindings": {
+              "rows": 11062,
+              "sha256": "92de1ec993b07fdd838b4253255a848edce82d3263c2b804c27a3c9d7b68ed54"
+            },
+            "lsh_buckets": {
+              "rows": 748032,
+              "sha256": "f87bd5290d4282281805e952f1c6ee49099a95f0f030885970a4537a95f4ade8"
+            },
+            "node_aliases": {
+              "rows": 1465,
+              "sha256": "495f16e9b73f4fb8aa2f8b757e9d43da446b6df340b8ee9cff1de669b80308af"
+            },
+            "node_fingerprints": {
+              "rows": 23376,
+              "sha256": "4014ca2ecc981b15f9800b32a8250dda83b6e90cfd056fa419c7ac5bfab03273"
+            },
+            "nodes": {
+              "rows": 33121,
+              "sha256": "abb2cd9fe0a142766d249d3bc84aee12b3be52d68c52c6b63a16205622481501"
+            },
+            "project_metadata": {
+              "rows": 9,
+              "sha256": "75c72d2d96d0284c399b1a7cba61be4665a10faee651612acc6ba31a1cc7a698"
+            },
+            "schema_versions": {
+              "rows": 4,
+              "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+            },
+            "source_chunks": {
+              "rows": 4587,
+              "sha256": "ead9cc9cd850c4d20b6e2dd169927d27570eeb87f379da0954ca289b3a96587e"
+            },
+            "unresolved_refs": {
+              "rows": 87154,
+              "sha256": "295ad1cfb16b0fd0a22aaf9542e77270d2156b827ef65d954c00e11dd848ea5d"
+            }
+          },
+          "foreignKeyViolations": [],
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "fts": {
+            "graph": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "f5e96f006be23247cc7004e17b44b9093cd3255210075d0c1043bc5aadb470ba"
+            },
+            "compiler": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "bcabe6b0ce020c5a8fa892430a89b09f3105c58e7bbcc4e892fa0d6900293082"
+            },
+            "relay": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "2c58bea0e096e68446c2032249a55593505eea7b5e395d895d2f8b9d2727e287"
+            },
+            "fingerprint": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "ee4552ac447f2dc476d0fc46e8e143a75c272e4bf32fdb5aacae9dc50b50e6f8"
+            }
+          }
+        }
+      }
+    },
+    {
+      "labels": [
+        "real-baseline",
+        "real-outer"
+      ],
+      "allEqual": true,
+      "excludedColumns": {
+        "nodes": [
+          "updated_at"
+        ],
+        "edges": [
+          "id"
+        ],
+        "files": [
+          "indexed_at"
+        ],
+        "unresolved_refs": [
+          "id"
+        ],
+        "node_aliases": [
+          "created_at"
+        ],
+        "source_chunks": [
+          "id"
+        ],
+        "schema_versions": [
+          "applied_at"
+        ],
+        "project_metadata": [
+          "updated_at"
+        ],
+        "node_fingerprints": [
+          "ref"
+        ]
+      },
+      "snapshotExcluded": [
+        "indexedAt",
+        "lastSuccessfulIndexAt"
+      ],
+      "results": {
+        "real-baseline": {
+          "tables": {
+            "_mex_grounded_source": {
+              "rows": 13,
+              "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+            },
+            "edges": {
+              "rows": 87048,
+              "sha256": "f4d6dc24d3ba892aae8368cfa3a646c21df8e258dab5761779c850d55b879a61"
+            },
+            "files": {
+              "rows": 708,
+              "sha256": "59653fd28a849882736b4a1f59f088d1d25e42bf898da3cbc3a7668daed2cd21"
+            },
+            "import_bindings": {
+              "rows": 11062,
+              "sha256": "92de1ec993b07fdd838b4253255a848edce82d3263c2b804c27a3c9d7b68ed54"
+            },
+            "lsh_buckets": {
+              "rows": 748032,
+              "sha256": "f87bd5290d4282281805e952f1c6ee49099a95f0f030885970a4537a95f4ade8"
+            },
+            "node_aliases": {
+              "rows": 1465,
+              "sha256": "495f16e9b73f4fb8aa2f8b757e9d43da446b6df340b8ee9cff1de669b80308af"
+            },
+            "node_fingerprints": {
+              "rows": 23376,
+              "sha256": "4014ca2ecc981b15f9800b32a8250dda83b6e90cfd056fa419c7ac5bfab03273"
+            },
+            "nodes": {
+              "rows": 33121,
+              "sha256": "abb2cd9fe0a142766d249d3bc84aee12b3be52d68c52c6b63a16205622481501"
+            },
+            "project_metadata": {
+              "rows": 9,
+              "sha256": "75c72d2d96d0284c399b1a7cba61be4665a10faee651612acc6ba31a1cc7a698"
+            },
+            "schema_versions": {
+              "rows": 4,
+              "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+            },
+            "source_chunks": {
+              "rows": 4587,
+              "sha256": "ead9cc9cd850c4d20b6e2dd169927d27570eeb87f379da0954ca289b3a96587e"
+            },
+            "unresolved_refs": {
+              "rows": 87154,
+              "sha256": "295ad1cfb16b0fd0a22aaf9542e77270d2156b827ef65d954c00e11dd848ea5d"
+            }
+          },
+          "foreignKeyViolations": [],
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "fts": {
+            "graph": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "f5e96f006be23247cc7004e17b44b9093cd3255210075d0c1043bc5aadb470ba"
+            },
+            "compiler": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "bcabe6b0ce020c5a8fa892430a89b09f3105c58e7bbcc4e892fa0d6900293082"
+            },
+            "relay": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "2c58bea0e096e68446c2032249a55593505eea7b5e395d895d2f8b9d2727e287"
+            },
+            "fingerprint": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "ee4552ac447f2dc476d0fc46e8e143a75c272e4bf32fdb5aacae9dc50b50e6f8"
+            }
+          }
+        },
+        "real-outer": {
+          "tables": {
+            "_mex_grounded_source": {
+              "rows": 13,
+              "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+            },
+            "edges": {
+              "rows": 87048,
+              "sha256": "f4d6dc24d3ba892aae8368cfa3a646c21df8e258dab5761779c850d55b879a61"
+            },
+            "files": {
+              "rows": 708,
+              "sha256": "59653fd28a849882736b4a1f59f088d1d25e42bf898da3cbc3a7668daed2cd21"
+            },
+            "import_bindings": {
+              "rows": 11062,
+              "sha256": "92de1ec993b07fdd838b4253255a848edce82d3263c2b804c27a3c9d7b68ed54"
+            },
+            "lsh_buckets": {
+              "rows": 748032,
+              "sha256": "f87bd5290d4282281805e952f1c6ee49099a95f0f030885970a4537a95f4ade8"
+            },
+            "node_aliases": {
+              "rows": 1465,
+              "sha256": "495f16e9b73f4fb8aa2f8b757e9d43da446b6df340b8ee9cff1de669b80308af"
+            },
+            "node_fingerprints": {
+              "rows": 23376,
+              "sha256": "4014ca2ecc981b15f9800b32a8250dda83b6e90cfd056fa419c7ac5bfab03273"
+            },
+            "nodes": {
+              "rows": 33121,
+              "sha256": "abb2cd9fe0a142766d249d3bc84aee12b3be52d68c52c6b63a16205622481501"
+            },
+            "project_metadata": {
+              "rows": 9,
+              "sha256": "75c72d2d96d0284c399b1a7cba61be4665a10faee651612acc6ba31a1cc7a698"
+            },
+            "schema_versions": {
+              "rows": 4,
+              "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+            },
+            "source_chunks": {
+              "rows": 4587,
+              "sha256": "ead9cc9cd850c4d20b6e2dd169927d27570eeb87f379da0954ca289b3a96587e"
+            },
+            "unresolved_refs": {
+              "rows": 87154,
+              "sha256": "295ad1cfb16b0fd0a22aaf9542e77270d2156b827ef65d954c00e11dd848ea5d"
+            }
+          },
+          "foreignKeyViolations": [],
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "fts": {
+            "graph": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "f5e96f006be23247cc7004e17b44b9093cd3255210075d0c1043bc5aadb470ba"
+            },
+            "compiler": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "bcabe6b0ce020c5a8fa892430a89b09f3105c58e7bbcc4e892fa0d6900293082"
+            },
+            "relay": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "2c58bea0e096e68446c2032249a55593505eea7b5e395d895d2f8b9d2727e287"
+            },
+            "fingerprint": {
+              "nodes": 30,
+              "source": 30,
+              "sha256": "ee4552ac447f2dc476d0fc46e8e143a75c272e4bf32fdb5aacae9dc50b50e6f8"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "nativeSample": {
+    "file": "baseline-insert.sample.txt",
+    "mainThreadSamples": 1513,
+    "memjrnlTruncateSamples": 1233,
+    "physicalFootprintAsReported": "3.3G",
+    "peakPhysicalFootprintAsReported": "3.4G",
+    "sha256": "ccd680c0df5a1f603e4db13cab3ed7fe58f895b89975acba9d794aea0288cf0a"
+  },
+  "baselineCpuProfile": {
+    "file": "CPU.20260909.020015.49429.0.001.cpuprofile",
+    "sha256": "a7c3ddfa920cf20574f8a062d3e1a1824462fbfde99b06593ead02559541beff",
+    "sampledInclusiveSeconds": {
+      "captureCallReference": 23.46,
+      "callSignatureRendering": 14.986,
+      "callSignatureResolution": 6.46,
+      "parameterIsInvoked": 0.586
+    },
+    "summary": {
+      "totalMs": 315235.25,
+      "top": [
+        {
+          "name": "run",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 701,
+          "ms": 242393.20499995296,
+          "samples": 95804
+        },
+        {
+          "name": "(garbage collector)",
+          "url": "",
+          "line": 0,
+          "ms": 14117.451999999908,
+          "samples": 5744
+        },
+        {
+          "name": "exec",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 710,
+          "ms": 4146.125,
+          "samples": 1647
+        },
+        {
+          "name": "DatabaseSync.prepare",
+          "url": "file://<experiment>/run-profile.mjs",
+          "line": 13,
+          "ms": 4052.062,
+          "samples": 1627
+        },
+        {
+          "name": "",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54851,
+          "ms": 3332.497999999998,
+          "samples": 1371
+        },
+        {
+          "name": "transaction",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 718,
+          "ms": 1711.2489999999996,
+          "samples": 659
+        },
+        {
+          "name": "getAccessibleSymbolChainFromSymbolTable",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54824,
+          "ms": 1533.9939999999979,
+          "samples": 634
+        },
+        {
+          "name": "forEachEntry",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 16325,
+          "ms": 1509.1239999999987,
+          "samples": 617
+        },
+        {
+          "name": "get",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 705,
+          "ms": 1409.1299999999999,
+          "samples": 563
+        },
+        {
+          "name": "all",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 706,
+          "ms": 1313.7079999999996,
+          "samples": 530
+        },
+        {
+          "name": "digest",
+          "url": "node:internal/crypto/hash",
+          "line": 125,
+          "ms": 1120.0000000000007,
+          "samples": 449
+        },
+        {
+          "name": "Hash",
+          "url": "node:internal/crypto/hash",
+          "line": 66,
+          "ms": 946.8290000000005,
+          "samples": 374
+        },
+        {
+          "name": "canonicalJson",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 1612,
+          "ms": 723.122,
+          "samples": 291
+        },
+        {
+          "name": "copyFile",
+          "url": "",
+          "line": 0,
+          "ms": 692.5419999999999,
+          "samples": 141
+        },
+        {
+          "name": "getSymbolIfSameReference",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54631,
+          "ms": 663.4189999999999,
+          "samples": 282
+        },
+        {
+          "name": "readFileUtf8",
+          "url": "",
+          "line": 0,
+          "ms": 613.124,
+          "samples": 245
+        },
+        {
+          "name": "(idle)",
+          "url": "",
+          "line": 0,
+          "ms": 611.8329999999999,
+          "samples": 247
+        },
+        {
+          "name": "getAliasForSymbolInContainer",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54612,
+          "ms": 600.7570000000002,
+          "samples": 256
+        },
+        {
+          "name": "trySymbolTable",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54842,
+          "ms": 549.2949999999997,
+          "samples": 229
+        },
+        {
+          "name": "normalizedAbsolute",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 5095,
+          "ms": 519.332,
+          "samples": 213
+        },
+        {
+          "name": "createFingerprintInternal",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 408,
+          "ms": 434.82899999999967,
+          "samples": 178
+        },
+        {
+          "name": "scan",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 12794,
+          "ms": 423.335,
+          "samples": 205
+        },
+        {
+          "name": "read",
+          "url": "",
+          "line": 0,
+          "ms": 417.2509999999997,
+          "samples": 167
+        },
+        {
+          "name": "",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 447,
+          "ms": 406.1150000000001,
+          "samples": 163
+        },
+        {
+          "name": "update",
+          "url": "node:internal/crypto/hash",
+          "line": 107,
+          "ms": 335.21000000000004,
+          "samples": 138
+        },
+        {
+          "name": "getAccessibleSymbolChain",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54805,
+          "ms": 334.13100000000003,
+          "samples": 142
+        },
+        {
+          "name": "resolveNameHelper",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 23574,
+          "ms": 331.8369999999999,
+          "samples": 159
+        },
+        {
+          "name": "forEachSymbolTableInScope",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54738,
+          "ms": 328.4509999999999,
+          "samples": 145
+        },
+        {
+          "name": "identifierFragmentComponents",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 1458,
+          "ms": 313.455,
+          "samples": 127
+        },
+        {
+          "name": "skipTrivia",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 11781,
+          "ms": 309.67199999999997,
+          "samples": 133
+        },
+        {
+          "name": "getCandidateListForSymbol",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54872,
+          "ms": 291.95899999999995,
+          "samples": 124
+        },
+        {
+          "name": "resolve",
+          "url": "node:path",
+          "line": 1210,
+          "ms": 282.7919999999999,
+          "samples": 117
+        },
+        {
+          "name": "close",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 729,
+          "ms": 274.792,
+          "samples": 3
+        },
+        {
+          "name": "intersectsRanges",
+          "url": "file://<experiment>/engine-profile.mjs",
+          "line": 4871,
+          "ms": 267.329,
+          "samples": 109
+        },
+        {
+          "name": "resolveExternalModuleNameWorker",
+          "url": "file://<repo>/node_modules/typescript/lib/typescript.js",
+          "line": 54013,
+          "ms": 251.66899999999998,
+          "samples": 103
+        }
+      ]
+    }
+  }
+}

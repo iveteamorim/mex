@@ -1,0 +1,128 @@
+{
+  "tasks": [
+    {
+      "id": "exact-scope-entry",
+      "category": "exact-symbol",
+      "operation": "scope",
+      "query": "runGraphScope",
+      "gold": [{ "symbol": "runGraphScope", "kind": "function", "path": "src/graph/cli-agent.ts" }]
+    },
+    {
+      "id": "exact-budget-ledger",
+      "category": "exact-symbol",
+      "operation": "scope",
+      "query": "BudgetLedger",
+      "gold": [{ "symbol": "BudgetLedger", "kind": "class", "path": "src/graph/agent-protocol.ts" }]
+    },
+    {
+      "id": "scope-selection-plain",
+      "category": "natural-language-symbol",
+      "family": "scope-selection",
+      "critical": true,
+      "operation": "scope",
+      "query": "Where does Scope fuse symbol, path, node BM25, and source-chunk candidates into cohesive ranked files?",
+      "gold": [{ "symbol": "selectScope", "kind": "function", "path": "src/graph/scope.ts" }],
+      "mustNotReturn": [{ "symbol": "runImpact", "kind": "function", "path": "src/graph/cli-agent.ts" }]
+    },
+    {
+      "id": "scope-selection-terse",
+      "category": "paraphrase",
+      "family": "scope-selection",
+      "operation": "scope",
+      "query": "rank task-relevant graph nodes",
+      "gold": [{ "symbol": "selectScope", "kind": "function", "path": "src/graph/scope.ts" }]
+    },
+    {
+      "id": "scope-selection-debug",
+      "category": "paraphrase",
+      "family": "scope-selection",
+      "operation": "scope",
+      "query": "Where does a natural-language graph request become exact identifiers and normalized path terms?",
+      "gold": [{ "symbol": "planGraphQuery", "kind": "function", "path": "src/graph/retrieval/query.ts" }]
+    },
+    {
+      "id": "budget-enforcement-plain",
+      "category": "natural-language-symbol",
+      "family": "budget-enforcement",
+      "critical": true,
+      "operation": "scope",
+      "query": "How does retrieval enforce the maximum number of output tokens?",
+      "gold": [{ "symbol": "BudgetLedger", "kind": "class", "path": "src/graph/agent-protocol.ts" }]
+    },
+    {
+      "id": "budget-enforcement-terse",
+      "category": "paraphrase",
+      "family": "budget-enforcement",
+      "operation": "scope",
+      "query": "graph response token ceiling accounting",
+      "gold": [{ "symbol": "BudgetLedger", "kind": "class", "path": "src/graph/agent-protocol.ts" }]
+    },
+    {
+      "id": "budget-enforcement-vocab-gap",
+      "category": "paraphrase",
+      "family": "budget-enforcement",
+      "operation": "scope",
+      "query": "What enforces the hard output token budget when source and flow records compete for response space?",
+      "gold": [{ "symbol": "beginResponse", "kind": "function", "path": "src/graph/cli-agent.ts" }]
+    },
+    {
+      "id": "source-expansion-flow",
+      "category": "multi-symbol-flow",
+      "critical": true,
+      "operation": "scope",
+      "query": "How does Scope plan bounded source windows for selected symbols and query hits?",
+      "gold": [{ "symbol": "planFileSource", "kind": "function", "path": "src/graph/scope.ts" }]
+    },
+    {
+      "id": "impact-walk",
+      "category": "multi-symbol-flow",
+      "operation": "scope",
+      "query": "How is transitive blast radius walked from a changed code symbol?",
+      "gold": [
+        { "symbol": "runImpact", "kind": "function", "path": "src/graph/cli-agent.ts" },
+        { "symbol": "transitiveCallers", "kind": "function", "path": "src/graph/cli-agent.ts" }
+      ]
+    },
+    {
+      "id": "source-share-admission",
+      "category": "natural-language-symbol",
+      "operation": "scope",
+      "query": "Where are selected source ranges admitted within the response's reserved source share?",
+      "gold": [{ "symbol": "admitSourceWithinShare", "kind": "function", "path": "src/graph/cli-agent.ts" }]
+    },
+    {
+      "id": "where-budget-defined",
+      "category": "relationship-where-defined",
+      "operation": "query",
+      "relation": "where-defined",
+      "query": "BudgetLedger",
+      "gold": [{ "symbol": "BudgetLedger", "kind": "class", "path": "src/graph/agent-protocol.ts" }]
+    },
+    {
+      "id": "who-calls-selector",
+      "category": "relationship-who-calls",
+      "operation": "query",
+      "relation": "who-calls",
+      "query": "selectScope",
+      "gold": [{ "symbol": "runGraphScope", "kind": "function", "path": "src/graph/cli-agent.ts" }]
+    },
+    {
+      "id": "what-scope-calls",
+      "category": "relationship-what-calls",
+      "operation": "query",
+      "relation": "what-calls",
+      "query": "runGraphScope",
+      "gold": [{ "symbol": "selectScope", "kind": "function", "path": "src/graph/scope.ts" }],
+      "acceptableAlternates": [{ "symbol": "compactFact", "kind": "function", "path": "src/graph/scope.ts" }]
+    },
+    {
+      "id": "missing-symbol-abstention",
+      "category": "negative",
+      "operation": "query",
+      "relation": "where-defined",
+      "query": "DefinitelyNotARealMexSymbol",
+      "gold": [],
+      "expect": { "noResult": true, "errorCodes": ["TARGET_NOT_FOUND"] }
+    }
+  ]
+}

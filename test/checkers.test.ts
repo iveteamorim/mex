@@ -6,6 +6,7 @@ import {
   rmSync,
 } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { checkPaths } from "../src/drift/checkers/path.js";
 import { checkEdges } from "../src/drift/checkers/edges.js";
@@ -13,6 +14,8 @@ import { checkCommands } from "../src/drift/checkers/command.js";
 import { checkDependencies } from "../src/drift/checkers/dependency.js";
 import { checkCrossFile } from "../src/drift/checkers/cross-file.js";
 import { checkIndexSync } from "../src/drift/checkers/index-sync.js";
+import { checkStalePatterns } from "../src/drift/checkers/stale-pattern.js";
+import { checkFrontmatterCompleteness } from "../src/drift/checkers/frontmatter-completeness.js";
 import { checkToolConfigSync } from "../src/drift/checkers/tool-config-sync.js";
 import { checkTodoFixme } from "../src/drift/checkers/todo-fixme.js";
 import { checkBrokenLinks } from "../src/drift/checkers/broken-link.js";
@@ -53,6 +56,52 @@ describe("checkPaths", () => {
     const issues = checkPaths(claims, tmpDir, tmpDir);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("MISSING_PATH");
+  });
+
+  it("skips runtime paths the repository ignores", () => {
+    execFileSync("git", ["init", "-q"], { cwd: tmpDir });
+    writeFileSync(join(tmpDir, ".gitignore"), "generated/\n*.db\n");
+    const claims = [
+      claim({ kind: "path", value: "generated/" }),
+      claim({ kind: "path", value: "graph.db" }),
+    ];
+    expect(checkPaths(claims, tmpDir, tmpDir)).toHaveLength(0);
+  });
+
+  it("finds a scaffold file named from another scaffold file", () => {
+    const mexDir = join(tmpDir, ".mex");
+    mkdirSync(join(mexDir, "patterns"), { recursive: true });
+    writeFileSync(join(mexDir, "patterns/INDEX.md"), "");
+    const claims = [claim({ kind: "path", value: "INDEX.md" })];
+    expect(checkPaths(claims, tmpDir, mexDir)).toHaveLength(0);
+  });
+
+  it("resolves a path written from a subproject's own root", () => {
+    mkdirSync(join(tmpDir, "server/src/routes"), { recursive: true });
+    writeFileSync(join(tmpDir, "server/src/routes/quiz.ts"), "");
+    const claims = [claim({ kind: "path", value: "routes/quiz.ts" })];
+    expect(checkPaths(claims, tmpDir, tmpDir)).toHaveLength(0);
+  });
+
+  it("skips API routes and placeholders whose first segment does not exist", () => {
+    const claims = [
+      claim({ kind: "path", value: "documents/upload" }),
+      claim({ kind: "path", value: "owner/repo" }),
+    ];
+    expect(checkPaths(claims, tmpDir, tmpDir)).toHaveLength(0);
+  });
+
+  it("still reports a missing path under a directory that does exist", () => {
+    mkdirSync(join(tmpDir, "src"), { recursive: true });
+    const claims = [claim({ kind: "path", value: "src/missing.ts" })];
+    const issues = checkPaths(claims, tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("MISSING_PATH");
+  });
+
+  it("skips naming-convention examples", () => {
+    const claims = [claim({ kind: "path", value: "PascalCase.tsx" })];
+    expect(checkPaths(claims, tmpDir, tmpDir)).toHaveLength(0);
   });
 
   it("passes for existing paths", () => {
@@ -221,12 +270,114 @@ describe("checkEdges", () => {
     expect(issues).toHaveLength(0);
   });
 
+  it("resolves an edge target relative to the file that declares it", () => {
+    const mexDir = join(tmpDir, ".mex");
+    mkdirSync(join(mexDir, "context"), { recursive: true });
+    mkdirSync(join(mexDir, "patterns"), { recursive: true });
+    writeFileSync(join(mexDir, "context/architecture.md"), "");
+    const file = join(mexDir, "patterns/durable-change-signal.md");
+    writeFileSync(file, "");
+    const fm: ScaffoldFrontmatter = {
+      edges: [{ target: "../context/architecture.md" }],
+    };
+    const issues = checkEdges(fm, file, ".mex/patterns/durable-change-signal.md", tmpDir, mexDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("resolves a sibling edge target from inside patterns/", () => {
+    const mexDir = join(tmpDir, ".mex");
+    mkdirSync(join(mexDir, "patterns"), { recursive: true });
+    writeFileSync(join(mexDir, "patterns/safe-graph-snapshot-evolution.md"), "");
+    const file = join(mexDir, "patterns/durable-change-signal.md");
+    writeFileSync(file, "");
+    const fm: ScaffoldFrontmatter = {
+      edges: [{ target: "safe-graph-snapshot-evolution.md" }],
+    };
+    const issues = checkEdges(fm, file, ".mex/patterns/durable-change-signal.md", tmpDir, mexDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("still reports an edge target that resolves nowhere", () => {
+    const mexDir = join(tmpDir, ".mex");
+    mkdirSync(join(mexDir, "patterns"), { recursive: true });
+    const file = join(mexDir, "patterns/example.md");
+    writeFileSync(file, "");
+    const fm: ScaffoldFrontmatter = {
+      edges: [{ target: "../context/nowhere.md" }],
+    };
+    const issues = checkEdges(fm, file, ".mex/patterns/example.md", tmpDir, mexDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      code: "DEAD_EDGE",
+      file: ".mex/patterns/example.md",
+      message: "Frontmatter edge target does not exist: ../context/nowhere.md",
+    });
+  });
+
   it("returns empty for no frontmatter", () => {
     expect(checkEdges(null, "f", "f", tmpDir, tmpDir)).toEqual([]);
   });
 
   it("returns empty for no edges", () => {
     expect(checkEdges({ name: "test" }, "f", "f", tmpDir, tmpDir)).toEqual([]);
+  });
+});
+
+// ── Frontmatter Completeness Checker ──
+
+describe("checkFrontmatterCompleteness", () => {
+  it("flags missing recommended fields in a context file", () => {
+    const fm: ScaffoldFrontmatter = { name: "stack" };
+    const issues = checkFrontmatterCompleteness(fm, "context/stack.md");
+    expect(issues).toHaveLength(2);
+    expect(issues.map((i) => i.code)).toEqual(["MISSING_FRONTMATTER_FIELD", "MISSING_FRONTMATTER_FIELD"]);
+    expect(issues[0].severity).toBe("warning");
+  });
+
+  it("flags missing recommended fields in a pattern file", () => {
+    const fm: ScaffoldFrontmatter = { name: "auth", description: "Auth pattern" };
+    const issues = checkFrontmatterCompleteness(fm, "patterns/auth.md");
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toContain("last_updated");
+  });
+
+  it("passes when all recommended fields exist", () => {
+    const fm: ScaffoldFrontmatter = {
+      name: "stack",
+      description: "Tech stack",
+      last_updated: "2026-01-01",
+    };
+    const issues = checkFrontmatterCompleteness(fm, "context/stack.md");
+    expect(issues).toHaveLength(0);
+  });
+
+  it("ignores files outside context/ and patterns/", () => {
+    const issues = checkFrontmatterCompleteness({}, "ROUTER.md");
+    expect(issues).toHaveLength(0);
+  });
+
+  it("ignores files with no frontmatter outside context/ and patterns/", () => {
+    expect(checkFrontmatterCompleteness(null, "ROUTER.md")).toEqual([]);
+  });
+
+  it("flags all three fields when an in-scope file has no frontmatter at all", () => {
+    const issues = checkFrontmatterCompleteness(null, "context/stack.md");
+    expect(issues).toHaveLength(3);
+    expect(issues.every((i) => i.code === "MISSING_FRONTMATTER_FIELD")).toBe(true);
+  });
+
+  it("exempts patterns/INDEX.md and patterns/README.md, which ship without frontmatter", () => {
+    expect(checkFrontmatterCompleteness(null, "patterns/INDEX.md")).toEqual([]);
+    expect(checkFrontmatterCompleteness(null, "patterns/README.md")).toEqual([]);
+    expect(checkFrontmatterCompleteness(null, ".mex/patterns/INDEX.md")).toEqual([]);
+  });
+
+  it("still checks same-named files under context/, which the exemption must not cover", () => {
+    for (const source of ["context/README.md", "context/INDEX.md", ".mex/context/README.md"]) {
+      const issues = checkFrontmatterCompleteness(null, source);
+      expect(issues).toHaveLength(3);
+      expect(issues.every((i) => i.code === "MISSING_FRONTMATTER_FIELD")).toBe(true);
+    }
   });
 });
 
@@ -301,6 +452,164 @@ describe("checkDependencies", () => {
     const issues = checkDependencies(claims, tmpDir);
     expect(issues).toHaveLength(0);
   });
+
+  it("checks claims against pyproject.toml [project] dependencies (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[project]",
+      'name = "svc"',
+      'dependencies = ["fastapi>=0.115", "celery[redis]==5.4.0"]',
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "FastAPI" }),
+      claim({ kind: "dependency", value: "celery" }),
+      claim({ kind: "dependency", value: "boto3" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].claim.value).toBe("boto3");
+  });
+
+  it("reads pyproject optional-dependencies and poetry tables", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[project.optional-dependencies]",
+      'dev = ["pytest>=8.0", "httpx"]',
+      "",
+      "[tool.poetry.dependencies]",
+      'python = "^3.12"',
+      'SQLAlchemy = "^2.0"',
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "pytest" }),
+      claim({ kind: "dependency", value: "httpx" }),
+      claim({ kind: "dependency", value: "SQLAlchemy" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("reads a dependencies array written one item per line (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[build-system]",
+      'requires = ["hatchling"]',
+      "",
+      "[project]",
+      'name = "svc"',
+      'requires-python = ">=3.10"',
+      "dependencies = [",
+      '    "mcp>=1.0.0,<3",',
+      "    # pinned below 4 until the next major settles",
+      '    "fastmcp>=3.2.4,<4",',
+      '    "celery[redis]==5.4.0",',
+      "]",
+      "",
+      "[project.optional-dependencies]",
+      "embeddings = [",
+      '    "sentence-transformers>=3.0.0,<6",',
+      "]",
+      "all = [",
+      '    "svc[embeddings]",',
+      "]",
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "mcp" }),
+      claim({ kind: "dependency", value: "FastMCP" }),
+      claim({ kind: "dependency", value: "celery" }),
+      claim({ kind: "dependency", value: "sentence-transformers" }),
+      claim({ kind: "dependency", value: "boto3" }),
+      // The `all` extra lists the project itself; that is not a dependency.
+      claim({ kind: "dependency", value: "svc" }),
+    ], tmpDir);
+    expect(issues.map((i) => i.claim.value)).toEqual(["boto3", "svc"]);
+  });
+
+  it("keeps the items after a PEP 508 environment marker (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[project]",
+      'name = "svc"',
+      "dependencies = [",
+      `    "tomli>=2.0.0,<3; python_version < '3.11'",`,
+      '    "fastapi>=0.115",',
+      "]",
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "tomli" }),
+      claim({ kind: "dependency", value: "FastAPI" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("reads poetry groups and PEP 735 dependency groups (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[dependency-groups]",
+      "dev = [",
+      '    "ruff",',
+      '    { include-group = "test" },',
+      "]",
+      'test = ["pytest>=8.0"]',
+      "",
+      "[tool.poetry.group.dev.dependencies]",
+      'python = "^3.12"',
+      'mypy = "^1.11"',
+      'httpx = { version = "^0.27", optional = true }',
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "ruff" }),
+      claim({ kind: "dependency", value: "pytest" }),
+      claim({ kind: "dependency", value: "mypy" }),
+      claim({ kind: "dependency", value: "httpx" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("takes the constraint out of a poetry inline table (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[tool.poetry.dependencies]",
+      'httpx = { version = "^0.27.2", python = ">=3.10" }',
+      "",
+    ].join("\n"));
+    // The claimed version is nowhere in the constraint. Keeping the whole
+    // inline table as the version would match "3.10" against the marker and
+    // report nothing.
+    const issues = checkDependencies([
+      claim({ kind: "version", value: "httpx 3.10" }),
+      claim({ kind: "version", value: "httpx 0.27" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("VERSION_MISMATCH");
+    expect(issues[0].message).toContain("^0.27.2");
+  });
+
+  it("matches PyPI names written with the import spelling (#3)", () => {
+    writeFileSync(join(tmpDir, "pyproject.toml"), [
+      "[project]",
+      'name = "svc"',
+      "dependencies = [",
+      '    "sentence-transformers>=3.0.0",',
+      '    "tree-sitter>=0.23.0",',
+      "]",
+      "",
+    ].join("\n"));
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "sentence_transformers" }),
+      claim({ kind: "dependency", value: "Tree.Sitter" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("keeps npm names exact — `lodash.debounce` is not `lodash-debounce`", () => {
+    writeFileSync(
+      join(tmpDir, "package.json"),
+      JSON.stringify({ dependencies: { "lodash.debounce": "^4.0.8" } })
+    );
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "lodash-debounce" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("DEPENDENCY_MISSING");
+  });
 });
 
 // ── Cross-file Checker ──
@@ -371,6 +680,71 @@ describe("checkIndexSync", () => {
   });
 });
 
+// ── Stale Pattern Checker ──
+
+describe("checkStalePatterns", () => {
+  it("flags a pattern file with no inbound reference", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    writeFileSync(join(tmpDir, "patterns/orphan.md"), "# Orphan");
+    writeFileSync(join(tmpDir, "ROUTER.md"), "# Router\n\nNo pattern links here.");
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      code: "STALE_PATTERN",
+      severity: "warning",
+      file: "patterns/orphan.md",
+    });
+  });
+
+  it("passes when ROUTER.md links to the pattern", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    writeFileSync(join(tmpDir, "patterns/auth.md"), "# Auth");
+    writeFileSync(
+      join(tmpDir, "ROUTER.md"),
+      "See [patterns/auth.md](patterns/auth.md) for the auth pattern."
+    );
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("passes when a context file links to the pattern", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    writeFileSync(join(tmpDir, "patterns/auth.md"), "# Auth");
+    writeFileSync(
+      join(tmpDir, "context/architecture.md"),
+      "Auth details live in `auth.md`."
+    );
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("does not flag INDEX.md or README.md as patterns needing references", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    writeFileSync(join(tmpDir, "patterns/INDEX.md"), "# Index");
+    writeFileSync(join(tmpDir, "patterns/README.md"), "# Readme");
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("passes when a context file references the pattern via a frontmatter edge", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    writeFileSync(join(tmpDir, "patterns/auth.md"), "# Auth");
+    writeFileSync(
+      join(tmpDir, "context/architecture.md"),
+      '---\nedges:\n  - target: "patterns/auth.md"\n---\n\n# Architecture\n'
+    );
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("returns empty when there is no patterns directory", () => {
+    const issues = checkStalePatterns(tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+});
+
 // ── Staleness Checker ──
 
 describe("checkStaleness", () => {
@@ -436,19 +810,22 @@ describe("checkStaleness", () => {
 // ── Tool Config Sync Checker ──
 
 describe("checkToolConfigSync", () => {
+  // Sentinel carried by every generated .tool-configs/ template.
+  const marker = "<!-- mex-tool-config: managed copy -->\n";
+
   it("returns empty when no tool configs are installed", () => {
     const issues = checkToolConfigSync(tmpDir);
     expect(issues).toHaveLength(0);
   });
 
   it("returns empty when only one tool config is installed", () => {
-    writeFileSync(join(tmpDir, "CLAUDE.md"), "pointer to ROUTER.md");
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}pointer to ROUTER.md`);
     const issues = checkToolConfigSync(tmpDir);
     expect(issues).toHaveLength(0);
   });
 
   it("returns empty when installed tool configs all match", () => {
-    const body = "pointer to ROUTER.md\nsame for every tool\n";
+    const body = `${marker}same for every tool\n`;
     writeFileSync(join(tmpDir, "CLAUDE.md"), body);
     writeFileSync(join(tmpDir, ".cursorrules"), body);
     writeFileSync(join(tmpDir, ".windsurfrules"), body);
@@ -457,8 +834,8 @@ describe("checkToolConfigSync", () => {
   });
 
   it("flags drift between two installed tool configs", () => {
-    writeFileSync(join(tmpDir, "CLAUDE.md"), "original\n");
-    writeFileSync(join(tmpDir, ".cursorrules"), "original\nedited\n");
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}original\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}original\nedited\n`);
     const issues = checkToolConfigSync(tmpDir);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("TOOL_CONFIG_DRIFT");
@@ -468,10 +845,10 @@ describe("checkToolConfigSync", () => {
   });
 
   it("flags each drifted file separately and leaves matching files alone", () => {
-    writeFileSync(join(tmpDir, "CLAUDE.md"), "v1\n");
-    writeFileSync(join(tmpDir, "AGENTS.md"), "v1\n");           // matches CLAUDE.md
-    writeFileSync(join(tmpDir, ".cursorrules"), "v2 drifted\n"); // drifted
-    writeFileSync(join(tmpDir, ".windsurfrules"), "v3 also\n");  // drifted
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, "AGENTS.md"), `${marker}v1\n`);            // matches CLAUDE.md
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}v2 drifted\n`); // drifted
+    writeFileSync(join(tmpDir, ".windsurfrules"), `${marker}v3 also\n`);  // drifted
     const issues = checkToolConfigSync(tmpDir);
     const files = issues.map((i) => i.file).sort();
     expect(files).toEqual([".cursorrules", ".windsurfrules"]);
@@ -480,11 +857,153 @@ describe("checkToolConfigSync", () => {
 
   it("picks up the Copilot config nested under .github", () => {
     mkdirSync(join(tmpDir, ".github"), { recursive: true });
-    writeFileSync(join(tmpDir, "CLAUDE.md"), "shared\n");
-    writeFileSync(join(tmpDir, ".github/copilot-instructions.md"), "changed\n");
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}shared\n`);
+    writeFileSync(join(tmpDir, ".github/copilot-instructions.md"), `${marker}changed\n`);
     const issues = checkToolConfigSync(tmpDir);
     expect(issues).toHaveLength(1);
     expect(issues[0].file).toBe(".github/copilot-instructions.md");
+  });
+
+  it("does not report the agent-skills block as drift", () => {
+    // CLAUDE.md carries the managed skills block and .cursorrules cannot --
+    // Cursor has no mex skills to invoke. Comparing raw bytes reported an
+    // install of both tools as permanently drifted, with no edit the user
+    // could make to clear it. See https://github.com/mex-memory/mex/issues/106
+    const body = `${marker}shared project anchor\n`;
+    writeFileSync(
+      join(tmpDir, "CLAUDE.md"),
+      `${body}\n<!-- mex-agent:skills:start -->\n## MEX agent skills\n- read .mex/ROUTER.md\n<!-- mex-agent:skills:end -->\n`,
+    );
+    writeFileSync(join(tmpDir, ".cursorrules"), body);
+    expect(checkToolConfigSync(tmpDir)).toHaveLength(0);
+  });
+
+  it("does not report the appended anchor pointer as drift", () => {
+    // Same shape from the other direction: setup appends a pointer block to a
+    // pre-existing .cursorrules, which CLAUDE.md has no reason to carry.
+    const body = `${marker}shared project anchor\n`;
+    writeFileSync(join(tmpDir, "CLAUDE.md"), body);
+    writeFileSync(
+      join(tmpDir, ".cursorrules"),
+      `${body}\n<!-- mex-anchor:start -->\n- read .mex/ROUTER.md\n<!-- mex-anchor:end -->\n`,
+    );
+    expect(checkToolConfigSync(tmpDir)).toHaveLength(0);
+  });
+
+  it("still reports a real edit made outside the managed blocks", () => {
+    const body = `${marker}shared project anchor\n`;
+    writeFileSync(
+      join(tmpDir, "CLAUDE.md"),
+      `${body}\n<!-- mex-agent:skills:start -->\nblock\n<!-- mex-agent:skills:end -->\n`,
+    );
+    writeFileSync(join(tmpDir, ".cursorrules"), `${body}a line only this copy has\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].file).toBe(".cursorrules");
+  });
+
+  it("treats a line-ending difference as a checkout artifact, not drift", () => {
+    // A repo with no `text` attribute hands CRLF to Windows and LF to CI for
+    // the same commit; neither is an edit anyone made.
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}shared anchor\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}shared anchor\n`.replace(/\n/g, "\r\n"));
+    expect(checkToolConfigSync(tmpDir)).toHaveLength(0);
+  });
+
+  it("ignores tool config files that are not scaffold copies", () => {
+    // A hand-written CLAUDE.md and a generated AGENTS.md (e.g. a managed skill
+    // pack) coexist without ever having been copied from .tool-configs/.
+    writeFileSync(join(tmpDir, "CLAUDE.md"), "# Project Context\nhand-written\n");
+    writeFileSync(join(tmpDir, "AGENTS.md"), "# Managed skill pack\ngenerated\n");
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("ignores non-scaffold files even when they mention ROUTER.md", () => {
+    // Independently owned configs legitimately point agents at ROUTER.md;
+    // that alone must not make them look like scaffold copies of each other.
+    writeFileSync(join(tmpDir, "CLAUDE.md"), "# Mine\nSee ROUTER.md for context.\n");
+    writeFileSync(join(tmpDir, "AGENTS.md"), "# Theirs\nRead .mex/ROUTER.md first.\n");
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("compares only the scaffold copies when non-copies are present", () => {
+    writeFileSync(join(tmpDir, "CLAUDE.md"), "# Project Context\nread ROUTER.md\n"); // not a copy
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, ".windsurfrules"), `${marker}v1 edited\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].file).toBe(".windsurfrules");
+    expect(issues[0].message).toContain(".cursorrules");
+  });
+
+  // Frontmatter line every tool config template has carried since the initial
+  // commit. Copies installed before the sentinel shipped are recognised by it,
+  // since `mex setup` never rewrites an anchor that already exists.
+  const legacy =
+    "---\nname: agents\ndescription: Always-loaded project anchor. Read this first. " +
+    "Contains project identity, non-negotiables, commands, and pointer to ROUTER.md for full context.\n---\n";
+
+  it("still flags drift between copies installed before the sentinel shipped", () => {
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${legacy}original\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${legacy}original\nedited\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("TOOL_CONFIG_DRIFT");
+    expect(issues[0].file).toBe(".cursorrules");
+  });
+
+  it("leaves matching pre-sentinel copies alone", () => {
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${legacy}same\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${legacy}same\n`);
+    expect(checkToolConfigSync(tmpDir)).toHaveLength(0);
+  });
+
+  it("blames the edited copy even when it comes first in the file list", () => {
+    // CLAUDE.md heads TOOL_CONFIG_FILES, so using it as the baseline pinned a
+    // warning on all four untouched files instead. https://github.com/mex-memory/mex/issues/127
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}v2 edited\n`);
+    writeFileSync(join(tmpDir, "AGENTS.md"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, ".windsurfrules"), `${marker}v1\n`);
+    mkdirSync(join(tmpDir, ".github"), { recursive: true });
+    writeFileSync(join(tmpDir, ".github/copilot-instructions.md"), `${marker}v1\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].file).toBe("CLAUDE.md");
+    expect(issues[0].message).toContain("AGENTS.md");
+  });
+
+  it("names no culprit when the copies split evenly", () => {
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, "AGENTS.md"), `${marker}v1\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}v2\n`);
+    writeFileSync(join(tmpDir, ".windsurfrules"), `${marker}v2\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("TOOL_CONFIG_DRIFT");
+    expect(issues[0].message).toContain("no majority");
+    expect(issues[0].message).toContain("[CLAUDE.md, AGENTS.md]");
+    expect(issues[0].message).toContain("[.cursorrules, .windsurfrules]");
+    expect(issues[0].message).not.toContain("has drifted from");
+  });
+
+  it("names every group when no two copies agree", () => {
+    writeFileSync(join(tmpDir, "CLAUDE.md"), `${marker}a\n`);
+    writeFileSync(join(tmpDir, "AGENTS.md"), `${marker}b\n`);
+    writeFileSync(join(tmpDir, ".cursorrules"), `${marker}c\n`);
+    const issues = checkToolConfigSync(tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toContain("3 groups with no majority");
+  });
+
+  it("does not treat a file that merely quotes the sentinel as a copy", () => {
+    // Documentation about mex is not a managed copy of it.
+    const quoting = "# Notes\nCopies carry `<!-- mex-tool-config -->` after the frontmatter.\n";
+    writeFileSync(join(tmpDir, "CLAUDE.md"), quoting);
+    writeFileSync(join(tmpDir, "AGENTS.md"), `${quoting}and something else\n`);
+    expect(checkToolConfigSync(tmpDir)).toHaveLength(0);
   });
 });
 
@@ -586,6 +1105,79 @@ describe("checkBrokenLinks", () => {
     writeFileSync(file, "See [install](./target.md#install).\n");
     const issues = checkBrokenLinks([file], tmpDir, tmpDir);
     expect(issues).toHaveLength(0);
+  });
+
+  it("does not scan links inside a single-line HTML comment", () => {
+    const file = join(tmpDir, "ROUTER.md");
+    writeFileSync(file, "Intro.\n\n<!-- [example](./nowhere.md) -->\n");
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("does not scan links inside a multi-line HTML comment", () => {
+    mkdirSync(join(tmpDir, "patterns"), { recursive: true });
+    const file = join(tmpDir, "patterns/INDEX.md");
+    writeFileSync(
+      file,
+      "# Pattern Index\n\n<!-- This file is populated during setup.\n" +
+      "     | [filename.md](filename.md) | One-line description |\n" +
+      "     | [add-api-client.md](add-api-client.md) | Adding an integration |\n" +
+      "     Keep this table sorted alphabetically. -->\n\n| Pattern | Use when |\n"
+    );
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("still flags a link on the visible side of a same-line comment", () => {
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    const file = join(tmpDir, "context/guide.md");
+    writeFileSync(file, "See [real](./missing.md) <!-- [hidden](./hidden.md) -->\n");
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toBe("Markdown link target does not exist: ./missing.md");
+  });
+
+  it("resumes scanning after a comment closes", () => {
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    const file = join(tmpDir, "context/guide.md");
+    writeFileSync(
+      file,
+      "<!-- [hidden](./hidden.md)\nstill hidden -->\n\nSee [real](./missing.md).\n"
+    );
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      line: 4,
+      message: "Markdown link target does not exist: ./missing.md",
+    });
+  });
+
+  it("treats an unclosed comment as running to the end of the file", () => {
+    const file = join(tmpDir, "SYNC.md");
+    writeFileSync(file, "Intro.\n\n<!-- draft notes\n[never](./nowhere.md)\n");
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(0);
+  });
+
+  it("does not open a comment from a marker inside inline code", () => {
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    const file = join(tmpDir, "context/guide.md");
+    writeFileSync(file, "Write `<!--` to open one.\n\nSee [real](./missing.md).\n");
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toBe("Markdown link target does not exist: ./missing.md");
+  });
+
+  it("does not treat a comment marker inside a fence as a comment", () => {
+    mkdirSync(join(tmpDir, "context"), { recursive: true });
+    const file = join(tmpDir, "context/guide.md");
+    writeFileSync(
+      file,
+      "```html\n<!-- how to comment\n```\n\nSee [real](./missing.md).\n"
+    );
+    const issues = checkBrokenLinks([file], tmpDir, tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toBe("Markdown link target does not exist: ./missing.md");
   });
 
   it("downgrades broken links in patterns/ to warning", () => {

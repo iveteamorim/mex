@@ -17,10 +17,16 @@ export function checkEdges(
   for (const edge of frontmatter.edges) {
     if (!edge.target) continue;
 
-    // Try project root, then scaffold root
-    const fromProject = resolve(projectRoot, edge.target);
+    // Try the declaring file's own directory first, then scaffold root, then
+    // project root. Only ROUTER.md sits at the scaffold root, so resolving
+    // from the roots alone made every relative edge written from a pattern
+    // file -- `../context/architecture.md`, or a sibling pattern -- look dead
+    // while the target was right there. Markdown links in the same scaffold
+    // already resolve this way.
+    const fromFile = resolve(dirname(filePath), edge.target);
     const fromScaffold = resolve(scaffoldRoot, edge.target);
-    if (!existsSync(fromProject) && !existsSync(fromScaffold)) {
+    const fromProject = resolve(projectRoot, edge.target);
+    if (!existsSync(fromFile) && !existsSync(fromScaffold) && !existsSync(fromProject)) {
       issues.push({
         code: "DEAD_EDGE",
         severity: "error",

@@ -9,13 +9,13 @@ const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 
 describe("Graph Extraction Regression", () => {
   beforeAll(async () => {
-    await loadGrammars(["typescript", "javascript", "tsx", "jsx"]);
+    await loadGrammars(["typescript", "javascript", "tsx", "jsx", "python", "rust"]);
   });
 
-  const extractFixture = (filename: string): FileExtraction => {
+  const extractFixture = (filename: string, sourceFilename = filename): FileExtraction => {
     const path = join(FIXTURES_DIR, filename);
     const source = readFileSync(path, "utf-8");
-    const result = extractFile(`fixtures/${filename}`, source);
+    const result = extractFile(`fixtures/${sourceFilename}`, source);
     expect(result).not.toBeNull();
     return result!;
   };
@@ -75,7 +75,9 @@ describe("Graph Extraction Regression", () => {
   describe("JavaScript Edge Cases", () => {
     let result: FileExtraction;
     beforeAll(() => {
-      result = extractFixture("javascript-edge-cases.js");
+      // Keep intentionally invalid parser input outside the repository's
+      // supported-source corpus while preserving its virtual language path.
+      result = extractFixture("javascript-edge-cases.js.fixture", "javascript-edge-cases.js");
     });
 
     it("detects language correctly", () => {
@@ -94,15 +96,18 @@ describe("Graph Extraction Regression", () => {
     });
 
     it("degrades gracefully on ambiguous syntax", () => {
-      // The file should parse and extract the valid symbols despite any syntax errors
-      expect(node(result, "function", "withWeirdSyntax")).toBeDefined();
+      expect(result.health.status).toBe("partial");
+      // A declaration intersecting a parser diagnostic is not a trustworthy
+      // graph fact; valid declarations elsewhere in the file remain indexed.
+      expect(node(result, "function", "withWeirdSyntax")).toBeUndefined();
+      expect(node(result, "class", "Manager")).toBeDefined();
     });
   });
 
   describe("TSX Components", () => {
     let result: FileExtraction;
     beforeAll(() => {
-      result = extractFixture("tsx-component.tsx");
+      result = extractFixture("tsx-component.tsx.fixture", "tsx-component.tsx");
     });
 
     it("detects language correctly", () => {
@@ -111,11 +116,12 @@ describe("Graph Extraction Regression", () => {
 
     it("extracts components, arrow functions, and calls", () => {
       expect(node(result, "interface", "Props")).toBeDefined();
-      expect(node(result, "function", "Widget")).toBeDefined();
+      expect(result.health.status).toBe("partial");
+      expect(node(result, "function", "Widget")).toBeUndefined();
       
-      // Arrow functions inside functions are local variables and are not extracted as nodes
-      // But the calls they make should attribute to the enclosing function
-      expect(hasEdge(result, "calls", "setCount")).toBe(true);
+      // Widget intersects the invalid JSX line, so calls inside it are withheld
+      // with the declaration instead of being presented as trusted structure.
+      expect(hasEdge(result, "calls", "setCount")).toBe(false);
     });
 
     it("captures JSX component usage via imports", () => {
@@ -144,6 +150,28 @@ describe("Graph Extraction Regression", () => {
 
     it("captures promise instantiations", () => {
       expect(hasEdge(result, "instantiates", "Promise")).toBe(true);
+    });
+  });
+
+  describe("fallback parser recovery", () => {
+    it("keeps healthy Python declarations and withholds declarations intersecting errors", () => {
+      const result = extractFile(
+        "src/recovery.py",
+        "def healthy_python():\n    return 1\n\ndef broken_python(:\n    return 2\n",
+      )!;
+      expect(result.health.status).toBe("partial");
+      expect(node(result, "function", "healthy_python")).toBeDefined();
+      expect(node(result, "function", "broken_python")).toBeUndefined();
+    });
+
+    it("keeps healthy Rust declarations and withholds declarations intersecting errors", () => {
+      const result = extractFile(
+        "src/recovery.rs",
+        "pub fn healthy_rust() -> u8 { 1 }\nfn broken_rust( { 2 }\n",
+      )!;
+      expect(result.health.status).toBe("partial");
+      expect(node(result, "function", "healthy_rust")).toBeDefined();
+      expect(node(result, "function", "broken_rust")).toBeUndefined();
     });
   });
 });

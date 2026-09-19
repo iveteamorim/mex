@@ -3,6 +3,8 @@ import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import { visit } from "unist-util-visit";
 import YAML from "yaml";
+import { renderKeyValue, spliceKeyPath, spliceTopLevelKey } from "./wiki/markdown/frontmatter.js";
+import { parseDocument } from "./wiki/markdown/parse.js";
 import type { Grounding, ScaffoldFrontmatter } from "./types.js";
 import type { Root, Content, Link } from "mdast";
 
@@ -31,12 +33,49 @@ export function extractFrontmatter(
   return frontmatter;
 }
 
+/**
+ * Where a file's groundings live: under `mex:` once it has one, else at the root.
+ *
+ * A pre-wiki scaffold keeps `grounds_to` as a root frontmatter key, and that is
+ * the key `mex ground` has always read and written. Once migration adopts a
+ * file as a wiki entity, the entity's metadata is the `mex:` map and the
+ * grounding belongs inside it — section 13.4's "move it under `mex.grounds_to`".
+ *
+ * **Both the read and the write follow the same rule, and that is the point.**
+ * Teaching only the reader would leave `writeGroundings` splicing the root key
+ * back in on the next `mex ground` run, so the file would end up carrying the
+ * same grounding in two places, maintained by two writers that drift the moment
+ * either updates — the two-stores-of-one-fact failure D1 exists to forbid,
+ * arriving through a door D1 did not name. Migration removes the root key as it
+ * moves the values (`ABSORBABLE_ROOT_KEYS`), so exactly one store survives.
+ *
+ * A file with no `mex:` key is untouched by this: the path is the root key, and
+ * every shipped grounding test exercises that case unchanged.
+ */
+export function groundingKeyPath(content: string): readonly string[] {
+  const frontmatter = extractFrontmatter(content) as (ScaffoldFrontmatter & { mex?: unknown }) | null;
+  const mex = frontmatter?.mex;
+  return mex !== null && typeof mex === "object" ? ["mex", "grounds_to"] : ["grounds_to"];
+}
+
 /** Return validated code-graph groundings; malformed entries are rejected as a set. */
 export function extractGroundings(content: string): Grounding[] {
-  const value = extractFrontmatter(content)?.grounds_to;
+  const frontmatter = extractFrontmatter(content) as (ScaffoldFrontmatter & { mex?: { grounds_to?: unknown } }) | null;
+  const value = groundingKeyPath(content)[0] === "mex" ? frontmatter?.mex?.grounds_to : frontmatter?.grounds_to;
   return isGroundingArray(value) ? value : [];
 }
 
+/**
+ * Accept a `grounds_to` value.
+ *
+ * The check names the two required keys and deliberately does not enumerate the
+ * optional ones. That is what lets `bodyHash` — and the wiki lane's `file`,
+ * `commit`, `verifiedAt` and `reason` — survive a read/write cycle: the parsed
+ * entries are handed to {@link writeGroundings} unchanged, so every key the
+ * author put in the file is rendered back out. Tightening this into an
+ * exact-shape check would silently strip whichever keys this lane's type had
+ * not yet heard of, which is the failure it exists to avoid.
+ */
 export function isGroundingArray(value: unknown): value is Grounding[] {
   return Array.isArray(value) && value.every((entry) => {
     if (!entry || typeof entry !== "object") return false;
@@ -46,21 +85,33 @@ export function isGroundingArray(value: unknown): value is Grounding[] {
   });
 }
 
-/** Add or replace grounds_to while preserving the markdown body and other frontmatter keys. */
+/**
+ * Add or replace `grounds_to`, touching nothing else in the file.
+ *
+ * This used to rewrite the whole frontmatter block through `YAML.stringify`,
+ * which preserved the body but reformatted the YAML: comment placement, quoting
+ * style and key order were lost every time MEX recorded a fingerprint. That
+ * turns a one-line grounding update into a whole-block diff, which is exactly
+ * what the Markdown-canonical design exists to avoid — the scaffold has to stay
+ * reviewable in an ordinary pull request.
+ *
+ * It now splices the one key's own range. Everything else in the file, byte for
+ * byte, is left as the author wrote it.
+ */
 export function writeGroundings(content: string, groundings: Grounding[]): string {
   if (!isGroundingArray(groundings)) throw new Error("Invalid grounds_to entries");
-  const tree = parseMarkdown(content);
-  const yamlNode = tree.children.find((node) => node.type === "yaml");
-  const frontmatter = extractFrontmatter(content) ?? {};
-  frontmatter.grounds_to = groundings;
-  const yaml = YAML.stringify(frontmatter).trimEnd();
-  const block = `---\n${yaml}\n---`;
-  const start = yamlNode?.position?.start.offset;
-  const end = yamlNode?.position?.end.offset;
-  if (start !== undefined && end !== undefined) {
-    return content.slice(0, start) + block + content.slice(end);
+  const path = groundingKeyPath(content);
+  if (path.length === 1) {
+    return spliceTopLevelKey(content, "grounds_to", renderKeyValue("grounds_to", groundings)).text;
   }
-  return `${block}\n\n${content}`;
+  const frontmatter = parseDocument(content).frontmatter;
+  if (frontmatter === null) {
+    return spliceTopLevelKey(content, "grounds_to", renderKeyValue("grounds_to", groundings)).text;
+  }
+  const spliced = spliceKeyPath(content, frontmatter, path, groundings);
+  // A `mex` map that cannot hold the key is not a reason to write a second copy
+  // at the root; it is a reason to leave the file alone and let validation say so.
+  return spliced === null ? content : spliced.text;
 }
 
 export interface MexAnchor {

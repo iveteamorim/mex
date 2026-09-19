@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -6,6 +7,9 @@ import YAML from "yaml";
 import type { Claim, DriftIssue } from "../../types.js";
 
 const PLACEHOLDER_WORDS = /(?:^|[/_-])(?:new|example|your|sample|my|foo|bar|placeholder|template)(?:[/_.-]|$)/i;
+
+/** Naming-convention examples: `PascalCase.tsx` shows a shape, not a file. */
+const NAMING_CONVENTION = /^(?:PascalCase|camelCase|kebab-case|snake_case|SCREAMING_SNAKE_CASE)\./;
 
 /** Scoped package pattern: @scope/name or @scope/name/sub/path */
 const SCOPED_PACKAGE = /^@([\w-]+)\/([\w-]+)(\/.*)?$/;
@@ -26,12 +30,30 @@ export function checkPaths(
 
   // Collect workspace package names once for all claims
   const workspaceNames = collectWorkspaceNames(projectRoot);
+  const ignoredPaths = collectIgnoredPaths(
+    pathClaims.map((c) => c.value),
+    projectRoot
+  );
 
   for (const claim of pathClaims) {
     // URLs are never filesystem paths
     if (URL_PATTERN.test(claim.value)) continue;
 
+    // Naming-convention examples describe a shape, not a file on disk.
+    if (NAMING_CONVENTION.test(claim.value)) continue;
+
+    // An API route or a placeholder reads exactly like a relative directory
+    // path -- `documents/upload`, `owner/repo`. What separates them from a real
+    // reference is that nothing by the name of their first segment exists, so
+    // treat those as prose rather than reporting a file that was never claimed.
+    if (isUnrootedReference(claim.value, projectRoot, scaffoldRoot)) continue;
+
     if (pathExists(claim.value, projectRoot, scaffoldRoot, workspaceNames)) continue;
+
+    // A path the repository deliberately ignores is created at runtime, so its
+    // absence from a clean checkout is expected rather than drift: `.mex/local/`
+    // and `.mex/graph.db` are documented precisely because mex writes them.
+    if (ignoredPaths.has(claim.value)) continue;
 
     // Downgrade to warning if: from a pattern file or path contains placeholder words.
     // Bare filenames that aren't found even after recursive search are genuinely missing.
@@ -50,6 +72,66 @@ export function checkPaths(
   }
 
   return issues;
+}
+
+/**
+ * True when a slash-separated value names no file type, does not end in a
+ * directory separator, and its first segment does not exist at either root.
+ * API routes and placeholders take this shape; a real relative path almost
+ * always starts from a directory that is actually there.
+ */
+function isUnrootedReference(
+  value: string,
+  projectRoot: string,
+  scaffoldRoot: string
+): boolean {
+  if (!value.includes("/") || value.startsWith("/") || value.endsWith("/")) return false;
+  if (/\.[A-Za-z0-9]+$/.test(value)) return false;
+
+  const first = value.split("/")[0];
+  if (!first || first.startsWith("@") || first === "." || first === "..") return false;
+
+  if (existsSync(resolve(projectRoot, first))) return false;
+  if (scaffoldRoot !== projectRoot && existsSync(resolve(scaffoldRoot, first))) return false;
+  return true;
+}
+
+/**
+ * Ask Git which of these paths are ignored. Documentation names generated
+ * state -- a database, a local-only directory -- and that state is absent from
+ * a clean checkout by design, so reporting it as a missing path is noise. One
+ * batched call keeps this to a single subprocess per run; a checkout without
+ * Git simply reports nothing ignored.
+ */
+function collectIgnoredPaths(values: string[], projectRoot: string): Set<string> {
+  const ignored = new Set<string>();
+  const candidates = [...new Set(values)].filter((v) => v.length > 0);
+  if (candidates.length === 0) return ignored;
+
+  try {
+    const output = execFileSync("git", ["check-ignore", "--stdin"], {
+      cwd: projectRoot,
+      input: candidates.join("\n"),
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "ignore"],
+    });
+    for (const line of output.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed) ignored.add(trimmed);
+    }
+  } catch (error) {
+    // Exit code 1 means "nothing ignored" and carries partial stdout; any other
+    // failure (no Git, not a repository) leaves the set empty.
+    const stdout = (error as { stdout?: string | Buffer })?.stdout;
+    if (typeof stdout === "string" || Buffer.isBuffer(stdout)) {
+      for (const line of stdout.toString().split("\n")) {
+        const trimmed = line.trim();
+        if (trimmed) ignored.add(trimmed);
+      }
+    }
+  }
+
+  return ignored;
 }
 
 /**
@@ -156,6 +238,33 @@ function pathExists(
       cwd: projectRoot,
       ignore: ["node_modules/**", ".mex/**", "dist/**", ".git/**"],
       maxDepth: 5,
+    });
+    if (matches.length > 0) return true;
+
+    // The project search skips the scaffold, so a scaffold file naming another
+    // scaffold file -- `INDEX.md`, or a pattern by its filename -- found
+    // nothing. Search the scaffold too when it is a directory of its own.
+    if (scaffoldRoot !== projectRoot && existsSync(scaffoldRoot)) {
+      const inScaffold = globSync(`**/${value}`, {
+        cwd: scaffoldRoot,
+        ignore: ["node_modules/**"],
+        maxDepth: 5,
+      });
+      if (inScaffold.length > 0) return true;
+    }
+  }
+
+  // Documentation inside a subproject names paths from that subproject's root:
+  // a backend's own docs say `routes/quiz.ts`, not
+  // `server/src/routes/quiz.ts`. Accept the claim when exactly that suffix
+  // exists somewhere in the repository, so a real file is not reported missing
+  // because the reader started from a different directory than the author.
+  if (value.includes("/") && !value.startsWith("/")) {
+    const suffix = value.replace(/^\.\//, "").replace(/\/$/, "");
+    const matches = globSync(`**/${suffix}`, {
+      cwd: projectRoot,
+      ignore: ["node_modules/**", "dist/**", ".git/**"],
+      maxDepth: 6,
     });
     if (matches.length > 0) return true;
   }

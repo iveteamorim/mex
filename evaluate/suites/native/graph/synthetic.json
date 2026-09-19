@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "id": "synthetic-graph",
+  "description": "Small multilingual graph fixture with exact ambiguity, relationships, negatives, and paraphrases.",
+  "subject": { "name": "graph-synthetic", "requireClean": false },
+  "determinismRebuilds": 2,
+  "systems": {
+    "current": {
+      "role": "candidate",
+      "label": "active checkout",
+      "command": ["node", "{harnessRoot}/dist/cli.js"]
+    }
+  },
+  "tasks": [
+    {
+      "id": "budget-plain",
+      "category": "natural-language-symbol",
+      "family": "budget",
+      "operation": "scope",
+      "query": "Which code prevents retrieved context from exceeding its token allowance?",
+      "gold": [{ "symbol": "OutputBudgetLedger", "kind": "class", "path": "src/retrieval.ts" }],
+      "mustNotReturn": [{ "symbol": "archivedTaskNeighborhood", "kind": "function", "path": "src/retrieval.ts" }]
+    },
+    {
+      "id": "budget-terse",
+      "category": "paraphrase",
+      "family": "budget",
+      "operation": "scope",
+      "query": "bound output token spending",
+      "gold": [{ "symbol": "OutputBudgetLedger", "kind": "class", "path": "src/retrieval.ts" }]
+    },
+    {
+      "id": "task-flow",
+      "category": "multi-symbol-flow",
+      "operation": "scope",
+      "query": "How are semantic search terms turned into a bounded task neighborhood?",
+      "gold": [
+        { "symbol": "discoverSemanticSeeds", "kind": "function", "path": "src/retrieval.ts" },
+        { "symbol": "enforceContextCeiling", "kind": "function", "path": "src/retrieval.ts" },
+        { "symbol": "assembleTaskNeighborhood", "kind": "function", "path": "src/retrieval.ts" }
+      ]
+    },
+    {
+      "id": "typescript-duplicate-name",
+      "category": "ambiguity",
+      "operation": "query",
+      "relation": "where-defined",
+      "query": "execute",
+      "gold": [
+        { "symbol": "execute", "kind": "function", "path": "src/payments.ts" },
+        { "symbol": "execute", "kind": "function", "path": "src/search.ts" }
+      ]
+    },
+    {
+      "id": "who-builds-neighborhood",
+      "category": "relationship-who-calls",
+      "operation": "query",
+      "relation": "who-calls",
+      "query": "discoverSemanticSeeds",
+      "gold": [{ "symbol": "assembleTaskNeighborhood", "kind": "function", "path": "src/retrieval.ts" }]
+    },
+    {
+      "id": "what-neighborhood-calls",
+      "category": "relationship-what-calls",
+      "operation": "query",
+      "relation": "what-calls",
+      "query": "assembleTaskNeighborhood",
+      "gold": [
+        { "symbol": "discoverSemanticSeeds", "kind": "function", "path": "src/retrieval.ts" },
+        { "symbol": "enforceContextCeiling", "kind": "function", "path": "src/retrieval.ts" }
+      ]
+    },
+    {
+      "id": "python-vocabulary",
+      "category": "language-python",
+      "operation": "scope",
+      "query": "Where are project vocabulary terms extracted from a user question?",
+      "gold": [{ "symbol": "load_project_terms", "kind": "function", "path": "workflow.py" }]
+    },
+    {
+      "id": "rust-call-path",
+      "category": "language-rust",
+      "operation": "scope",
+      "query": "Which Rust routine resolves a symbol into a call path?",
+      "gold": [{
+        "symbol": "resolve_call_path",
+        "kind": "function",
+        "path": "pipeline.rs",
+        "startLine": 1,
+        "endLine": 3
+      }]
+    },
+    {
+      "id": "negative-symbol",
+      "category": "negative",
+      "operation": "query",
+      "relation": "where-defined",
+      "query": "symbol_that_does_not_exist",
+      "gold": [],
+      "expect": { "noResult": true, "errorCodes": ["TARGET_NOT_FOUND"] }
+    }
+  ],
+  "gates": {
+    "systems": ["current"],
+    "floors": {
+      "recallAt5": 0.75,
+      "mrr": 0.65,
+      "completeEvidenceRate": 0.62,
+      "topFiveFileHitRate": 0.9,
+      "returnedRequiredSourceSpanRecall": 0.8,
+      "budgetComplianceRate": 1,
+      "negativeAccuracy": 1
+    },
+    "integrityFloors": { "schemaVersion": 2 },
+    "integrityCeilings": {
+      "extractedToStoredLoss": 0,
+      "buildToStoredDelta": 0,
+      "duplicateEdges": 0,
+      "danglingEdges": 0,
+      "danglingContainers": 0,
+      "duplicateIdentityKeys": 0,
+      "missingIdentityKeys": 0,
+      "ftsRowDelta": 0,
+      "sourceChunkFtsRowDelta": 0,
+      "danglingImportTargets": 0,
+      "danglingAliases": 0,
+      "invalidConfidenceEdges": 0,
+      "suspiciousProductionToTestEdges": 0
+    },
+    "ceilings": { "invalidRuns": 0, "prohibitedHitRate": 0 }
+  }
+}

@@ -1,0 +1,22 @@
+# Wiki codec fixtures are byte-exact test data. Several of them exist precisely
+# to test CRLF line endings and a UTF-8 BOM, so Git must not normalize them on
+# checkout or commit — normalization would silently rewrite the thing under test
+# and the CRLF fixture would pass everywhere by becoming an LF fixture.
+test/fixtures/wiki/** -text
+
+# These two fixtures intentionally look invalid to Git's patch checker: one
+# carries CRLF bytes and the other carries literal conflict markers. Suppress
+# textual diff inspection only for those exact files; the rest of the fixture
+# corpus still participates in `git diff --check` normally.
+test/fixtures/wiki/adversarial/crlf.md -diff
+test/fixtures/wiki/malformed/merge-conflict.md -diff
+
+# The synthesized migration corpus is byte-exact for the same reason: the
+# insertion-only property compares prose before and after migration byte for
+# byte, and a checkout that rewrote line endings would compare the wrong thing.
+# It lives outside test/fixtures/wiki/ so the P2a oracle's "every fixture is
+# claimed by an expectation" meta-test keeps meaning exactly what it says.
+test/fixtures/wiki-migration/** -text
+
+# Capabilities goldens pin the CLI's exact LF JSON output on every platform.
+test/fixtures/capabilities/*.json text eol=lf

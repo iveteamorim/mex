@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="banner-title banner-desc">
+  <title id="banner-title">MEX</title>
+  <desc id="banner-desc">A cream lowercase mex wordmark on a textured blue geometric field. Fine cream wireframes converge through a black circle, turning red at its center.</desc>
+  <defs>
+    <pattern id="tiles" width="240" height="240" patternUnits="userSpaceOnUse" patternTransform="translate(0 -30)">
+      <rect width="120" height="120" fill="#2E7390" fill-opacity="0.45"/>
+      <rect x="120" y="120" width="120" height="120" fill="#174960" fill-opacity="0.35"/>
+      <path d="M0 120A120 120 0 0 1 120 0M120 0A120 120 0 0 0 240 120M0 120A120 120 0 0 1 120 240M120 240A120 120 0 0 1 240 120" fill="none" stroke="#F1EEDC" stroke-width="1.4" stroke-opacity="0.18"/>
+      <path d="M0 0H240V240H0ZM120 0V240M0 120H240" fill="none" stroke="#171B18" stroke-width="1" stroke-opacity="0.22"/>
+    </pattern>
+    <linearGradient id="tile-fade">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="0.22" stop-color="white"/>
+      <stop offset="0.43" stop-color="#555"/>
+      <stop offset="0.57" stop-color="#555"/>
+      <stop offset="0.78" stop-color="white"/>
+      <stop offset="1" stop-color="white"/>
+    </linearGradient>
+    <mask id="tile-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="420">
+      <rect width="1200" height="420" fill="url(#tile-fade)"/>
+    </mask>
+    <filter id="paper" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.74" numOctaves="3" seed="8" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <clipPath id="center-disc"><circle cx="600" cy="210" r="154"/></clipPath>
+    <g id="field" fill="none" stroke-width="1.65">
+      <ellipse cx="120" cy="210" rx="32" ry="146"/>
+      <ellipse cx="1080" cy="210" rx="32" ry="146"/>
+      <ellipse cx="298" cy="210" rx="21" ry="109"/>
+      <ellipse cx="902" cy="210" rx="21" ry="109"/>
+      <path d="M120 64C325 64 430 210 600 210S875 64 1080 64M97 107C325 107 435 210 600 210S875 107 1103 107M89 157C325 157 440 210 600 210S875 157 1111 157M88 210H1112M89 263C325 263 440 210 600 210S875 263 1111 263M97 313C325 313 435 210 600 210S875 313 1103 313M120 356C325 356 430 210 600 210S875 356 1080 356"/>
+    </g>
+    <mask id="wordmark-clear" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="420">
+      <rect width="1200" height="420" fill="white"/>
+      <text x="590" y="291" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="300" font-weight="700" letter-spacing="-16" fill="black" stroke="black" stroke-width="16" stroke-linejoin="round">mex</text>
+    </mask>
+  </defs>
+  <rect width="1200" height="420" fill="#226483"/>
+  <rect width="1200" height="420" fill="url(#tiles)" mask="url(#tile-mask)"/>
+  <circle cx="600" cy="210" r="154" fill="#171B18"/>
+  <g mask="url(#wordmark-clear)">
+    <use href="#field" stroke="#F1EEDC" stroke-opacity="0.7"/>
+    <use href="#field" stroke="#FF5738" stroke-width="2" clip-path="url(#center-disc)"/>
+  </g>
+  <text x="590" y="291" text-anchor="middle" fill="#F1EEDC" font-family="Georgia, 'Times New Roman', serif" font-size="300" font-weight="700" letter-spacing="-16">mex</text>
+  <rect width="1200" height="420" filter="url(#paper)" opacity="0.085"/>
+</svg>

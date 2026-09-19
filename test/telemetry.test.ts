@@ -59,7 +59,7 @@ afterEach(async () => {
 
   // Reset module state between tests
   const tel = await import("../src/telemetry/index.js");
-  tel.__setTransport(null);
+  tel.__resetTelemetryForTest();
 
   rmSync(tempHome, { recursive: true, force: true });
   vi.restoreAllMocks();
@@ -123,24 +123,28 @@ describe("opt-out precedence (AC1)", () => {
   });
 });
 
-// ── AC2: payload whitelist — exactly 6 keys, PII fields absent ──
+// ── AC2: payload whitelist — v2 excludes project identity ──
 
 describe("payload whitelist (AC2)", () => {
-  it("buildPayload returns exactly the 6 whitelisted keys", async () => {
+  it("buildPayload shows the v2 allowlist including transport privacy flags", async () => {
     const { buildPayload } = await import("../src/telemetry/index.js");
     const payload = buildPayload("check", "test-scaffold-id");
 
     const keys = Object.keys(payload).sort();
     expect(keys).toEqual([
+      "$geoip_disable",
+      "$process_person_profile",
       "command",
-      "machine_id",
+      "installation_id",
       "mex_version",
       "node_version",
       "os",
-      "scaffold_id",
+      "schema_version",
+      "source",
     ]);
     expect(payload.command).toBe("check");
-    expect(payload.scaffold_id).toBe("test-scaffold-id");
+    expect(payload).not.toHaveProperty("scaffold_id");
+    expect(payload.schema_version).toBe(2);
   });
 
   it("omits scaffold_id when not provided", async () => {
@@ -149,11 +153,15 @@ describe("payload whitelist (AC2)", () => {
 
     const keys = Object.keys(payload).sort();
     expect(keys).toEqual([
+      "$geoip_disable",
+      "$process_person_profile",
       "command",
-      "machine_id",
+      "installation_id",
       "mex_version",
       "node_version",
       "os",
+      "schema_version",
+      "source",
     ]);
   });
 
@@ -177,9 +185,10 @@ describe("getPayloadPreview (AC3)", () => {
 
     const payload = getPayloadPreview("inspect", "scaffold-123", "machine-456");
 
-    expect(payload.command).toBe("inspect");
-    expect(payload.scaffold_id).toBe("scaffold-123");
-    expect(payload.machine_id).toBe("machine-456");
+    expect(payload.command).toBe("wiki.query");
+    expect(payload).not.toHaveProperty("scaffold_id");
+    expect(payload).not.toHaveProperty("machine_id");
+    expect(JSON.stringify(payload)).not.toContain("machine-456");
     expect(events).toHaveLength(0); // no send
   });
 });
@@ -332,7 +341,8 @@ describe("first-run notice (AC9)", () => {
 
       // Check it contains opt-out instructions
       const output = stderrSpy.mock.calls.map(c => c[0]).join("");
-      expect(output).toContain("mex config set telemetry off");
+      expect(output).toContain("mex telemetry disable");
+      expect(output).toContain("pseudonymous");
       expect(output).toContain("DO_NOT_TRACK");
     } finally {
       Object.defineProperty(process.stderr, "isTTY", { value: originalIsTTY, configurable: true });
@@ -392,7 +402,7 @@ describe("no I/O at import time (AC10)", () => {
 // ── captureCommand: PII firewall ──
 
 describe("captureCommand PII firewall", () => {
-  it("sends only the scaffold_id string, not identity object fields", async () => {
+  it("ignores all project identity and emits a namespaced event", async () => {
     exitDevRepo(); // need telemetry enabled
     const { captureCommand, __setTransport } = await import("../src/telemetry/index.js");
     const events: Array<{ event: string; properties: Record<string, unknown> }> = [];
@@ -402,7 +412,8 @@ describe("captureCommand PII firewall", () => {
 
     expect(events).toHaveLength(1);
     const props = events[0].properties;
-    expect(props.scaffold_id).toBe("some-uuid-here");
+    expect(events[0].event).toBe("cli.command_started");
+    expect(props).not.toHaveProperty("scaffold_id");
     expect(props.command).toBe("check");
     expect(props).not.toHaveProperty("scaffold_name");
     expect(props).not.toHaveProperty("origin");

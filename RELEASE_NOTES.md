@@ -1,92 +1,36 @@
-# mex 0.7.0 — Code-aware project memory
+# mex 0.8.2 — Set up in the Hub
 
-mex 0.7.0 adds a deterministic code knowledge graph beneath the existing markdown scaffold. Memory can now ground itself to exact code nodes instead of relying only on file paths, so mex can tell an agent precisely which symbol changed and which surrounding code or scaffold memory is affected.
+MEX setup now starts in your local browser. The terminal setup remains available.
 
-The graph is local, zero-AI infrastructure: tree-sitter extraction writes SQLite in `.mex/graph.db`, body hashes detect edits, and MinHash fingerprints reconcile confident renames and moves.
-
-## What is included
-
-- TypeScript, TSX, JavaScript, JSX, Python, and Rust extraction.
-- Cross-file calls, imports, inheritance, containment, and reference edges.
-- An Express reference resolver linking route registrations to handler nodes.
-- Grounding checker #12 for changed, moved, ambiguous, or removed code nodes.
-- Compact, scored task neighborhoods through `mex graph scope`, with deterministic ordering, explicit selection reasons, and hard estimated-token budgets.
-- Targeted source expansion through `mex graph get`, with source remaining opt-in for scope, query, and impact commands.
-- Setup-time grounding plus an idempotent migration path for existing scaffolds.
-- Durable re-grounding of frontmatter and inline anchors during `mex sync`.
-- A contributor-facing extractor test pattern in the source repository.
-
-## New commands
+## Setup
 
 ```bash
-mex graph
-mex graph --json
-mex graph scope <task>
-mex graph get <node-id>
-mex graph ground
-mex graph query where-defined <symbol>
-mex graph query who-calls <symbol>
-mex graph query what-calls <symbol>
-mex impact <symbol-or-file>
+npx mex-agent@0.8.2 setup
 ```
 
-`mex graph scope`, `mex graph query`, `mex graph get`, and `mex impact` emit a framed JSONL protocol intended for coding agents to call during setup, repair, and implementation tasks. The default `minimal` detail returns compact structural facts and relationship counts. Use `--detail standard` for returned-node edges, `--detail source` for inline source, or `mex graph get <node-id>` to expand only the exact nodes needed.
+- Choose integrations, follow agent population, review the setup-file diff, and explicitly commit it locally in one flow. A manual Git checkpoint remains available.
+- If an agent fails, retry it or copy the retained prompt and continue after manual population. Integration pointer notes are advisory and do not block setup.
+- After the commit, a completion guide explains how to start a fresh agent session and verify its project knowledge. Choose **Open Hub** to enter the full dashboard and its first-run tour.
+- Optionally install `mex` globally at the exact version running setup. Installation has progress, verification, retry, skip, and a copyable terminal command. Failure leaves setup complete.
+- Optionally leave an email and a name for follow-up about MEX. Name is optional; email is required only when submitting. The embedded Web3Forms service handles delivery. Contact details stay out of repository files and usage telemetry; only a submitted/skipped preference is stored on the computer and shared with Overview's invitation.
 
-## Retrieval results
+Use `mex setup --cli` for the terminal flow and `mex setup --dry-run` for a read-only terminal preview. `--no-open` prints the browser link; `--port <n>` chooses a loopback port. Bare `mex` opens Hub or setup, and `mex tui` keeps the terminal dashboard.
 
-The release harness measured `mex graph scope` against a grep top-3 baseline on six symbol tasks in this repository:
+## Also included
 
-- The median grep-top-3-to-scope output ratio was **10.74×** by the documented `ceil(chars/4)` estimate.
-- Expected-symbol recall remained **1.0**.
-- The former `runDriftCheck` over-expansion case improved from 32 source-bearing facts and 0.26× grep efficiency to 9 compact facts and 5.90× grep efficiency.
+- A first-run Hub tour highlights the actual navigation once per checkout; Settings can replay it.
+- Overview links directly to Context when its Wiki index is fresh, and to Health when maintenance is needed.
+- Next.js App Router HTTP handlers become route nodes in the Code Graph.
+- Sync moves inline grounding anchors together with their matching frontmatter entries, preserving the link to moved code.
 
-In a five-task real-agent comparison, both `minimal` and `source` modes answered 5/5 correctly. `minimal` used targeted `graph get` calls and never fell back to Read/Grep; `source` needed Read/Grep fallback on four tasks. That is why `minimal` is the default.
-
-These measurements are intentionally narrow: one mid-size repository, six symbol tasks, five natural-language tasks, and one model. They compare graph output with a synthetic grep baseline and compare two graph detail modes; they do **not** measure end-to-end graph-versus-no-graph token savings.
-
-## Grounded scaffold memory
-
-Setup now authors grounding as it populates memory. It follows **read broad, ground tight**: read the relevant scope neighborhood, then ground only prose claims that depend on specific behavior. Broad architecture, stack, and convention files remain sparse; pattern and deep-domain files ground tightly.
-
-Behavioral assertions use frontmatter with both a node id and fingerprint:
-
-```yaml
-grounds_to:
-  - node: "function:a3f8...c21"
-    fingerprint: "mh:64:9f2a..."
-```
-
-Load-bearing symbol mentions use readable inline navigation anchors containing only the node id:
-
-```markdown
-[`calculateCheckoutTotal()`](mex://function:a3f8...c21)
-```
-
-An unchanged node is clean. A body edit produces a grounding warning with old/new source for sync. Sync repairs the prose when needed, refreshes the frontmatter fingerprint, and updates or removes stale anchors. A high-confidence rename is rebound automatically; an uncertain candidate is surfaced for agent adjudication. Broken inline navigation remains warning-only.
-
-## Installation and upgrades
-
-mex 0.7.0 requires Node.js 22.5 or newer because the graph uses Node's built-in SQLite module.
+## Upgrade
 
 ```bash
-npx mex-agent@0.7.0 setup
+npm install -g mex-agent@0.8.2
+mex skills sync --dry-run
+mex skills sync
 ```
 
-Fresh `mex setup` runs build the graph before population, and the setup agent consumes it through the hydrated retrieval commands while authoring grounding.
+Review integration conflicts and start a fresh agent session. Completed 0.8.0/0.8.1 projects do not need setup again just to upgrade. Automation that expects terminal prompts must now use `setup --cli`.
 
-Existing populated scaffolds remain valid, but need a one-time pointer migration to participate in graph drift detection:
-
-```bash
-mex graph
-mex graph ground
-```
-
-`mex graph ground` preserves the existing prose and adds tight `grounds_to` entries plus load-bearing `mex://` anchors. It is safe to rerun. Scaffolds that have not migrated continue to behave as before under the original eleven checkers.
-
-## Graceful degradation
-
-The graph is additive. If no graph exists, a grammar is unavailable, or SQLite cannot load on a platform, mex skips graph grounding and continues running the rest of `mex check`. Unsupported-language files are skipped rather than crashing graph construction.
-
-## What comes next
-
-The 0.7.x series will broaden language and framework coverage through bounded extractor and resolver contributions, tune reconciliation and retrieval on larger repositories, and add a controlled graph-vs-no-graph agent benchmark.
+Node.js 22.5 or newer with SQLite FTS5 is required. Package-root exports and Graph/Wiki/Relay storage formats are unchanged. MEX never pushes or pulls; a setup commit is created only from the reviewed Hub action.

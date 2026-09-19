@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@mex/hub-contracts": ["../hub-contracts/src/index.ts"],
+      "@mex/hub-contracts/ids": ["../hub-contracts/src/ids.ts"],
+      "@mex/hub-contracts/overview": ["../hub-contracts/src/overview.ts"],
+      "@mex/hub-contracts/contact": ["../hub-contracts/src/contact.ts"],
+      "@mex/hub-contracts/setup": ["../hub-contracts/src/setup.ts"],
+      "@mex/hub-contracts/relay": ["../hub-contracts/src/relay.ts"],
+      "virtual:mex-hub-fixture-api": ["./src/dev/fixture-api.ts"]
+    },
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

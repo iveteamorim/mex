@@ -1,0 +1,1693 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "data": {
+    "mexVersion": "0.8.2",
+    "repository": {
+      "initializationState": "not_git_repository",
+      "graphIndexState": "unavailable",
+      "wikiIndexState": "unavailable"
+    },
+    "capabilities": [
+      {
+        "id": "project_hub",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "team_identity",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "team_workstreams",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "team_inbox",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "team_relay",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "spec_authoring",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "activity_read",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "activity_record",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "spec_read",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "code_graph",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      },
+      {
+        "id": "wiki",
+        "installed": true,
+        "availability": "unavailable",
+        "unavailableReason": {
+          "code": "NOT_GIT_REPOSITORY",
+          "detail": "Repository initialization is required before this capability can be used."
+        }
+      }
+    ],
+    "commands": {
+      "read": [
+        {
+          "id": "capabilities.inspect",
+          "path": "mex capabilities",
+          "usage": "mex capabilities --json",
+          "output": "json"
+        },
+        {
+          "id": "inbox.contract",
+          "path": "mex inbox contract",
+          "usage": "mex inbox contract --json",
+          "output": "json",
+          "contractResolver": "inbox.contract"
+        },
+        {
+          "id": "relay.contract",
+          "path": "mex relay contract",
+          "usage": "mex relay contract --json",
+          "output": "json",
+          "contractResolver": "relay.contract"
+        }
+      ],
+      "preview": [],
+      "apply": []
+    },
+    "teamCliContract": {
+      "schemaVersion": 1,
+      "requestFile": {
+        "contractId": "team.identity_activity.request.v1",
+        "mediaType": "application/json",
+        "encoding": "utf-8",
+        "maxBytes": 65536,
+        "maxDepth": 32,
+        "maxNodes": 4096,
+        "textPolicy": {
+          "normalization": "NFC",
+          "leadingOrTrailingWhitespace": "forbidden",
+          "controlCharacters": "forbidden"
+        },
+        "utf8ByteLimits": {
+          "operationId": 128,
+          "memberDisplayName": 200,
+          "gitAliasName": 200,
+          "gitAliasEmail": 320,
+          "entityId": 256,
+          "entityKind": 64,
+          "entityTitle": 512,
+          "activityAction": 128,
+          "workstreamTitle": 512,
+          "workstreamText": 8192,
+          "codeIdentifierOrFingerprint": 1024,
+          "repositoryPath": 4096
+        },
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://mex.dev/contracts/team-identity-activity-request-v1.json",
+          "title": "MEX Team identity and Activity preview request v1",
+          "description": "Caller-authored authority-free request. Every object rejects extra keys; text is trimmed NFC without control characters and runtime byte ceilings apply.",
+          "type": "object",
+          "required": [
+            "operationId",
+            "action",
+            "expectedRevisions"
+          ],
+          "properties": {
+            "operationId": {
+              "$ref": "urn:mex:t:a"
+            },
+            "action": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "oneOf": [
+                {
+                  "required": [
+                    "kind",
+                    "member"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "member.add"
+                    },
+                    "member": {
+                      "type": "object",
+                      "required": [
+                        "displayName",
+                        "gitAliases"
+                      ],
+                      "properties": {
+                        "displayName": {
+                          "$ref": "#/$defs/h"
+                        },
+                        "gitAliases": {
+                          "type": "array",
+                          "maxItems": 32,
+                          "uniqueItems": true,
+                          "items": {
+                            "$ref": "#/$defs/o"
+                          }
+                        }
+                      },
+                      "maxProperties": 2
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "memberId",
+                    "patch"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "member.update"
+                    },
+                    "memberId": {
+                      "$ref": "urn:mex:t:d"
+                    },
+                    "patch": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "minProperties": 1,
+                      "properties": {
+                        "displayName": {
+                          "$ref": "#/$defs/h"
+                        },
+                        "gitAliases": {
+                          "type": "array",
+                          "maxItems": 32,
+                          "uniqueItems": true,
+                          "items": {
+                            "$ref": "#/$defs/o"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "memberId"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "member.deactivate",
+                        "member.reactivate",
+                        "member.select"
+                      ]
+                    },
+                    "memberId": {
+                      "$ref": "urn:mex:t:d"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "member.clear"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "activity"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "activity.record"
+                    },
+                    "activity": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "action",
+                        "subjects"
+                      ],
+                      "properties": {
+                        "action": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                        },
+                        "subjects": {
+                          "type": "array",
+                          "maxItems": 64,
+                          "items": {
+                            "$ref": "#/$defs/B"
+                          }
+                        },
+                        "workstream": {
+                          "$ref": "#/$defs/p",
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "workstream"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "workstream"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.create"
+                    },
+                    "workstream": {
+                      "$ref": "#/$defs/z"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "workstreamId",
+                    "patch"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.update"
+                    },
+                    "workstreamId": {
+                      "$ref": "#/$defs/e"
+                    },
+                    "patch": {
+                      "$ref": "#/$defs/A"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "workstreamId"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.archive"
+                    },
+                    "workstreamId": {
+                      "$ref": "#/$defs/e"
+                    }
+                  }
+                }
+              ]
+            },
+            "expectedRevisions": {
+              "$ref": "#/$defs/t"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "action": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "member.update",
+                          "member.deactivate",
+                          "member.reactivate",
+                          "member.select",
+                          "member.clear"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "expectedRevisions": {
+                    "type": "array",
+                    "minItems": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "action": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "workstream.update",
+                          "workstream.archive"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "expectedRevisions": {
+                    "type": "array",
+                    "contains": {
+                      "$ref": "#/$defs/u"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "$defs": {
+            "a": {
+              "$id": "urn:mex:t:a",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "b": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "c": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/b"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "d": {
+              "$id": "urn:mex:t:d",
+              "type": "string",
+              "pattern": "^member_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+            },
+            "e": {
+              "type": "string",
+              "pattern": "^ws_[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+            },
+            "f": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?!\\s)(?!.*\\s$)[^\\u0000-\\u001f\\u007f]+$"
+            },
+            "g": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 64
+            },
+            "h": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 200
+            },
+            "i": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 256
+            },
+            "j": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 512
+            },
+            "k": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 1024
+            },
+            "l": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 4096
+            },
+            "m": {
+              "$ref": "#/$defs/f",
+              "type": "string",
+              "maxLength": 8192
+            },
+            "n": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "o": {
+              "type": "object",
+              "required": [
+                "name",
+                "email"
+              ],
+              "properties": {
+                "name": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/h"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "email": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/f",
+                      "type": "string",
+                      "maxLength": 320,
+                      "pattern": "^(?=.*@)\\S+$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "not": {
+                "required": [
+                  "name",
+                  "email"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "null"
+                  },
+                  "email": {
+                    "type": "null"
+                  }
+                }
+              },
+              "maxProperties": 2
+            },
+            "p": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/i"
+                },
+                "kind": {
+                  "$ref": "#/$defs/g"
+                },
+                "title": {
+                  "$ref": "#/$defs/j"
+                }
+              }
+            },
+            "q": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "oneOf": [
+                {
+                  "required": [
+                    "kind",
+                    "symbolId"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "symbol"
+                    },
+                    "symbolId": {
+                      "$ref": "#/$defs/k"
+                    },
+                    "fingerprint": {
+                      "$ref": "#/$defs/k"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "path"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "file"
+                    },
+                    "path": {
+                      "$ref": "#/$defs/n"
+                    },
+                    "fingerprint": {
+                      "$ref": "#/$defs/k"
+                    }
+                  }
+                }
+              ]
+            },
+            "r": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "oneOf": [
+                {
+                  "required": [
+                    "kind",
+                    "memberId"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "member"
+                    },
+                    "memberId": {
+                      "$ref": "urn:mex:t:d"
+                    },
+                    "displayName": {
+                      "$ref": "#/$defs/j"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "name",
+                    "email"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "git"
+                    },
+                    "name": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/j"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "email": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/j",
+                          "type": "string",
+                          "pattern": "^(?=.*@)\\S+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "not": {
+                    "required": [
+                      "name",
+                      "email"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "null"
+                      },
+                      "email": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "unknown"
+                    }
+                  }
+                }
+              ]
+            },
+            "s": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "oneOf": [
+                {
+                  "required": [
+                    "target",
+                    "revision"
+                  ],
+                  "properties": {
+                    "target": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "id"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "entity"
+                        },
+                        "id": {
+                          "$ref": "#/$defs/i"
+                        }
+                      },
+                      "maxProperties": 2
+                    },
+                    "revision": {
+                      "$ref": "#/$defs/c"
+                    },
+                    "semanticRevision": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "if": {
+                    "required": [
+                      "revision"
+                    ],
+                    "properties": {
+                      "revision": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "semanticRevision"
+                    ],
+                    "properties": {
+                      "semanticRevision": {}
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "target",
+                    "revision"
+                  ],
+                  "properties": {
+                    "target": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "path"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "artifact"
+                        },
+                        "path": {
+                          "$ref": "#/$defs/n"
+                        }
+                      },
+                      "maxProperties": 2
+                    },
+                    "revision": {
+                      "$ref": "#/$defs/c"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "target",
+                    "revision"
+                  ],
+                  "properties": {
+                    "target": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "namespace",
+                        "id"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "local"
+                        },
+                        "namespace": {
+                          "enum": [
+                            "inbox-draft",
+                            "relay-draft",
+                            "cursor",
+                            "job",
+                            "member-selection"
+                          ]
+                        },
+                        "id": {
+                          "$ref": "#/$defs/i"
+                        }
+                      },
+                      "maxProperties": 3
+                    },
+                    "revision": {
+                      "$ref": "#/$defs/c"
+                    }
+                  }
+                }
+              ]
+            },
+            "t": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "$ref": "#/$defs/s"
+              }
+            },
+            "u": {
+              "type": "object",
+              "required": [
+                "target",
+                "revision"
+              ],
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "path"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "artifact"
+                    },
+                    "path": {
+                      "type": "string",
+                      "pattern": "^\\.mex/workstreams/ws_[0-7][0-9A-HJKMNP-TV-Z]{25}\\.md$"
+                    }
+                  },
+                  "maxProperties": 2
+                },
+                "revision": {
+                  "$ref": "#/$defs/b"
+                }
+              },
+              "maxProperties": 2
+            },
+            "v": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/r"
+              }
+            },
+            "w": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/p"
+              }
+            },
+            "x": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/q"
+              }
+            },
+            "y": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/n"
+              }
+            },
+            "z": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "goal",
+                "summary",
+                "owners",
+                "nextMilestone"
+              ],
+              "properties": {
+                "title": {
+                  "$ref": "#/$defs/j"
+                },
+                "goal": {
+                  "$ref": "#/$defs/l"
+                },
+                "summary": {
+                  "$ref": "#/$defs/l"
+                },
+                "owners": {
+                  "$ref": "#/$defs/v",
+                  "type": "array",
+                  "minItems": 1
+                },
+                "contributors": {
+                  "$ref": "#/$defs/v"
+                },
+                "paths": {
+                  "$ref": "#/$defs/y"
+                },
+                "code": {
+                  "$ref": "#/$defs/x"
+                },
+                "topics": {
+                  "$ref": "#/$defs/w"
+                },
+                "components": {
+                  "$ref": "#/$defs/w"
+                },
+                "related": {
+                  "$ref": "#/$defs/w"
+                },
+                "nextMilestone": {
+                  "$ref": "#/$defs/l"
+                }
+              }
+            },
+            "A": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "title": {
+                  "$ref": "#/$defs/j"
+                },
+                "goal": {
+                  "$ref": "#/$defs/l"
+                },
+                "summary": {
+                  "$ref": "#/$defs/l"
+                },
+                "state": {
+                  "enum": [
+                    "planned",
+                    "active",
+                    "blocked",
+                    "done"
+                  ]
+                },
+                "owners": {
+                  "$ref": "#/$defs/v",
+                  "type": "array",
+                  "minItems": 1
+                },
+                "contributors": {
+                  "$ref": "#/$defs/v"
+                },
+                "paths": {
+                  "$ref": "#/$defs/y"
+                },
+                "code": {
+                  "$ref": "#/$defs/x"
+                },
+                "topics": {
+                  "$ref": "#/$defs/w"
+                },
+                "components": {
+                  "$ref": "#/$defs/w"
+                },
+                "related": {
+                  "$ref": "#/$defs/w"
+                },
+                "blockers": {
+                  "type": "array",
+                  "maxItems": 64,
+                  "uniqueItems": true,
+                  "items": {
+                    "$ref": "#/$defs/l"
+                  }
+                },
+                "currentState": {
+                  "$ref": "#/$defs/m"
+                },
+                "nextMilestone": {
+                  "$ref": "#/$defs/l"
+                }
+              }
+            },
+            "B": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "oneOf": [
+                {
+                  "required": [
+                    "kind",
+                    "entity"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "entity"
+                    },
+                    "entity": {
+                      "$ref": "#/$defs/p"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "code"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "code"
+                    },
+                    "code": {
+                      "$ref": "#/$defs/q"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "path"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "file"
+                    },
+                    "path": {
+                      "$ref": "#/$defs/n"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "kind",
+                    "hash"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "commit"
+                    },
+                    "hash": {
+                      "type": "string",
+                      "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                    }
+                  }
+                }
+              ]
+            },
+            "operationId": {
+              "$ref": "urn:mex:t:a"
+            },
+            "revision": {
+              "$ref": "#/$defs/c"
+            },
+            "memberId": {
+              "$ref": "urn:mex:t:d"
+            },
+            "workstreamId": {
+              "$ref": "#/$defs/e"
+            },
+            "gitAlias": {
+              "$ref": "#/$defs/o"
+            },
+            "expectation": {
+              "$ref": "#/$defs/s"
+            },
+            "expectations": {
+              "$ref": "#/$defs/t"
+            },
+            "entityRef": {
+              "$ref": "#/$defs/p"
+            },
+            "codeRef": {
+              "$ref": "#/$defs/q"
+            },
+            "actorRef": {
+              "$ref": "#/$defs/r"
+            },
+            "canonicalRepoPath": {
+              "$ref": "#/$defs/n"
+            },
+            "actorSet": {
+              "$ref": "#/$defs/v"
+            },
+            "entitySet": {
+              "$ref": "#/$defs/w"
+            },
+            "codeSet": {
+              "$ref": "#/$defs/x"
+            },
+            "pathSet": {
+              "$ref": "#/$defs/y"
+            },
+            "activitySubject": {
+              "$ref": "#/$defs/B"
+            },
+            "canonicalText": {
+              "$ref": "#/$defs/f"
+            },
+            "memberArtifactExpectation": {
+              "$ref": "#/$defs/s",
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "artifact"
+                    },
+                    "path": {
+                      "type": "string",
+                      "pattern": "^\\.mex/team/members/member_[0-7][0-9A-HJKMNP-TV-Z]{25}\\.md$"
+                    }
+                  }
+                },
+                "revision": {
+                  "$ref": "#/$defs/b"
+                }
+              }
+            },
+            "workstreamArtifactExpectation": {
+              "$ref": "#/$defs/u"
+            },
+            "entityExpectation": {
+              "$ref": "#/$defs/s",
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "entity"
+                    }
+                  }
+                }
+              }
+            },
+            "artifactExpectation": {
+              "$ref": "#/$defs/s",
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "artifact"
+                    }
+                  }
+                }
+              }
+            },
+            "localExpectation": {
+              "$ref": "#/$defs/s",
+              "type": "object",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "local"
+                    }
+                  }
+                }
+              }
+            },
+            "nonEmptyExpectations": {
+              "$ref": "#/$defs/t",
+              "type": "array",
+              "minItems": 1
+            },
+            "workstreamCreateInput": {
+              "$ref": "#/$defs/z"
+            },
+            "workstreamUpdatePatch": {
+              "$ref": "#/$defs/A"
+            },
+            "memberAddAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "member.add"
+                }
+              }
+            },
+            "memberUpdateAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "member.update"
+                }
+              }
+            },
+            "memberDeactivateAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "member.deactivate"
+                }
+              }
+            },
+            "memberSelectAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "member.select"
+                }
+              }
+            },
+            "memberClearAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "member.clear"
+                }
+              }
+            },
+            "activityRecordAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "activity.record"
+                }
+              }
+            },
+            "workstreamCreateAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "workstream.create"
+                }
+              }
+            },
+            "workstreamUpdateAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "workstream.update"
+                }
+              }
+            },
+            "workstreamArchiveAction": {
+              "$ref": "#/properties/action",
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "workstream.archive"
+                }
+              }
+            },
+            "memberSelectOnlyRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.select"
+                    }
+                  }
+                }
+              }
+            },
+            "memberClearRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.clear"
+                    }
+                  }
+                }
+              }
+            },
+            "memberAddRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.add"
+                    }
+                  }
+                }
+              }
+            },
+            "memberUpdateRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.update"
+                    }
+                  }
+                }
+              }
+            },
+            "memberDeactivateRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.deactivate"
+                    }
+                  }
+                }
+              }
+            },
+            "memberReactivateRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "member.reactivate"
+                    }
+                  }
+                }
+              }
+            },
+            "memberSelectRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "member.select",
+                        "member.clear"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "activityRecordRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "activity.record"
+                    }
+                  }
+                }
+              }
+            },
+            "workstreamCreateRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.create"
+                    }
+                  }
+                }
+              }
+            },
+            "workstreamUpdateRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.update"
+                    }
+                  }
+                }
+              }
+            },
+            "workstreamArchiveRequest": {
+              "$ref": "#",
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "workstream.archive"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "maxProperties": 3
+        },
+        "examples": [
+          {
+            "command": "member.add",
+            "usage": "mex member add request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberAddRequest",
+            "request": {
+              "operationId": "member-add-example-001",
+              "action": {
+                "kind": "member.add",
+                "member": {
+                  "displayName": "Ada Lovelace",
+                  "gitAliases": [
+                    {
+                      "name": "Ada",
+                      "email": "ada@example.test"
+                    }
+                  ]
+                }
+              },
+              "expectedRevisions": []
+            }
+          },
+          {
+            "command": "member.update",
+            "usage": "mex member update request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberUpdateRequest",
+            "request": {
+              "operationId": "member-update-example-001",
+              "action": {
+                "kind": "member.update",
+                "memberId": "member_01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                "patch": {
+                  "displayName": "Ada Byron"
+                }
+              },
+              "expectedRevisions": [
+                {
+                  "target": {
+                    "kind": "artifact",
+                    "path": ".mex/team/members/member_01ARZ3NDEKTSV4RRFFQ69G5FAV.md"
+                  },
+                  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ]
+            }
+          },
+          {
+            "command": "member.deactivate",
+            "usage": "mex member deactivate request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberDeactivateRequest",
+            "request": {
+              "operationId": "member-deactivate-example-001",
+              "action": {
+                "kind": "member.deactivate",
+                "memberId": "member_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+              },
+              "expectedRevisions": [
+                {
+                  "target": {
+                    "kind": "artifact",
+                    "path": ".mex/team/members/member_01ARZ3NDEKTSV4RRFFQ69G5FAV.md"
+                  },
+                  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ]
+            }
+          },
+          {
+            "command": "member.reactivate",
+            "usage": "mex member reactivate request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberReactivateRequest",
+            "request": {
+              "operationId": "member-reactivate-example-001",
+              "action": {
+                "kind": "member.reactivate",
+                "memberId": "member_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+              },
+              "expectedRevisions": [
+                {
+                  "target": {
+                    "kind": "artifact",
+                    "path": ".mex/team/members/member_01ARZ3NDEKTSV4RRFFQ69G5FAV.md"
+                  },
+                  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                }
+              ]
+            }
+          },
+          {
+            "command": "member.select",
+            "usage": "mex member select request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberSelectRequest",
+            "request": {
+              "operationId": "member-select-example-001",
+              "action": {
+                "kind": "member.select",
+                "memberId": "member_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+              },
+              "expectedRevisions": [
+                {
+                  "target": {
+                    "kind": "artifact",
+                    "path": ".mex/team/members/member_01ARZ3NDEKTSV4RRFFQ69G5FAV.md"
+                  },
+                  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                },
+                {
+                  "target": {
+                    "kind": "local",
+                    "namespace": "member-selection",
+                    "id": "current"
+                  },
+                  "revision": null
+                }
+              ]
+            }
+          },
+          {
+            "command": "member.clear",
+            "usage": "mex member select request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/memberSelectRequest",
+            "request": {
+              "operationId": "member-clear-example-001",
+              "action": {
+                "kind": "member.clear"
+              },
+              "expectedRevisions": [
+                {
+                  "target": {
+                    "kind": "local",
+                    "namespace": "member-selection",
+                    "id": "current"
+                  },
+                  "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              ]
+            }
+          },
+          {
+            "command": "activity.record",
+            "usage": "mex activity record request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/activityRecordRequest",
+            "request": {
+              "operationId": "activity-record-example-001",
+              "action": {
+                "kind": "activity.record",
+                "activity": {
+                  "action": "review.completed",
+                  "subjects": [
+                    {
+                      "kind": "file",
+                      "path": "src/index.ts"
+                    }
+                  ],
+                  "workstream": {
+                    "id": "ws_01ARZ3NDEKTSV4RRFFQ69G5FAV",
+                    "kind": "workstream"
+                  }
+                }
+              },
+              "expectedRevisions": []
+            }
+          },
+          {
+            "command": "workstream.create",
+            "usage": "mex workstream create request.json --json",
+            "schemaRef": "team.identity_activity.request.v1#/$defs/workstreamCreateRequest",
+            "request": {
+              "operationId": "workstream-create-example-001",
+              "action": {
+                "kind": "workstream.create",
+                "workstream": {
+                  "title": "Human-team release",
+                  "goal": "Ship the next reviewed checkpoint",
+                  "summary": "Canonical coordination for the current checkpoint.",
+                  "owners": [
+                    {
+                      "kind": "unknown"
+                    }
+                  ],
+                  "nextMilestone": "Finish Checkpoint D review"
+                }
+              },
+              "expectedRevisions": []
+            }
+          }
+        ]
+      },
+      "applyFile": {
+        "contractId": "team.identity_activity.preview-envelope.v1",
+        "mediaType": "application/json",
+        "encoding": "utf-8",
+        "maxBytes": 65536,
+        "requirement": "Pass the exact complete successful schemaVersion 1 preview JSON emitted for the same command; fragments, altered envelopes, and reconstructed receipts are rejected."
+      },
+      "exitCodes": [
+        {
+          "code": 0,
+          "name": "ok",
+          "meaning": "Success, including exact idempotent replay."
+        },
+        {
+          "code": 1,
+          "name": "validation",
+          "meaning": "Validation, invalid-preview, job, or internal command failure; inspect problem.code and diagnostics."
+        },
+        {
+          "code": 2,
+          "name": "usage",
+          "meaning": "Arguments, request JSON, or preview-envelope input are invalid."
+        },
+        {
+          "code": 3,
+          "name": "unavailable",
+          "meaning": "Repository state or the requested resource is unavailable."
+        },
+        {
+          "code": 4,
+          "name": "conflict",
+          "meaning": "A revision, operation, or recovery conflict prevented the action."
+        },
+        {
+          "code": 5,
+          "name": "refused",
+          "meaning": "A containment, authorization, or origin safety policy refused the action."
+        }
+      ]
+    },
+    "inboxCliContract": {
+      "schemaVersion": 1,
+      "resolver": {
+        "descriptorId": "inbox.contract",
+        "command": "mex inbox contract --json",
+        "contractId": "team.inbox.contract-catalog.v1",
+        "maxBytes": 65536,
+        "requirement": "The $ref roots below are unusable until this exact resolver catalog is loaded."
+      },
+      "requestFile": {
+        "contractId": "team.inbox.request.v1",
+        "mediaType": "application/json",
+        "encoding": "utf-8",
+        "maxBytes": 65536,
+        "maxDepth": 32,
+        "maxNodes": 4096,
+        "maxPortableSpecRequestBytes": 32768,
+        "schema": {
+          "$ref": "https://mex.dev/contracts/team-inbox-request-v1.json"
+        }
+      },
+      "applyFile": {
+        "contractId": "team.inbox.preview-envelope.v1",
+        "mediaType": "application/json",
+        "encoding": "utf-8",
+        "maxBytes": 65536,
+        "maxAgeSeconds": 1800,
+        "schema": {
+          "$ref": "https://mex.dev/contracts/team-inbox-preview-envelope-v1.json"
+        }
+      }
+    },
+    "nextInitializationAction": {
+      "command": "git init",
+      "reason": "Initialize the repository before MEX setup."
+    }
+  },
+  "diagnostics": []
+}

@@ -46,4 +46,4 @@ Read `AGENTS.md` first if it is not already loaded. Then read this file.
    - Ground: name what changed in reality.
    - Record: update current truth in `ROUTER.md` or `context/`.
    - Orient: create/update a `patterns/` runbook for recurring work.
-   - Write: bump `last_updated` and run `mex log` for decisions, risks, todos, or useful notes.
+   - Write: bump `last_updated`. Read `mex logging --json` before optional notes: `significant` records material rationale, `checkpoints` batches useful notes at task/session boundaries, and `manual` avoids unsolicited notes. Honor explicit user log requests in every mode; mandatory workflow Activity and recovery audits remain required.

@@ -24,6 +24,16 @@ describe("runToolInteractive return-value logic", () => {
     }));
   });
 
+  it("can leave a setup population session unbounded and launches Codex in the project root", () => {
+    mockSync.mockReturnValue({ status: 0 });
+    const cwd = process.cwd();
+    expect(runToolInteractive("codex", "populate", cwd, { timeoutMs: null })).toBe(true);
+    expect(mockSync).toHaveBeenCalledWith("codex", ["populate"], {
+      cwd,
+      stdio: "inherit",
+    });
+  });
+
   it("treats a non-zero exit (status 1) as failure", () => {
     mockSync.mockReturnValue({ status: 1 });
     expect(runToolInteractive("claude", "brief", process.cwd())).toBe(false);

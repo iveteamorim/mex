@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">One memory. Two ways in.</title>
+  <desc id="desc">Repository source and canonical Markdown feed the local MEX engine. Coding agents use the CLI and people use the Project Hub. Graph and Wiki indexes stay local; canonical knowledge can be shared through Git.</desc>
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="3" seed="8" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <clipPath id="disc"><circle cx="600" cy="282" r="98"/></clipPath>
+    <g id="field" fill="none" stroke-width="2">
+      <ellipse cx="242" cy="282" rx="27" ry="101"/>
+      <ellipse cx="958" cy="282" rx="27" ry="101"/>
+      <path d="M242 181 C397 181 478 282 600 282 S803 181 958 181 M223 211 C398 211 478 282 600 282 S802 211 977 211 M216 252 C398 252 478 282 600 282 S802 252 984 252 M215 282 H985 M216 312 C398 312 478 282 600 282 S802 312 984 312 M223 353 C398 353 478 282 600 282 S802 353 977 353 M242 383 C397 383 478 282 600 282 S803 383 958 383"/>
+      <ellipse cx="394" cy="282" rx="16" ry="73"/><ellipse cx="806" cy="282" rx="16" ry="73"/>
+    </g>
+  </defs>
+  <rect width="1200" height="520" fill="#226483"/>
+  <rect width="1200" height="520" filter="url(#grain)" opacity="0.09"/>
+  <g fill="#F1EEDC">
+    <g font-family="'Courier New',monospace" font-size="16" letter-spacing="2"><text x="48" y="46">MEX / 0.8</text><text x="1152" y="46" text-anchor="end">05 — ARCHITECTURE</text></g>
+    <text x="48" y="110" font-family="Georgia,serif" font-size="42">One memory. Two ways in.</text>
+  </g>
+  <path d="M48 142 H1152" stroke="#F1EEDC" stroke-opacity="0.3"/>
+  <circle cx="600" cy="282" r="98" fill="#171B18"/>
+  <use href="#field" stroke="#F1EEDC" stroke-opacity="0.86"/>
+  <use href="#field" stroke="#FF5738" clip-path="url(#disc)"/>
+  <rect x="544" y="260" width="112" height="47" rx="23" fill="#171B18"/>
+  <text x="600" y="293" text-anchor="middle" fill="#F1EEDC" font-family="Georgia,serif" font-size="38">MEX</text>
+  <g fill="#F1EEDC" text-anchor="middle" font-family="'Trebuchet MS',Verdana,sans-serif">
+    <text x="242" y="421" font-size="24">Your repository</text><text x="242" y="448" font-size="20">Source + Markdown</text>
+    <text x="600" y="421" font-size="24">Local engine</text>
+    <text x="958" y="421" font-size="24">Agents + people</text><text x="958" y="448" font-size="20">CLI + Project Hub</text>
+  </g>
+  <text x="48" y="493" fill="#F1EEDC" font-family="'Trebuchet MS',Verdana,sans-serif" font-size="20">Graph + Wiki indexes stay local. Canonical knowledge stays in Git.</text>
+</svg>

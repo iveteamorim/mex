@@ -13,7 +13,7 @@ import { platform } from "node:os";
 import { readGlobalConfig, setGlobalConfigKey } from "../global-config.js";
 
 /** Hosted form the maintainer uses for user-research sign-ups. */
-export const FEEDBACK_FORM_URL = "https://tally.so/r/KYGGbK";
+export const FEEDBACK_FORM_URL = "https://tally.so/r/KYjv4k";
 
 /** One-line nudge surfaced at warm moments. Points at the command, never asks for data. */
 export const INVITE_TEXT =

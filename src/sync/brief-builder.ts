@@ -53,18 +53,20 @@ function buildGroundingRepairInstructions(targets: SyncTarget[]): string {
   return `GROUNDING REPAIR — repair the prose and both pointer mechanisms together:
 
 Use the code graph for implementation context; do not sample source files. Start
-with \`mex graph scope "<behavior being repaired>"\`, then use \`mex graph query
+with \`mex graph scope "<behavior being repaired>" --fingerprint\`, then use \`mex graph query
 where-defined <symbol>\`, who-calls/what-calls, or \`mex impact <symbol|file>\`
 to resolve exact behavior and candidates. READ BROAD, GROUND TIGHT: read the
 whole useful neighborhood, but ground only functions/methods that embody claims
 the repaired prose actually makes. Keep broad files sparse.
 
 - GROUNDING_DRIFT/body change: decide whether the claim changed from the supplied
-  old/new body. Repair only affected prose, then refresh that grounds_to entry
-  with the current node id and the exact current \`fingerprint\` from graph JSONL.
+  old/new body. Repair only affected prose. Preserve the existing grounds_to
+  fingerprint and bodyHash until the user explicitly accepts that entry in
+  sync's grounding review; completing the agent session does not accept it.
 - MOVED: sync may have already durably rebound a high-confidence move. Verify the
   grounds_to id and every inline mex:// anchor for that symbol use the new id,
-  and refresh the frontmatter fingerprint from the same new-node graph fact.
+  and retain its previous bodyHash. Identity repair does not establish that the
+  documented behavior still agrees with the implementation.
 - AMBIGUOUS: adjudicate the surfaced candidate with scope/query/impact. If it is
   the same behavior, update grounds_to and any matching inline anchor to that id;
   otherwise choose the correct graph node or remove the stale grounding/anchor.
@@ -72,7 +74,8 @@ the repaired prose actually makes. Keep broad files sparse.
   grounds_to entries and inline anchors; if replacement behavior exists, ground
   and anchor the replacement using exact graph facts.
 
-Frontmatter entries are \`{ node, fingerprint }\`. Inline navigation is exactly
+Frontmatter entries are \`{ node, fingerprint, bodyHash? }\`. Never erase a prior
+bodyHash to make drift disappear. Inline navigation is exactly
 \`mex://<nodeId>\`: fingerprints belong ONLY in grounds_to and never in an URI.
 Anchor only load-bearing symbol mentions, without changing their visible text.
 Before finishing, re-read each changed file and verify ids/fingerprints resolve,

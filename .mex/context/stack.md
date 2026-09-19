@@ -12,52 +12,67 @@ edges:
     condition: when the reasoning behind a tech choice is needed
   - target: context/conventions.md
     condition: when understanding how to use a technology in this codebase
+  - target: context/architecture.md
+    condition: when locating a technology in the runtime flow
+  - target: context/setup.md
+    condition: when runtime, build, or test prerequisites are needed
 # Broad inventory: ground only claims embodied by a small number of symbols.
 # Entry shape: { node: "function:<tier-1-id>", fingerprint: "mh:64:<hex>" }
 grounds_to: []
-last_updated: [YYYY-MM-DD]
+last_updated: 2026-09-06
+mex:
+  id: mx_01M1M0CJH1XW1V1FRGAGMWFXD6
+  type: architecture
+  status: promoted
+  revision: 4
+  title: stack
+  relations:
+    - type: related_to
+      target: mx_01M1M0CJ9460AT00V8TH0QCKAC
+      note: when understanding how to use a technology in this codebase
+    - type: related_to
+      target: mx_01M1M0CJ5C5XQV0HM5VM787WQS
+      note: when locating a technology in the runtime flow
+    - type: related_to
+      target: mx_01M1M0CJGBPPFPWHY980PMTS2T
+      note: when runtime, build, or test prerequisites are needed
 ---
 
 # Stack
 
-<!-- Keep grounding sparse here. For a concrete wrapper or adapter mention, use:
-```markdown
-[`someFunction()`](mex://function:<tier-1-id>)
-```
--->
-
 ## Core Technologies
-<!-- List the primary language, framework, and runtime.
-     For each: version if it matters, any important configuration.
-     Minimum 3 items. If you cannot find 3, write "[TO DETERMINE]".
-     Length: 3-7 items.
-     Example:
-     - **Python 3.11** — primary language
-     - **FastAPI** — web framework, async by default
-     - **PostgreSQL 15** — primary database -->
+
+- **Node.js 22.5+** — ESM runtime; `node:sqlite` makes this minimum mandatory for MEX 0.8.x.
+- **TypeScript 5.9** — strict root implementation and shared contracts, targeting ES2022 with bundler-style module resolution.
+- npm workspaces — root CLI/core plus `@mex/hub-contracts` and `@mex/hub-web` packages.
+- **tsup** — builds the Node CLI/library and contract package; root output is ESM with declarations and source maps.
+- **React** — version 19 UI runtime for the Project Hub.
+- **Vite** — builds the route-lazy Hub web application after the Node bundle.
+- **SQLite** — disposable Graph/Wiki indexes and checkout-local Team state; canonical knowledge and team artifacts remain files.
 
 ## Key Libraries
-<!-- Libraries that are central to how this project works.
-     Only include libraries where the agent needs to know: we use THIS, not the alternative.
-     Include the reason over alternatives where it matters.
-     Minimum 3 items. If you cannot find 3, write "[TO DETERMINE]".
-     Length: 3-10 items.
-     Example:
-     - **SQLAlchemy** (not raw psycopg2) — ORM for all database access
-     - **Pydantic v2** — data validation and serialisation, used everywhere
-     - **pytest** (not unittest) — all tests use pytest style -->
+
+- **Commander** — CLI command tree and option parsing.
+- **web-tree-sitter** — multi-language structural extraction through packaged WASM grammars; TypeScript adds compiler-backed resolution.
+- **Hono** — routing for the loopback Project Hub HTTP service.
+- **@hono/node-server** — Node listener adapter for the Hub.
+- **Zod** — closed private Hub request/response contracts and safe projections.
+- **unified**, **remark-parse**, **remark-frontmatter**, and **yaml** — Markdown frontmatter, Wiki entities, edges, and grounding metadata.
+- **Ink** — terminal UI surfaces; keep TUI behavior separate from JSONL graph protocols.
+- **Vitest** — root unit and integration test runner.
+- **@playwright/test** and **@axe-core/playwright** — production-browser and accessibility coverage.
+- **cross-spawn** — cross-platform local agent CLI execution without shell quoting.
+- **simple-git** and **glob** — bounded repository operations and corpus discovery; neither is permission to mutate Git implicitly.
 
 ## What We Deliberately Do NOT Use
-<!-- Technologies or patterns explicitly avoided in this project, and why.
-     This prevents the agent from introducing unwanted dependencies.
-     Minimum 2 items. If you cannot find 2, write "[TO DETERMINE]".
-     Length: 2-5 items.
-     Example:
-     - No ORM for raw analytics queries — use psycopg2 directly for performance
-     - No Redux — state management is local, context API only
-     - No class components — hooks only -->
+
+- No remote service or external database for project memory; local files and built-in SQLite keep operation repository-bound.
+- No ORM over the safety-critical SQLite stores; schema, transactions, immutable reads, and migrations are explicit.
+- No automatic Git writer in production workflows; MEX prepares canonical bytes and the user owns publication.
+- No production mocks or fixture fallback when Graph, Wiki, or Team capabilities are unavailable.
 
 ## Version Constraints
-<!-- Only fill this if there are important version-specific things to know.
-     Leave empty if there are no meaningful version constraints.
-     Example: "We are on React 17, not 18 — concurrent features are not available." -->
+
+- MEX 0.8.x requires Node.js `>=22.5`; Node 20 users must remain on MEX 0.6.3.
+- The release performance baseline is calibrated on Ubuntu 24.04 with Node 22; Node 24 is compatibility coverage, not a second calibration target.
+- Graph schema, extractor, grammar, and provenance versions are compatibility inputs. Reads reject or degrade incompatible stores; explicit maintenance owns migration/rebuild.

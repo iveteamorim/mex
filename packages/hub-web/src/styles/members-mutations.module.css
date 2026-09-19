@@ -1,0 +1,190 @@
+.memberDialog {
+  width: min(720px, calc(100vw - 32px));
+  max-width: 720px;
+  max-height: min(880px, calc(100vh - 32px));
+  overflow: hidden;
+}
+
+.identityDialog {
+  width: min(520px, calc(100vw - 32px));
+  max-width: 520px;
+}
+
+.formScroll {
+  display: grid;
+  gap: 16px;
+  min-height: 0;
+  max-height: min(660px, calc(100vh - 220px));
+  padding: 1px 3px 1px 1px;
+  overflow-y: auto;
+}
+
+.privacyAlert {
+  align-items: start;
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 18px;
+}
+
+.fieldGroup [data-slot="field"],
+.identityDialog [data-slot="field"] {
+  display: grid;
+  gap: 7px;
+}
+
+.fieldGroup [data-slot="field-label"],
+.identityDialog [data-slot="field-label"] {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.fieldGroup [data-slot="field-label"] span {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.fieldGroup [data-slot="field-description"],
+.identityDialog [data-slot="field-description"] {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.fieldGroup [data-slot="field-error"] {
+  color: var(--destructive);
+  font-size: 12px;
+}
+
+.aliasFieldset {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.aliasFieldset legend {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.legendDescription {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.aliasRows {
+  display: grid;
+  gap: 9px;
+}
+
+.aliasRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: end;
+  padding: 11px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.aliasWarning {
+  display: flex;
+  gap: 7px;
+  align-items: start;
+  margin: 0;
+  color: var(--warning-foreground, var(--muted-foreground));
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.aliasWarning svg {
+  width: 15px;
+  flex: none;
+  margin-top: 1px;
+  color: var(--warning);
+}
+
+.noChange,
+.pickerStatus {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.confirmation {
+  width: min(720px, calc(100vw - 32px));
+  max-width: 720px;
+  max-height: min(860px, calc(100vh - 32px));
+  overflow-y: auto;
+}
+
+.localConfirmation {
+  width: min(470px, calc(100vw - 32px));
+  max-width: 470px;
+}
+
+.technicalDisclosure {
+  min-width: 0;
+  border-top: 1px solid var(--border);
+}
+
+.technicalDisclosure > [data-slot="collapsible-trigger"] {
+  margin-top: 8px;
+}
+
+.technicalDisclosure > [data-slot="collapsible-trigger"] svg {
+  transition: transform 140ms ease;
+}
+
+.technicalDisclosure > [data-slot="collapsible-trigger"][data-panel-open] svg,
+.technicalDisclosure > [data-slot="collapsible-trigger"][aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.technicalContent {
+  padding-top: 8px;
+}
+
+.memberOption {
+  display: grid;
+  min-width: 0;
+}
+
+.memberOption strong,
+.memberOption small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberOption small {
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .aliasRow {
+    grid-template-columns: 1fr auto;
+  }
+
+  .aliasRow [data-slot="field"]:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .technicalDisclosure > [data-slot="collapsible-trigger"] svg {
+    transition: none;
+  }
+}

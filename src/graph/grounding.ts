@@ -22,7 +22,7 @@
 //   Tier-1 hit + body unchanged      -> clean (no issue)
 //   Tier-1 hit + body_hash moved     -> WARNING  (GROUNDING_DRIFT)
 //   Tier-1 miss -> reconcile:
-//        MOVED     -> clean, rebind grounds_to (no issue)
+//        MOVED     -> rebind identity; WARNING if the accepted body hash differs
 //        AMBIGUOUS -> WARNING  (GROUNDING_AMBIGUOUS) + candidate id
 //        GONE      -> ERROR    (GROUNDING_GONE)
 
@@ -34,9 +34,53 @@ import { makeGroundingChecker } from "../drift/checkers/grounding.js";
 export type { Grounding };
 
 /**
+ * What a baseline row belongs to.
+ *
+ * `scaffold` — a scaffold markdown path, the only kind schema v2 could hold.
+ * `entity` — a wiki entity id (`mx_…`). Several entities live in one markdown
+ * file, so a file-keyed baseline cannot tell their groundings apart, which is
+ * why v3 generalized the key.
+ */
+export type GroundingSubjectKind = "scaffold" | "entity";
+
+/** The subject half of a baseline's key. */
+export interface GroundingSubject {
+  kind: GroundingSubjectKind;
+  /** A scaffold-relative markdown path, or an entity id, per `kind`. */
+  id: string;
+}
+
+/**
+ * A grounding baseline — one `_mex_grounded_source` row decoded, for any
+ * subject kind.
+ *
+ * **This is a cache, not an oracle.** It captures what a node looked like when
+ * the subject was last grounded, so drift can be *displayed* as an old-vs-new
+ * diff. It is re-captured whenever the graph is re-grounded, which is exactly
+ * why nothing may decide `fresh` by comparing the current node against it: the
+ * comparison would be current-against-current, and the drift would vanish at
+ * the moment the user does the most ordinary thing available to them. The
+ * canonical reference lives in Markdown.
+ */
+export interface GroundingBaseline {
+  subject: GroundingSubject;
+  /** The grounded node's Tier-1 id. */
+  nodeId: string;
+  /** Node body text as of the last grounding (the "old" side of a drift diff). */
+  source: string;
+  /** sha256 of `source` at grounding time. */
+  bodyHash: string;
+  /** Serialized Tier-2 fingerprint (`mh:<K>:<hex>`) captured at grounding time. */
+  fingerprint: string;
+}
+
+/**
  * A grounding baseline — one `_mex_grounded_source` row decoded. Captures a
  * grounded node's source, body_hash and fingerprint AS OF the last grounding, so
  * the checker can diff current-vs-baseline and `sync` can show old-vs-new.
+ *
+ * The scaffold-kind projection of {@link GroundingBaseline}, kept as the shape
+ * the eleven-checker drift pipeline already consumes.
  */
 export interface GroundedSource {
   /** Scaffold markdown file (relative to project root) that owns this grounding. */

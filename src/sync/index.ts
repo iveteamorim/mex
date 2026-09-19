@@ -7,9 +7,16 @@ import { runDriftCheck } from "../drift/index.js";
 import { isCliAvailable } from "../cli-tools.js";
 import { buildSyncBrief, buildCombinedBrief } from "./brief-builder.js";
 import { findScaffoldFiles } from "../drift/index.js";
-import { captureGroundingBaselines, loadGroundingRuntime, persistMovedGroundings } from "../graph/runtime.js";
+import { captureGroundingBaselines, groundingReviewNodeIds, loadGroundingRuntime, persistMovedGroundings, previewGroundingBaseline } from "../graph/runtime.js";
+import { writeGroundings } from "../markdown.js";
+import { buildAgentCommand } from "../agent-command.js";
 
 const INTERACTIVE_AI_TIMEOUT_MS = 15 * 60_000;
+
+export interface RunToolInteractiveOptions {
+  /** Sync keeps its bounded default; setup passes null for a user-driven session. */
+  timeoutMs?: number | null;
+}
 
 function askUser(question: string): Promise<string> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -21,18 +28,23 @@ function askUser(question: string): Promise<string> {
   });
 }
 
-export function runToolInteractive(tool: AiTool, brief: string, cwd: string): boolean {
-  const meta = AI_TOOLS[tool];
-  if (!meta.cli) return false;
-
-  const args = [...meta.promptFlag, brief];
+export function runToolInteractive(
+  tool: AiTool,
+  brief: string,
+  cwd: string,
+  options: RunToolInteractiveOptions = {},
+): boolean {
+  const invocation = buildAgentCommand(tool, brief, "interactive");
+  if (invocation === null) return false;
   // cross-spawn resolves Windows `.cmd`/`.bat` wrappers (npm installs `claude`
   // as `claude.cmd`) and escapes args correctly — plain spawnSync throws ENOENT
   // on Windows, and `shell: true` mangles the multi-line prompt (issue #85).
-  const result = crossSpawn.sync(meta.cli, args, {
+  const result = crossSpawn.sync(invocation.command, invocation.args, {
     cwd,
     stdio: "inherit",
-    timeout: INTERACTIVE_AI_TIMEOUT_MS,
+    ...(options.timeoutMs === null
+      ? {}
+      : { timeout: options.timeoutMs ?? INTERACTIVE_AI_TIMEOUT_MS }),
   });
   // A spawn failure (ENOENT, etc.) sets `error` and leaves `status` null — don't
   // mistake that for success, or launch problems get silently swallowed.
@@ -86,11 +98,20 @@ async function pickSyncTool(configuredTools: AiTool[]): Promise<AiTool | null> {
 
 type SyncMode = "interactive" | "prompts";
 
+/** Internal seams for exercising a complete sync without launching an agent or terminal. */
+interface SyncDependencies {
+  ask?: (question: string) => Promise<string>;
+  runAgent?: typeof runToolInteractive;
+  reviewGrounding?: boolean;
+}
+
 /** Run targeted sync: detect → brief → AI → verify → ask → loop */
 export async function runSync(
   config: MexConfig,
-  opts: { dryRun?: boolean; includeWarnings?: boolean }
+  opts: { dryRun?: boolean; includeWarnings?: boolean },
+  dependencies: SyncDependencies = {},
 ): Promise<void> {
+  const ask = dependencies.ask ?? askUser;
   let cycle = 0;
   let mode: SyncMode | null = null;
   let activeTool: AiTool | null = null;
@@ -200,7 +221,7 @@ export async function runSync(
       console.log("  3) Exit");
       console.log();
 
-      const choice = await askUser("Choice [1-3] (default: 1): ");
+      const choice = await ask("Choice [1-3] (default: 1): ");
       const picked = choice || "1";
 
       switch (picked) {
@@ -241,15 +262,20 @@ export async function runSync(
     console.log(chalk.bold(`\nSending all ${targets.length} file(s) to ${toolLabel} in one session...\n`));
 
     const brief = await buildGroundingAwareBrief(targets, config);
-    const ok = runToolInteractive(activeTool!, brief, config.projectRoot);
+    const ok = (dependencies.runAgent ?? runToolInteractive)(activeTool!, brief, config.projectRoot);
 
     if (!ok) {
       console.log(chalk.red(`  ✗ ${toolLabel} session failed`));
     } else {
       try {
-        await captureGroundingBaselines(config, { updateFingerprints: true });
+        // Completion authorizes verification and initial capture, never renewal
+        // of accepted knowledge. Literal-only edits can keep the same fingerprint.
+        await captureGroundingBaselines(config);
+        if (dependencies.reviewGrounding ?? (process.stdin.isTTY && process.stdout.isTTY)) {
+          await reviewGroundingBaselines(config, targets, ask);
+        }
       } catch {
-        // The following drift check reports graph degradation without crashing sync.
+        console.log(chalk.yellow("Grounding review could not finish. Existing baselines are preserved for entries that were not accepted."));
       }
     }
 
@@ -300,13 +326,62 @@ export async function runSync(
       ? remainingErrors + remainingWarnings
       : remainingErrors;
 
-    const answer = await askUser(
+    const answer = await ask(
       `\n${remaining} issue(s) remain. Run another cycle? [Y/n] `
     );
 
     if (answer.toLowerCase() === "n") {
       console.log(chalk.dim("Stopped. Run mex sync again anytime."));
       return;
+    }
+  }
+}
+
+/** Review one exact entry at a time; no graph lease is held while waiting for input. */
+export async function reviewGroundingBaselines(
+  config: MexConfig,
+  targets: readonly SyncTarget[],
+  ask: (question: string) => Promise<string> = askUser,
+  write: (message: string) => void = console.log,
+): Promise<void> {
+  let inspected = 0;
+  for (const target of targets) {
+    if (!target.issues.some((issue) => issue.code.startsWith("GROUNDING_"))) continue;
+    const nodeIds = groundingReviewNodeIds(config, target.file);
+    if (nodeIds === null) {
+      write(`Grounding review for ${target.file} exceeds the inline review limit; its baseline is preserved.`);
+      continue;
+    }
+    for (const nodeId of nodeIds) {
+      if (++inspected > 64) {
+        write("The grounding review limit was reached; remaining baselines are preserved.");
+        return;
+      }
+      const runtime = await loadGroundingRuntime(config);
+      if (!runtime) return;
+      let review;
+      try {
+        review = previewGroundingBaseline(config, target.file, nodeId, runtime);
+      } finally {
+        runtime.close();
+      }
+      if (!review) continue;
+      write(`\nGrounding review: ${target.file}\nNode: ${nodeId}`);
+      // Keep authored metadata/prose visible, but hide serialized grounding
+      // fingerprints. The acceptance still binds the original complete bytes.
+      write(`\nCurrent document (grounding metadata hidden):\n${writeGroundings(review.content, [])}`);
+      write(`\nPreviously accepted code:\n${review.oldBody ?? "Unavailable in this checkout; inspect the prior revision before accepting."}`);
+      write(`\nCurrent code:\n${review.newBody}`);
+      write("Accepting records that this claim was reviewed against the current code. Commit and push to share it.");
+      const answer = (await ask("Accept this grounding after reviewing the claim and current code? [y/N] ")).trim().toLowerCase();
+      if (answer !== "y" && answer !== "yes") continue;
+      const result = await captureGroundingBaselines(config, {
+        acceptedGroundings: [review.acceptance],
+        warn: write,
+      });
+      write(result.captured === 1
+        ? "Accepted this grounding in the working tree."
+        : "Grounding was not accepted; its document or code changed. Review it again.");
     }
   }
 }

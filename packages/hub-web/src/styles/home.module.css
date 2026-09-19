@@ -1,0 +1,976 @@
+.page {
+  display: grid;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  gap: 22px;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveStatus {
+  min-height: 0;
+  margin-top: -14px;
+  color: var(--success);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.liveStatus:empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.refreshingIcon {
+  animation: overview-spin 900ms linear infinite;
+}
+
+@keyframes overview-spin {
+  to { transform: rotate(360deg); }
+}
+
+.memoryHero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.memoryHeroIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  border-radius: 11px;
+  place-items: center;
+}
+
+.memoryHeroIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.memoryHeroCopy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.memoryHeroCopy h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(17px, 1.55vw, 21px);
+  font-weight: 630;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+}
+
+.memoryHeroCopy p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .memoryHero {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .memoryHero > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+.atlasGrid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.primaryColumn {
+  display: grid;
+  grid-column: span 8;
+  gap: 14px;
+  min-width: 0;
+}
+
+/*
+ * The right-hand column. Activity used to be the only card here and placed
+ * itself; now that something sits beneath it, the column is explicit — stacking
+ * a second `span 4` card by auto-placement would drop it to the next row's
+ * first column rather than under the one above it.
+ */
+.asideColumn {
+  display: grid;
+  grid-column: span 4;
+  gap: 14px;
+  min-width: 0;
+  align-content: start;
+}
+
+.activityCard {
+  min-width: 0;
+}
+
+.activityCard .panelHeader h2 {
+  font-size: clamp(17px, 1.55vw, 21px);
+}
+
+.focusCard,
+.readinessCard,
+.activityCard,
+.operationCard {
+  --card-spacing: 18px;
+  min-width: 0;
+  border-radius: 14px;
+}
+
+/*
+ * Team invite in the right rail. Keep it quieter than Activity so the product
+ * memory sits first and the waitlist reads as a close, not a peer hero.
+ */
+.updatesCard {
+  --card-spacing: 14px;
+  min-width: 0;
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.updatesCard .panelHeader h2 {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 580;
+  letter-spacing: -0.01em;
+}
+
+.updatesContent {
+  display: grid;
+  gap: 8px;
+}
+
+.updatesLead {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.updatesBody {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.updatesActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.focusCard {
+  background: var(--card);
+}
+
+.panelHeader {
+  min-width: 0;
+  align-items: start;
+  border-color: var(--border);
+}
+
+.panelHeader > div:first-child {
+  min-width: 0;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(17px, 1.55vw, 21px);
+  font-weight: 630;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+}
+
+.panelHeader [data-slot="card-description"] {
+  max-width: 620px;
+  margin-top: 5px;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.panelHeader [data-slot="card-action"] {
+  max-width: 220px;
+}
+
+.panelHeader [data-slot="badge"] {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panelHeader [data-readiness="ready"] {
+  color: var(--success);
+  border-color: var(--success-border);
+  background: var(--success-soft);
+}
+
+.panelHeader [data-readiness="preparing"],
+.panelHeader [data-readiness="attention"] {
+  color: var(--warning);
+  border-color: var(--warning-border);
+  background: var(--warning-soft);
+}
+
+.focusContent,
+.activityContent,
+.readinessContent,
+.operationContent {
+  min-width: 0;
+}
+
+.focusContent {
+  display: grid;
+  gap: 16px;
+}
+
+.focalAction {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.focalIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  place-items: center;
+}
+
+.focalIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.focalCopy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.focalCopy h3,
+.focalCopy span {
+  margin: 0;
+}
+
+.focalCopy h3 {
+  color: var(--foreground);
+  font-size: clamp(17px, 1.8vw, 23px);
+  font-weight: 640;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.focalCopy span {
+  max-width: 660px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.focusEmpty {
+  min-height: 190px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+}
+
+.focusEmpty [data-slot="empty-icon"] {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.focusEmpty [data-slot="empty-title"] {
+  color: var(--foreground);
+  font-size: 17px;
+  font-weight: 620;
+}
+
+.focusQueue {
+  gap: 5px;
+}
+
+.focusQueue [data-slot="item"] {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-color: transparent;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.focusQueue [data-slot="item"]:hover,
+.focusQueue [data-slot="item"]:focus-visible {
+  background: var(--surface-subtle);
+  border-color: var(--border);
+}
+
+.focusQueue [data-slot="item-media"] {
+  color: var(--muted-foreground);
+}
+
+.focusQueue [data-slot="item-title"] {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 590;
+}
+
+.focusQueue [data-slot="item-description"] {
+  max-width: 620px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.focusQueue [data-slot="item-actions"] {
+  color: var(--muted-foreground);
+}
+
+.focusQueue [data-slot="item-actions"] svg {
+  width: 15px;
+  height: 15px;
+}
+
+.panelWarnings {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.panelAlert,
+.snapshotNote,
+.activityWarning {
+  min-width: 0;
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+}
+
+.panelAlert > svg,
+.snapshotNote > svg,
+.activityWarning > svg {
+  color: var(--warning);
+}
+
+.panelAlert [data-slot="alert-description"],
+.snapshotNote [data-slot="alert-description"],
+.activityWarning [data-slot="alert-description"] {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.activityContent {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 2px;
+}
+
+.activityList {
+  gap: 0;
+}
+
+.activityRow {
+  min-width: 0;
+  padding: 14px 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.activityRow + .activityRow {
+  border-top: 1px solid var(--border);
+}
+
+.activityRow [data-slot="item-media"] {
+  width: 32px;
+  height: 32px;
+  margin-top: 1px;
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+}
+
+.activityRow [data-slot="item-title"] {
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 590;
+  line-height: 1.4;
+}
+
+.activityRow [data-slot="item-title"] > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.activityRow [data-slot="badge"] {
+  flex: 0 0 auto;
+}
+
+.activityRow [data-slot="item-description"] {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.activityContextLink,
+.activityContextPlain {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityContextLink {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.activityContextLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.activityContextLink svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+.activityEmpty {
+  min-height: 260px;
+  border: 1px dashed var(--border);
+}
+
+.activityWarning {
+  margin-top: 4px;
+}
+
+.readinessCard {
+  background: var(--card);
+}
+
+.readinessContent {
+  display: grid;
+  gap: 16px;
+}
+
+.readinessMap {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.85fr) minmax(42px, 0.18fr) minmax(260px, 1.2fr);
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  padding: 18px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.readinessNode {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 11px;
+  min-width: 0;
+  padding: 13px;
+  background: color-mix(in oklch, var(--card) 94%, transparent);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+}
+
+.readinessNode > span {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  place-items: center;
+}
+
+.readinessNode > span svg {
+  width: 15px;
+  height: 15px;
+}
+
+.readinessNode > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.readinessNode small {
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  font-weight: 560;
+}
+
+.readinessNode strong {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 640;
+}
+
+.readinessNode p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.readinessNode[data-state="fresh"] > span,
+.readinessNode[data-state="observed"] > span {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.readinessNode[data-state="stale"] > span,
+.readinessNode[data-state="degraded"] > span,
+.readinessNode[data-state="missing"] > span,
+.readinessNode[data-state="rebuild_required"] > span,
+.readinessNode[data-state="migration_required"] > span {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+}
+
+.readinessNode[data-state="corrupt"] > span,
+.readinessNode[data-state="unavailable"] > span {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.mapConnector {
+  position: relative;
+  display: block;
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.mapConnector::before,
+.mapConnector::after {
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--muted-foreground);
+  border-radius: 50%;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.mapConnector::before { left: -2px; }
+.mapConnector::after { right: -2px; }
+
+.indexNodes {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.indexNodes::before {
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: -1px;
+  width: 1px;
+  background: var(--border-strong);
+  content: "";
+}
+
+.readinessFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.readinessFacts > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 11px 12px;
+  background: var(--surface-subtle);
+}
+
+.readinessFacts dt {
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.readinessFacts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-variant-ligatures: none;
+  line-height: 1.45;
+}
+
+.parseReadiness {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.parseReadiness > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+}
+
+.parseReadiness strong {
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 560;
+}
+
+.parseComposition {
+  display: grid;
+  grid-template-columns: var(--parse-ok) var(--parse-partial) var(--parse-failed);
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  background: var(--muted);
+  border-radius: 999px;
+}
+
+.parseComposition [data-kind="ok"] { background: var(--success); }
+.parseComposition [data-kind="partial"] { background: var(--warning); }
+.parseComposition [data-kind="failed"] { background: var(--danger); }
+
+.snapshotNote {
+  margin-top: -2px;
+}
+
+.technicalDisclosure {
+  min-width: 0;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.technicalDisclosure > [data-slot="collapsible-trigger"] svg {
+  transition: transform var(--transition-fast);
+}
+
+.technicalDisclosure > [data-slot="collapsible-trigger"][aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.technicalContent {
+  min-width: 0;
+}
+
+.technicalFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+  margin: 8px 0 0;
+}
+
+.technicalFacts > div {
+  min-width: 0;
+  padding: 9px 10px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.technicalFacts dt {
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.technicalFacts dd {
+  min-width: 0;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--foreground);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.technicalFacts code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-ligatures: none;
+}
+
+.healthLink {
+  width: fit-content;
+  margin-left: -8px;
+}
+
+.operationCard {
+  grid-column: 1 / -1;
+  border-color: var(--warning-border);
+  background: var(--card);
+}
+
+.operationContent {
+  display: grid;
+  gap: 13px;
+}
+
+.operationIdentity {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.operationIdentity > span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  color: var(--warning);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  border-radius: 9px;
+  place-items: center;
+}
+
+.operationIdentity > span svg {
+  width: 16px;
+  height: 16px;
+}
+
+.activeOperationIcon {
+  animation: overview-spin 1.2s linear infinite;
+}
+
+.operationIdentity > div {
+  min-width: 0;
+}
+
+.operationIdentity h3,
+.operationIdentity p {
+  margin: 0;
+}
+
+.operationIdentity h3 {
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 620;
+}
+
+.operationIdentity p {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.operationContent [data-slot="progress"] {
+  position: relative;
+}
+
+.operationContent [data-slot="progress-track"] {
+  height: 6px;
+}
+
+.operationContent [data-slot="progress-indicator"] {
+  background: var(--primary);
+}
+
+.operationContent [data-slot="progress"][data-indeterminate] [data-slot="progress-indicator"] {
+  width: 34%;
+  animation: overview-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes overview-indeterminate {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
+.operationMeta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.operationMeta time {
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+}
+
+.skeletonContent {
+  display: grid;
+  gap: 10px;
+}
+
+.skeletonEyebrow { width: 92px; height: 11px; }
+.skeletonTitle { width: min(240px, 70%); height: 22px; }
+.skeletonLineWide { width: 100%; height: 16px; }
+.skeletonLine { width: 72%; height: 16px; }
+.skeletonBlock { width: 100%; height: 150px; }
+.skeletonCompact .skeletonBlock { height: 48px; }
+
+@media (max-width: 1180px) {
+  .primaryColumn,
+  .activityCard {
+    grid-column: 1 / -1;
+  }
+
+  .activityCard {
+    grid-row: auto;
+  }
+
+}
+
+@media (max-width: 760px) {
+  .page {
+    gap: 16px;
+  }
+
+  .focusCard,
+  .readinessCard,
+  .activityCard,
+  .operationCard {
+    --card-spacing: 15px;
+    box-shadow: none;
+  }
+
+  .focalAction {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .focalAction > [data-slot="button"] {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .readinessMap {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .mapConnector {
+    width: 1px;
+    height: 20px;
+    margin-left: 28px;
+  }
+
+  .mapConnector::before,
+  .mapConnector::after {
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .mapConnector::before { top: -2px; }
+  .mapConnector::after { right: auto; bottom: -2px; }
+
+  .indexNodes::before {
+    display: none;
+  }
+
+  .readinessFacts {
+    grid-template-columns: 1fr;
+  }
+
+  .technicalFacts {
+    grid-template-columns: 1fr;
+  }
+
+  .operationMeta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .refreshingIcon,
+  .activeOperationIcon,
+  .operationContent [data-slot="progress"][data-indeterminate] [data-slot="progress-indicator"] {
+    animation: none;
+  }
+
+  .focusQueue [data-slot="item"] {
+    transition: none;
+  }
+
+  .technicalDisclosure > [data-slot="collapsible-trigger"] svg {
+    transition: none;
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "settings-browser-heap-calibration",
+  "source": {
+    "runUrl": "https://github.com/mex-memory/mex/actions/runs/34286120355",
+    "artifactUrl": "https://github.com/mex-memory/mex/actions/runs/34286120355/artifacts/10079816681",
+    "pullRequest": 180,
+    "pullRequestHead": "6e12e6dd34a3bb11735ce3580aece8d37e2e8043",
+    "schemaVersion": 1,
+    "kind": "mex-release-benchmark-attempt",
+    "repositoryHead": "8c046500e2969463014e12dc5844abf76ae403ce",
+    "github": {
+      "runId": "34286120355",
+      "runAttempt": "1",
+      "sha": "8c046500e2969463014e12dc5844abf76ae403ce"
+    },
+    "runnerAllocation": {
+      "job": "release_performance_attempt_1",
+      "runnerName": "GitHub Actions 1000000930",
+      "runnerOs": "Linux",
+      "runnerArch": "X64"
+    },
+    "rawReportSha256": "98007786b450eb7a6142d0ce43cf2bb6fc85c287d6e0a8837850318d5924fd04",
+    "retryRequired": false,
+    "disposition": "hard_failure"
+  },
+  "environment": {
+    "os": "ubuntu-24.04",
+    "platform": "linux",
+    "architecture": "x64",
+    "node": "v22.22.0",
+    "pinnedBudgetEnvironment": true
+  },
+  "formula": "ceil(measured p95 * 1.15)",
+  "sampleCount": 5,
+  "previousCalibrationStatus": "calibrated-from-pinned-runs-33005876613-33083122092-33117048710-E33169865368-F33249296778-Goverview",
+  "unownedBudgetSha256": "7d4c45e5399361ddf3b4292aa33b3ba3e179e0c833547ee4ecc4891bb03c469c",
+  "profiles": {
+    "small": {
+      "samples": [
+        5480288,
+        5480372,
+        5480384,
+        5480384,
+        5480428
+      ],
+      "min": 5480288,
+      "median": 5480384,
+      "p95": 5480428,
+      "max": 5480428,
+      "budgetBytes": 6302493
+    },
+    "medium": {
+      "samples": [
+        5474652,
+        5474656,
+        5480372,
+        5480384,
+        5482104
+      ],
+      "min": 5474652,
+      "median": 5480372,
+      "p95": 5482104,
+      "max": 5482104,
+      "budgetBytes": 6304420
+    },
+    "large": {
+      "samples": [
+        5480384,
+        5480388,
+        5481520,
+        5482008,
+        5486028
+      ],
+      "min": 5480384,
+      "median": 5481520,
+      "p95": 5486028,
+      "max": 5486028,
+      "budgetBytes": 6308933
+    }
+  },
+  "note": "The report completed measurement but failed enforcement because these three Settings budgets were missing. This calibrates only Settings browser heap; all existing limits, confirmation rules and formulas remain frozen. Graph maintenance crossings still require ordinary enforcing CI."
+}

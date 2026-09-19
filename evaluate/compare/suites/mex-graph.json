@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "mex-graph-agent-pilot",
+  "description": "Repeated files-only versus main versus active-checkout agent comparison for graph retrieval.",
+  "requiredRepetitions": 3,
+  "releaseGates": {
+    "maxDistinctScopeQueries": 1,
+    "firstResponseFileHitAt5": 0.9
+  },
+  "subject": { "name": "mex" },
+  "arms": {
+    "files": {
+      "kind": "grep",
+      "role": "control",
+      "label": "repository files only"
+    },
+    "main": {
+      "kind": "graph",
+      "role": "released",
+      "label": "main",
+      "buildFromGit": {
+        "root": "{harnessRoot}",
+        "revision": "main",
+        "commands": [["npm", "run", "build"]],
+        "cli": "dist/cli.js",
+        "shareNodeModules": true
+      }
+    },
+    "candidate": {
+      "kind": "graph",
+      "role": "patched",
+      "label": "active checkout",
+      "cli": ["node", "{harnessRoot}/dist/cli.js"]
+    }
+  },
+  "tasks": [
+    {
+      "id": "scope-selection",
+      "question": "How does graph retrieval decide which code declarations belong in a task neighborhood?",
+      "gold": [{ "symbol": "selectScope", "kind": "function", "path": "src/graph/scope.ts" }]
+    },
+    {
+      "id": "budget-enforcement",
+      "question": "What prevents a graph retrieval response from exceeding its output token allowance?",
+      "gold": [{ "symbol": "BudgetLedger", "kind": "class", "path": "src/graph/agent-protocol.ts" }]
+    },
+    {
+      "id": "source-expansion",
+      "question": "How does an agent expand a selected graph node into bounded source code?",
+      "gold": [
+        { "symbol": "runGraphGet", "kind": "function", "path": "src/graph/cli-agent.ts" },
+        { "symbol": "readNodeSource", "kind": "function", "path": "src/graph/scope.ts" }
+      ]
+    },
+    {
+      "id": "impact-walk",
+      "question": "How is transitive blast radius computed from a changed code symbol?",
+      "gold": [
+        { "symbol": "runImpact", "kind": "function", "path": "src/graph/cli-agent.ts" },
+        { "symbol": "transitiveCallers", "kind": "function", "path": "src/graph/cli-agent.ts" }
+      ]
+    },
+    {
+      "id": "compact-facts",
+      "question": "Where is the compact agent-facing representation of a graph declaration assembled?",
+      "gold": [{ "symbol": "compactFact", "kind": "function", "path": "src/graph/scope.ts" }]
+    },
+    {
+      "id": "graph-build-read-flow",
+      "question": "Which entry points build the graph and answer a natural-language scope request?",
+      "gold": [
+        { "symbol": "runGraph", "kind": "function", "path": "src/graph/cli-graph.ts" },
+        { "symbol": "runGraphScope", "kind": "function", "path": "src/graph/cli-agent.ts" }
+      ]
+    }
+  ]
+}

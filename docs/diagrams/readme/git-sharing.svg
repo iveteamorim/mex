@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="sharing-title sharing-desc">
+  <title id="sharing-title">Share the memory through Git.</title>
+  <desc id="sharing-desc">An engineer and their agent contribute canonical MEX files to shared team memory through Git. A teammate and their agent can use that memory after the engineers manually commit, push, and pull. Graph and Wiki indexes remain separate in each checkout and are never shared through Git.</desc>
+  <defs>
+    <filter id="sharing-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" seed="8"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <marker id="sharing-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M1 1 8 5 1 9" fill="none" stroke="#F1EEDC" stroke-width="1.4"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="520" fill="#226483"/>
+  <rect width="1200" height="520" filter="url(#sharing-grain)" opacity="0.07"/>
+  <g fill="#F1EEDC">
+    <g font-family="'Courier New', monospace" font-size="16" letter-spacing="2">
+      <text x="48" y="43">MEX / 0.8</text>
+      <text x="1152" y="43" text-anchor="end">01 / TEAM MEMORY</text>
+    </g>
+    <text x="48" y="111" font-family="Georgia, 'Times New Roman', serif" font-size="42">Share the memory through Git.</text>
+  </g>
+  <g fill="none" stroke="#F1EEDC" stroke-width="2" stroke-linecap="round">
+    <path d="M316 228Q424 170 542 228" marker-end="url(#sharing-arrow)"/>
+    <path d="M658 228Q772 170 884 228" marker-end="url(#sharing-arrow)"/>
+    <path d="M884 260Q772 319 658 260" marker-end="url(#sharing-arrow)" opacity="0.6"/>
+    <path d="M542 260Q424 319 316 260" marker-end="url(#sharing-arrow)" opacity="0.6"/>
+    <ellipse cx="240" cy="244" rx="92" ry="37" transform="rotate(-25 240 244)"/>
+    <ellipse cx="960" cy="244" rx="92" ry="37" transform="rotate(-25 960 244)"/>
+  </g>
+  <circle cx="240" cy="244" r="72" fill="#171B18"/>
+  <circle cx="960" cy="244" r="72" fill="#171B18"/>
+  <path d="m600 189 55 55-55 55-55-55Z" fill="#FF5738"/>
+  <g fill="#F1EEDC" font-family="'Trebuchet MS', Verdana, sans-serif" text-anchor="middle">
+    <text x="600" y="171" font-size="24">Shared team memory</text>
+    <text x="600" y="254" font-size="28">Git</text>
+    <g font-size="24">
+      <text x="240" y="237">Engineer</text>
+      <text x="240" y="266">+ agent</text>
+      <text x="960" y="237">Teammate</text>
+      <text x="960" y="266">+ agent</text>
+    </g>
+    <text x="600" y="340" font-size="20">Manual commit · push · pull</text>
+  </g>
+  <g fill="none" stroke="#F1EEDC" stroke-width="2">
+    <path d="M205 355V384C205 397 275 397 275 384V355"/>
+    <ellipse cx="240" cy="355" rx="35" ry="11"/>
+    <path d="M205 370C205 383 275 383 275 370"/>
+    <path d="M925 355V384C925 397 995 397 995 384V355"/>
+    <ellipse cx="960" cy="355" rx="35" ry="11"/>
+    <path d="M925 370C925 383 995 383 995 370"/>
+  </g>
+  <g fill="#F1EEDC" font-family="'Trebuchet MS', Verdana, sans-serif" text-anchor="middle" font-size="20" opacity="0.82">
+    <text x="240" y="425">Local indexes</text>
+    <text x="960" y="425">Local indexes</text>
+  </g>
+  <path d="M48 451H1152" stroke="#F1EEDC" stroke-opacity="0.3"/>
+  <text x="48" y="484" fill="#F1EEDC" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="20">Each checkout builds its own Graph and Wiki indexes.</text>
+</svg>

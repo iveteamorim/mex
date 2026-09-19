@@ -1,0 +1,101 @@
+.page {
+  display: grid;
+  width: min(100%, 1180px);
+  min-height: calc(100vh - 190px);
+  align-items: center;
+  margin: 0 auto;
+}
+
+.resolutionCard {
+  width: min(100%, 760px);
+  min-height: 390px;
+  justify-self: center;
+  --card-spacing: 0px;
+}
+
+.resolutionContent {
+  display: flex;
+  min-width: 0;
+  padding: 0;
+}
+
+.resolution {
+  min-height: 390px;
+  gap: 12px;
+  padding: 36px;
+  border: 0;
+  border-radius: inherit;
+}
+
+.routeIcon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 3px;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+}
+
+.routeIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.code {
+  height: 22px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.resolutionHeader {
+  max-width: 580px;
+  gap: 5px;
+}
+
+.resolutionHeader [data-slot="empty-title"] {
+  color: var(--foreground);
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 560;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+}
+
+.resolutionHeader [data-slot="empty-description"] {
+  font-size: 12px;
+}
+
+.requestPath {
+  display: block;
+  max-width: min(100%, 560px);
+  padding: 8px 10px;
+  overflow-x: auto;
+  color: var(--secondary-foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.returnLink {
+  text-decoration: none;
+}
+
+@media (max-width: 1120px) {
+  .resolutionCard,
+  .resolution {
+    min-height: 350px;
+  }
+
+  .resolution {
+    padding: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .returnLink {
+    transition: none;
+  }
+}

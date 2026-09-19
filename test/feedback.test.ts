@@ -35,7 +35,7 @@ afterEach(async () => {
 describe("FEEDBACK_FORM_URL", () => {
   it("points at the maintainer's hosted form", async () => {
     const { FEEDBACK_FORM_URL } = await import("../src/feedback/index.js");
-    expect(FEEDBACK_FORM_URL).toBe("https://tally.so/r/KYGGbK");
+    expect(FEEDBACK_FORM_URL).toBe("https://tally.so/r/KYjv4k");
   });
 });
 
@@ -46,7 +46,7 @@ describe("mex feedback", () => {
     __setOpener((url) => opened.push(url));
     vi.spyOn(console, "log").mockImplementation(() => {});
     runFeedback();
-    expect(opened).toEqual(["https://tally.so/r/KYGGbK"]);
+    expect(opened).toEqual(["https://tally.so/r/KYjv4k"]);
   });
 
   it("swallows opener errors (no browser / no DISPLAY)", async () => {

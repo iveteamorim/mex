@@ -18,7 +18,7 @@
         {
           default = pkgs.buildNpmPackage {
             pname = "mex";
-            version = "0.7.0";
+            version = (builtins.fromJSON (builtins.readFile ./package.json)).version;
 
             src = ./.;
 

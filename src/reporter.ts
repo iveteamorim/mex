@@ -1,5 +1,9 @@
 import chalk from "chalk";
 import type { DriftReport, DriftIssue, Severity } from "./types.js";
+import type { GraphAwareDriftReport } from "./drift/index.js";
+import type { GraphStatus } from "./team/contracts/graph.js";
+
+type ReportableDriftReport = DriftReport & Partial<Pick<GraphAwareDriftReport, "graphStatus">>;
 
 const severityColor: Record<Severity, (s: string) => string> = {
   error: chalk.red,
@@ -13,7 +17,7 @@ const severityIcon: Record<Severity, string> = {
   info: "ℹ",
 };
 
-export function reportConsole(report: DriftReport): void {
+export function reportConsole(report: ReportableDriftReport): void {
   // Show score at top so it's visible before scrolling through issues
   if (report.issues.length > 0) {
     printSummary(report);
@@ -44,9 +48,10 @@ export function reportConsole(report: DriftReport): void {
   }
 
   printSummary(report);
+  printGraphStatus(report.graphStatus);
 }
 
-export function reportQuiet(report: DriftReport): void {
+export function reportQuiet(report: ReportableDriftReport): void {
   const errors = report.issues.filter((i) => i.severity === "error").length;
   const warnings = report.issues.filter(
     (i) => i.severity === "warning"
@@ -61,15 +66,16 @@ export function reportQuiet(report: DriftReport): void {
       : report.score >= 50
         ? chalk.yellow
         : chalk.red;
-  console.log(`mex: drift score ${color(`${report.score}/100`)}${detail}`);
+  const graph = report.graphStatus ? ` · ${graphStatusSummary(report.graphStatus)}` : "";
+  console.log(`mex: drift score ${color(`${report.score}/100`)}${detail}${graph}`);
 }
 
-export function reportJSON(report: DriftReport, opts?: { verbose?: boolean }): void {
+export function reportJSON(report: ReportableDriftReport, opts?: { verbose?: boolean }): void {
   const output = opts?.verbose ? report : { ...report, verboseLog: undefined };
   console.log(JSON.stringify(output, null, 2));
 }
 
-export function reportVerbose(report: DriftReport): void {
+export function reportVerbose(report: ReportableDriftReport): void {
   if (!report.verboseLog?.length) return;
   console.log(chalk.dim("── Verbose ──"));
   for (const line of report.verboseLog) {
@@ -97,6 +103,52 @@ function printSummary(report: DriftReport): void {
     )
   );
   console.log(chalk.dim(`${report.filesChecked} files checked`));
+}
+
+function printGraphStatus(graph: GraphStatus | undefined): void {
+  if (!graph) return;
+  console.log(chalk.dim(graphStatusSummary(graph)));
+  const visible = graph.diagnostics.slice(0, 3);
+  for (const diagnostic of visible) {
+    console.log(chalk.dim(`  ${diagnostic.code}: ${diagnostic.message}`));
+  }
+  if (graph.diagnostics.length > visible.length) {
+    console.log(chalk.dim(`  ${graph.diagnostics.length - visible.length} additional graph diagnostic(s) omitted`));
+  }
+}
+
+function graphStatusSummary(graph: GraphStatus): string {
+  return `graph ${graph.status} · ${graphChangeDetail(graph)}`;
+}
+
+/** Compact, truthful graph-drift detail shared by first-party text surfaces. */
+export function graphChangeDetail(graph: GraphStatus): string {
+  const changes = graph.changes;
+  const count = `${changes.total} source change${changes.total === 1 ? "" : "s"}`;
+  const breakdown = changes.truncated
+    ? "path details truncated"
+    : `${changes.added.length} added, ${changes.modified.length} modified, ${changes.deleted.length} deleted`;
+  const causes: string[] = [];
+  if (changes.branchChanged) causes.push("branch changed");
+  if (changes.configChanged) causes.push("config changed");
+  if (changes.grammarChanged) causes.push("grammar changed");
+  if (changes.manifestChanged && !changes.configChanged && !changes.grammarChanged) {
+    causes.push("build manifest changed");
+  }
+  const command = graphRemediationCommand(graph);
+  return `${count} (${breakdown})${causes.length > 0 ? ` · ${causes.join(" · ")}` : ""}${command ? ` · run \`${command}\`` : ""}`;
+}
+
+/** Return only a remediation command explicitly supplied by graph diagnostics. */
+export function graphRemediationCommand(graph: GraphStatus): string | undefined {
+  return graph.diagnostics
+    .flatMap((diagnostic) => diagnostic.remediation ?? [])
+    .find((action) => action.command)?.command;
+}
+
+export function graphPrimaryDiagnostic(graph: GraphStatus): string | undefined {
+  const diagnostic = graph.diagnostics[0];
+  return diagnostic ? `${diagnostic.code}: ${diagnostic.message}` : undefined;
 }
 
 function groupBySeverityThenFile(
@@ -132,7 +184,7 @@ function remediationFor(code: DriftIssue["code"]): string | null {
     case "UNDOCUMENTED_SCRIPT":
       return "Document the script in AGENTS.md, SETUP.md, or context/setup.md.";
     case "TOOL_CONFIG_DRIFT":
-      return "Copy the intended tool config text across installed agent config files.";
+      return "Re-copy the correct version over the tool configs that disagree with it.";
     case "TODO_FIXME":
       return "Resolve the TODO/FIXME or remove the marker from the scaffold.";
     case "BROKEN_LINK":

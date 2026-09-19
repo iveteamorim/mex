@@ -4,6 +4,13 @@ import type { GraphStore } from "../db/store.js";
 import type { GraphNode } from "../types.js";
 import type { ResolutionContext } from "./types.js";
 
+export interface StagedResolutionSourceAccess {
+  /** Repository-relative paths whose exact bytes exist in immutable staging. */
+  paths: readonly string[];
+  /** Load one staged source on demand without retaining the corpus in memory. */
+  readFile(path: string): string | null;
+}
+
 export function createResolutionContext(store: GraphStore, projectRoot: string): ResolutionContext {
   // A resolution pass reads the node set many times over (framework resolvers
   // call getNodesByName once per unresolved ref). getAllNodes() runs a full
@@ -40,5 +47,46 @@ export function createResolutionContext(store: GraphStore, projectRoot: string):
     readFile: (path) => { try { return readFileSync(resolve(projectRoot, path), "utf-8"); } catch { return null; } },
     getProjectRoot: () => projectRoot,
     getAllFiles: () => [...new Set(allNodes().map((node) => node.filePath))].sort(),
+  };
+}
+
+/**
+ * Read-only resolver view over a staged corpus. This is used before the publish
+ * transaction so framework detection and cross-file resolution cannot hold the
+ * WAL writer lock while reading/parsing project files.
+ */
+export function createStagedResolutionContext(
+  stagedNodes: readonly GraphNode[],
+  projectRoot: string,
+  stagedSources: ReadonlyMap<string, string> = new Map(),
+  sourceAccess?: StagedResolutionSourceAccess,
+): ResolutionContext {
+  const nodes = [...stagedNodes];
+  const byId = new Map(nodes.map((node) => [node.id, node]));
+  const index = (key: (node: GraphNode) => string): Map<string, GraphNode[]> => {
+    const map = new Map<string, GraphNode[]>();
+    for (const node of nodes) {
+      const value = key(node);
+      const bucket = map.get(value) ?? [];
+      bucket.push(node);
+      map.set(value, bucket);
+    }
+    return map;
+  };
+  const byFile = index((node) => node.filePath);
+  const byName = index((node) => node.name);
+  const byQualifiedName = index((node) => node.qualifiedName);
+  const byKind = index((node) => node.kind);
+  const stagedPaths = new Set([...stagedSources.keys(), ...(sourceAccess?.paths ?? [])]);
+  return {
+    getNodesInFile: (path) => byFile.get(path) ?? [],
+    getNodesByName: (name) => byName.get(name) ?? [],
+    getNodesByQualifiedName: (name) => byQualifiedName.get(name) ?? [],
+    getNodesByKind: (kind) => byKind.get(kind) ?? [],
+    getNodeById: (id) => byId.get(id) ?? null,
+    fileExists: (path) => stagedPaths.has(path),
+    readFile: (path) => stagedSources.get(path) ?? sourceAccess?.readFile(path) ?? null,
+    getProjectRoot: () => projectRoot,
+    getAllFiles: () => [...new Set([...stagedPaths, ...nodes.map((node) => node.filePath)])].sort(),
   };
 }

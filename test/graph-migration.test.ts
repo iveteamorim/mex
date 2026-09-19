@@ -7,7 +7,7 @@ import { buildGroundMigrationPrompt, runGraphGround } from "../src/graph/cli-gro
 import { createGraphEngine } from "../src/graph/engine-impl.js";
 import { runGraphScope } from "../src/graph/cli-agent.js";
 import { extractGroundings, findMexAnchors, writeGroundings } from "../src/markdown.js";
-import { runDriftCheck } from "../src/drift/index.js";
+import { runDriftCheckWithGraphStatus } from "../src/drift/index.js";
 import { loadGroundingRuntime } from "../src/graph/runtime.js";
 
 const roots: string[] = [];
@@ -116,12 +116,21 @@ describe("pre-0.7 graph grounding migration", () => {
     const source = join(root, "src", "checkout.ts");
     writeFileSync(source, readFileSync(source, "utf-8")
       .replace("subtotal >= 100 ? 0 : 12", "subtotal >= 125 ? 0 : 15"));
-    const drift = await runDriftCheck(config);
+    const warning = vi.fn();
+    let drift = await runDriftCheckWithGraphStatus(config, { graphWarning: warning });
+    expect(drift.graphStatus?.status).toBe("stale");
+    expect(drift.issues.some((issue) => issue.code.startsWith("GROUNDING_"))).toBe(false);
+    expect(warning).toHaveBeenCalledWith(expect.stringContaining("Run `mex graph refresh`"));
+
+    const refreshRuntime = await loadGroundingRuntime(config);
+    refreshRuntime!.close();
+    drift = await runDriftCheckWithGraphStatus(config, { graphWarning: warning });
+    expect(drift.graphStatus?.status).toBe("fresh");
     expect(drift.issues).toContainEqual(expect.objectContaining({
       code: "GROUNDING_DRIFT",
       file: ".mex/patterns/checkout.md",
     }));
-  });
+  }, 30_000);
 
   it("requires a built graph", async () => {
     const { config } = fixture();
@@ -133,14 +142,14 @@ describe("pre-0.7 graph grounding migration", () => {
   it("nudges populated ungrounded scaffolds through graph build then migration", async () => {
     const { root, config } = fixture();
     const warning = vi.fn();
-    await runDriftCheck(config, { groundingRuntimeLoader: async () => null, graphWarning: warning });
-    expect(warning).toHaveBeenCalledWith(expect.stringContaining("mex graph`, then `mex graph ground"));
+    await runDriftCheckWithGraphStatus(config, { groundingRuntimeLoader: async () => null, graphWarning: warning });
+    expect(warning).toHaveBeenCalledWith(expect.stringContaining("mex graph rebuild`, then `mex graph ground"));
 
     const engine = createGraphEngine({ rootDir: root });
     await engine.build();
     engine.close();
     const runtime = await import("../src/graph/runtime.js").then(({ loadGroundingRuntime }) => loadGroundingRuntime(config));
-    await runDriftCheck(config, { groundingRuntimeLoader: async () => runtime, graphWarning: warning });
+    await runDriftCheckWithGraphStatus(config, { groundingRuntimeLoader: async () => runtime, graphWarning: warning });
     expect(warning).toHaveBeenCalledWith(expect.stringContaining("Run `mex graph ground` to connect it"));
-  });
+  }, 10_000);
 });

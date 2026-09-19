@@ -11,68 +11,96 @@ triggers:
 edges:
   - target: context/architecture.md
     condition: when a convention depends on understanding the system structure
+  - target: context/stack.md
+    condition: when a convention depends on a runtime, library, or test tool
+  - target: patterns/contract-first-external-adapter.md
+    condition: when defining or implementing an independently owned consumer boundary
+  - target: patterns/durable-change-signal.md
+    condition: when adding a value that answers whether documented code changed
 # Add only nodes that embody the documented convention; do not ground examples broadly.
 # grounds_to:
 #   - node: "function:<tier-1-id>"
 #     fingerprint: "mh:64:<hex>"
 grounds_to: []
-last_updated: [YYYY-MM-DD]
+last_updated: 2026-09-06
+mex:
+  id: mx_01M1M0CJ9460AT00V8TH0QCKAC
+  type: convention
+  status: promoted
+  revision: 5
+  title: conventions
+  relations:
+    - type: related_to
+      target: mx_01M1M0CJ5C5XQV0HM5VM787WQS
+      note: when a convention depends on understanding the system structure
+    - type: related_to
+      target: mx_01M1M0CJH1XW1V1FRGAGMWFXD6
+      note: when a convention depends on a runtime, library, or test tool
+    - type: related_to
+      target: mx_01M1M0CJHQ2W47KM6K176ZYYPA
+      note: when defining or implementing an independently owned consumer boundary
+    - type: related_to
+      target: mx_01M1M0CJK5ZTSHCDDWB3NTSEBF
+      note: when adding a value that answers whether documented code changed
 ---
 
 # Conventions
 
-<!-- Read broad, ground tight. Anchor concrete symbols while keeping prose readable:
-```markdown
-[`someFunction()`](mex://function:<tier-1-id>)
-```
+<!-- mex:entity
+id: mx_01M1M0CJ8E6KNBAMXBK7GBCGPM
+type: convention
+status: promoted
+revision: 1
 -->
-
 ## Naming
-<!-- How things are named in this codebase.
-     Cover: files, functions, variables, classes, database tables/columns — whichever are non-obvious.
-     Only include conventions that are actually enforced, not aspirational.
-     Minimum 3 items. If you cannot find 3, write "[TO DETERMINE]" — do not pad with generic advice.
-     Length: 3-7 items.
-     Example:
-     - Files: kebab-case (`user-profile.ts`, not `UserProfile.ts`)
-     - Functions: camelCase, verb-first (`getUserById`, not `userById`)
-     - Database columns: snake_case (`created_at`, not `createdAt`) -->
 
+- TypeScript modules generally use descriptive kebab-case filenames; Hub page and component modules also use PascalCase. Directory names describe the owned domain or boundary.
+- Functions and variables use camelCase, usually verb-first for operations; classes, interfaces, and type aliases use PascalCase.
+- Exported constants and closed contract values use descriptive uppercase snake case; SQLite columns and serialized on-disk keys follow their explicit schema rather than being renamed at adapters.
+- Tests use `*.test.ts`/`*.test.tsx`, colocated with the owned module, in adjacent `__tests__/`, or in root `test/` for cross-module/public behavior.
+
+<!-- mex:entity
+id: mx_01M1M0CJ7QBQSRTSBWQTPSR3R8
+type: convention
+status: promoted
+revision: 1
+-->
 ## Structure
-<!-- How code is organised within files and across the codebase.
-     Cover the things the agent is most likely to get wrong.
-     Minimum 3 items. If you cannot find 3, write "[TO DETERMINE]" — do not pad with generic advice.
-     Length: 3-7 items.
-     Example:
-     - Business logic lives in services/, never in route handlers
-     - Each service file exports a single class
-     - Tests live next to the file they test (`user.service.ts` → `user.service.test.ts`) -->
 
+- `src/index.ts` is the public npm compatibility boundary. Everything not re-exported there is internal even when TypeScript exports it from a deep module.
+- Root `src/` owns the CLI and local engines; `packages/hub-contracts` owns shared private Hub shapes; `packages/hub-web` owns the browser application.
+- Put domain behavior with its domain (`graph`, `wiki`, `team`, `hub`); keep CLI builders/parsers, application services, repository adapters, and storage codecs as distinct layers.
+- Canonical project/team knowledge is Markdown or JSONL under `.mex/`; Graph/Wiki databases and `.mex/local/` are generated or checkout-local and must remain ignored.
+- Use adjacent focused tests for module invariants, consumer-owned conformance suites for ports, root integration tests for boundaries, and Playwright only for browser behavior.
+
+<!-- mex:entity
+id: mx_01M1M0CJ6XGNARCADMW3ABZPJT
+type: convention
+status: promoted
+revision: 1
+-->
 ## Patterns
-<!-- Recurring code patterns that must be followed consistently.
-     Include concrete before/after examples for the most important ones.
-     Minimum 2 patterns. If you cannot find 2, write "[TO DETERMINE]".
-     Length: 2-5 patterns with examples.
-     Example:
-     Always use the Result type for error handling — never throw from the service layer:
-     ```
-     // Correct
-     return { success: true, data: user }
-     return { success: false, error: 'User not found' }
 
-     // Wrong
-     throw new Error('User not found')
-     ``` -->
+- **Read paths are immutable.** Inspect through read-only/immutable sessions and return stable structured errors; creation, migration, repair, refresh, and rebuild belong to explicit write paths.
+- **Preview before canonical mutation.** Validate a closed request, emit an exact signed/revision-bound preview, then apply only that reviewed envelope after revalidation. Keep Git publication separate.
+- **Bound every layer.** Cap corpus scans, bytes, rows, diagnostics, cursors, source bodies, subscribers, jobs, and serialized responses—not only the returned page size.
+- **Project through allowlists.** Do not serialize storage rows, errors, Git output, filesystem details, prompts, or private metadata directly into CLI/Hub responses.
+- **Preserve the last trustworthy state.** Build maintenance candidates separately, revalidate all authority and provenance at publication, and atomically replace only after success.
 
+<!-- mex:entity
+id: mx_01M1M0CJ65DM25FSRADTNKX2D3
+type: convention
+status: promoted
+revision: 1
+-->
 ## Verify Checklist
-<!-- A short checklist the agent runs against any code it writes in this project.
-     These are the things most likely to go wrong based on this specific codebase.
-     The agent should explicitly check each item before presenting output.
-     Minimum 4 items. If you cannot find 4, write "[TO DETERMINE]".
-     Length: 4-8 items.
-     Example:
-     Before presenting any code:
-     - [ ] Business logic is not in route handlers
-     - [ ] All database access goes through the repository layer
-     - [ ] Error handling uses the Result type, not exceptions
-     - [ ] New files follow the naming convention above -->
+
+Before presenting a change:
+
+- [ ] The public `src/index.ts` surface and emitted declarations changed only if compatibility work explicitly requires it.
+- [ ] Ordinary reads remain non-mutating; writes have explicit authority, containment, revision, and failure-atomicity checks.
+- [ ] Inputs, scans, output, diagnostics, and retained local state remain deterministically bounded.
+- [ ] Focused tests for the changed boundary pass, followed by `npm run typecheck`; run `npm test` without a concurrent build when full coverage is warranted.
+- [ ] Run `npm run build` for packaging/Hub/asset changes and `npm run eval:test` for graph evaluator or protocol changes.
+- [ ] `git diff --check` passes and only intended tracked paths changed; generated `.mex/*.db*`, `.mex/local/`, `dist/`, and unrelated worktree files remain unstaged.
+- [ ] Graph/Wiki protocol shapes, stable error codes, ordering, cursors, and non-mutation contracts remain covered when affected.

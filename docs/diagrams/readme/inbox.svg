@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">MEX Inbox: a proposal before a promise</title>
+  <desc id="desc">A checkout-local draft is explicitly published as a proposal for human review. Approval applies the proposed change to a canonical Spec. Commit and push the canonical records to share them through Git.</desc>
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.075"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" mode="soft-light"/>
+    </filter>
+    <clipPath id="review-disc"><circle cx="600" cy="273" r="86"/></clipPath>
+  </defs>
+  <rect width="1200" height="520" fill="#226483"/>
+  <rect width="1200" height="520" fill="#226483" filter="url(#grain)"/>
+  <g fill="#F1EEDC">
+    <text x="48" y="46" font-family="monospace" font-size="16" letter-spacing="2">MEX / 0.8</text>
+    <text x="1152" y="46" text-anchor="end" font-family="monospace" font-size="16" letter-spacing="2">08 / INBOX</text>
+    <text x="48" y="110" font-family="Georgia, serif" font-size="42">A proposal before a promise.</text>
+  </g>
+  <path d="M48 142H1152" stroke="#F1EEDC" stroke-width="1" opacity="0.35"/>
+
+  <g fill="none" stroke="#F1EEDC" stroke-width="2">
+    <path d="M278 208C419 208 453 237 514 256M278 247C412 247 463 260 514 268M278 290C412 290 463 283 514 279M278 332C419 332 453 307 514 290" opacity="0.75"/>
+    <path d="M686 256C747 237 781 208 922 208M686 268C737 260 788 247 922 247M686 279C737 283 788 290 922 290M686 290C747 307 781 332 922 332" opacity="0.75"/>
+    <ellipse cx="393" cy="271" rx="14" ry="58" opacity="0.5"/>
+    <ellipse cx="807" cy="271" rx="14" ry="58" opacity="0.5"/>
+  </g>
+
+  <g fill="none" stroke="#F1EEDC" stroke-width="2" stroke-linejoin="round">
+    <path d="M150 198H249L274 223V340H150Z"/>
+    <path d="M249 198V223H274M173 251H250M173 274H250M173 297H226"/>
+    <path d="M159 190H257L282 215" opacity="0.4"/>
+  </g>
+  <path d="M172 318H207" stroke="#FF5738" stroke-width="4"/>
+
+  <circle cx="600" cy="273" r="86" fill="#171B18"/>
+  <g fill="none" stroke="#FF5738" stroke-width="2" clip-path="url(#review-disc)">
+    <path d="M495 203C577 203 543 342 705 342M495 226C565 226 565 320 705 320M495 342C577 342 543 203 705 203M495 320C565 320 565 226 705 226"/>
+    <ellipse cx="600" cy="273" rx="57" ry="82" opacity="0.65"/>
+  </g>
+  <circle cx="600" cy="273" r="36" fill="#171B18"/>
+  <path d="M582 273L595 286L620 259" fill="none" stroke="#F1EEDC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g fill="none" stroke="#F1EEDC" stroke-width="2" stroke-linejoin="round">
+    <path d="M930 198H1029L1054 223V340H930Z"/>
+    <path d="M1029 198V223H1054M953 251H1030M953 274H1030M953 297H1006"/>
+  </g>
+  <circle cx="1041" cy="326" r="23" fill="#FF5738"/>
+  <path d="M1031 326L1038 333L1052 318" fill="none" stroke="#171B18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke="#F1EEDC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M453 272H478M469 265L478 272L469 279M850 272H875M866 265L875 272L866 279"/>
+  </g>
+
+  <g fill="#F1EEDC" text-anchor="middle" font-family="Trebuchet MS, Verdana, sans-serif">
+    <text x="212" y="393" font-size="24">Local draft</text>
+    <text x="600" y="393" font-size="24">Human review</text>
+    <text x="992" y="393" font-size="24">Approved Spec</text>
+    <g font-size="20" opacity="0.8">
+      <text x="212" y="423">Checkout only</text>
+      <text x="600" y="423">Published proposal</text>
+      <text x="992" y="423">Canonical Markdown</text>
+    </g>
+  </g>
+  <path d="M48 448H1152" stroke="#F1EEDC" stroke-width="1" opacity="0.35"/>
+  <text x="48" y="480" fill="#F1EEDC" font-family="Trebuchet MS, Verdana, sans-serif" font-size="20">Publish, review and approve explicitly. Commit and push to share.</text>
+</svg>

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "typescript-pinned-pilot",
+  "description": "Six-task n=1 pilot. The runner is generic; this suite preserves the original TypeScript experiment.",
+  "requiredRepetitions": 1,
+  "releaseGates": {
+    "maxDistinctScopeQueries": 1
+  },
+  "subject": {
+    "name": "microsoft/TypeScript",
+    "repository": "https://github.com/microsoft/TypeScript.git",
+    "revision": "b465fdbfe175304d9b977da137b2c178ae1091d3"
+  },
+  "arms": {
+    "grep": {
+      "kind": "grep",
+      "role": "control",
+      "label": "Read/Grep/Glob only"
+    },
+    "baseline": {
+      "kind": "graph",
+      "role": "released",
+      "label": "mex v0.7.1",
+      "revision": "d0094543b5f28a251aba1b7357c8d994a656c8bb",
+      "buildFromGit": {
+        "root": "{harnessRoot}",
+        "revision": "d0094543b5f28a251aba1b7357c8d994a656c8bb",
+        "commands": [["npm", "run", "build"]],
+        "cli": "dist/cli.js",
+        "shareNodeModules": true
+      }
+    },
+    "patched": {
+      "kind": "graph",
+      "role": "patched",
+      "label": "patched mex",
+      "cli": ["node", "{harnessRoot}/dist/cli.js"]
+    }
+  },
+  "tasks": [
+    {
+      "id": "supported-extensions",
+      "question": "Which routine decides what source-file suffixes count as supported for the current compiler options?",
+      "expectedSymbols": ["getSupportedExtensions"]
+    },
+    {
+      "id": "common-source-root",
+      "question": "How is the common source root chosen for emitted files?",
+      "expectedSymbols": ["getCommonSourceDirectory"]
+    },
+    {
+      "id": "module-resolution",
+      "question": "How does the compiler locate an imported package or source file?",
+      "expectedSymbols": ["resolveModuleName"]
+    },
+    {
+      "id": "config-search",
+      "question": "Where does command-line compilation search upward for a project configuration?",
+      "expectedSymbols": ["findConfigFile"]
+    },
+    {
+      "id": "watch-program",
+      "question": "What entry point starts and maintains a watch-mode compilation?",
+      "expectedSymbols": ["createWatchProgram"]
+    },
+    {
+      "id": "colored-diagnostics",
+      "question": "How are compiler errors rendered with color and surrounding source lines?",
+      "expectedSymbols": ["formatDiagnosticsWithColorAndContext"]
+    }
+  ]
+}

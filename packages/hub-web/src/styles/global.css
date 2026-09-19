@@ -1,0 +1,190 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "tw-animate-css";
+
+@source "../app";
+@source "../components";
+@source "../pages";
+/* Test assertions are not production utility-class declarations. */
+@source not "../app/**/*.test.tsx";
+@source not "../components/**/*.test.tsx";
+@source not "../pages/**/*.test.tsx";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-sidebar: var(--sidebar-token);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.7);
+}
+
+:root {
+  color-scheme: dark;
+  font-family: "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: oklch(0.94 0 0);
+  background: oklch(0.14 0 0);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  /* Neutral shadcn roles. Orange is reserved for selection, focus, and primary actions. */
+  --background: oklch(0.14 0 0);
+  --foreground: oklch(0.94 0 0);
+  --card: oklch(0.175 0 0);
+  --card-foreground: oklch(0.94 0 0);
+  --popover: oklch(0.19 0 0);
+  --popover-foreground: oklch(0.94 0 0);
+  --primary: oklch(0.73 0.17 55);
+  --primary-foreground: oklch(0.15 0.02 55);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.91 0 0);
+  --muted: oklch(0.215 0 0);
+  --muted-foreground: oklch(0.68 0 0);
+  --accent: oklch(0.235 0 0);
+  --accent-foreground: oklch(0.94 0 0);
+  --destructive: oklch(0.66 0.2 25);
+  --border: oklch(0.285 0 0);
+  --input: oklch(0.285 0 0);
+  --ring: oklch(0.73 0.17 55);
+  --link: oklch(0.88 0 0);
+  --radius: 7px;
+  --sidebar-token: oklch(0.12 0 0);
+  --sidebar-foreground: oklch(0.82 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.205 0 0);
+  --sidebar-accent-foreground: oklch(0.94 0 0);
+  --sidebar-border: oklch(0.245 0 0);
+  --sidebar-ring: var(--ring);
+
+  /* Existing Hub aliases keep the remaining routes coherent during the rollout. */
+  --canvas: var(--background);
+  --canvas-raised: oklch(0.16 0 0);
+  --surface: var(--card);
+  --surface-subtle: oklch(0.19 0 0);
+  --surface-strong: var(--secondary);
+  --text: var(--foreground);
+  --text-secondary: oklch(0.78 0 0);
+  --text-tertiary: var(--muted-foreground);
+  --border-strong: oklch(0.36 0 0);
+  --primary-hover: oklch(0.79 0.16 60);
+  --primary-soft: color-mix(in oklch, var(--primary) 11%, transparent);
+  --primary-border: color-mix(in oklch, var(--primary) 32%, transparent);
+  --success: oklch(0.72 0.1 145);
+  --success-soft: color-mix(in oklch, var(--success) 9%, transparent);
+  --success-border: color-mix(in oklch, var(--success) 24%, transparent);
+  --warning: oklch(0.78 0.13 75);
+  --warning-soft: color-mix(in oklch, var(--warning) 9%, transparent);
+  --warning-border: color-mix(in oklch, var(--warning) 24%, transparent);
+  --danger: var(--destructive);
+  --danger-soft: color-mix(in oklch, var(--danger) 9%, transparent);
+  --danger-border: color-mix(in oklch, var(--danger) 24%, transparent);
+  --info: oklch(0.74 0 0);
+  /*
+   * Discord's own blurple, #5865F2, converted rather than approximated. It is a
+   * brand colour and not a semantic one — it means "Discord", never "good" or
+   * "attention" — so it belongs to the one mark that carries it and must not be
+   * reached for as a general accent.
+   */
+  --discord: oklch(0.577 0.209 274);
+  --info-soft: color-mix(in oklch, var(--foreground) 6%, transparent);
+  --info-border: color-mix(in oklch, var(--foreground) 16%, transparent);
+  --focus: var(--ring);
+  --overlay-shadow: 0 20px 52px rgb(0 0 0 / 44%);
+  --radius-card: var(--radius);
+  --radius-control: 6px;
+  --transition-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font-family: "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 400;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, a, input, [tabindex]):not([data-slot="button"]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

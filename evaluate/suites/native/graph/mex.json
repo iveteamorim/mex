@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 2,
+  "id": "mex-native-graph",
+  "description": "Graph retrieval, relationship, integrity, and efficiency evaluation against the active MEX checkout.",
+  "subject": { "name": "mex", "requireClean": false },
+  "determinismRebuilds": 2,
+  "systems": {
+    "current": {
+      "role": "candidate",
+      "label": "active checkout",
+      "command": ["node", "{harnessRoot}/dist/cli.js"]
+    }
+  },
+  "tasksFile": "./mex-tasks.json",
+  "gates": {
+    "systems": ["current"],
+    "floors": {
+      "topFiveFileHitRate": 0.9,
+      "returnedRequiredSourceSpanRecall": 0.8,
+      "budgetComplianceRate": 1,
+      "negativeAccuracy": 1
+    },
+    "integrityFloors": { "schemaVersion": 2 },
+    "integrityCeilings": {
+      "extractedToStoredLoss": 0,
+      "buildToStoredDelta": 0,
+      "duplicateEdges": 0,
+      "danglingEdges": 0,
+      "danglingContainers": 0,
+      "duplicateIdentityKeys": 0,
+      "missingIdentityKeys": 0,
+      "ftsRowDelta": 0,
+      "sourceChunkFtsRowDelta": 0,
+      "danglingImportTargets": 0,
+      "danglingAliases": 0,
+      "invalidConfidenceEdges": 0,
+      "suspiciousProductionToTestEdges": 0
+    },
+    "ceilings": { "invalidRuns": 0, "prohibitedHitRate": 0 }
+  }
+}

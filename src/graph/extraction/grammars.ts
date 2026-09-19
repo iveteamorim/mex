@@ -11,6 +11,8 @@
 // Grammars are loaded on demand — only languages actually present in the project
 // are compiled — keeping WASM heap pressure low on large repos.
 
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { Parser, Language as WasmLanguage } from "web-tree-sitter";
 import type { Language } from "../types.js";
 import type { TSTree } from "./types.js";
@@ -28,7 +30,27 @@ const WASM_GRAMMAR_FILES: Partial<Record<Language, string>> = {
   jsx: "tree-sitter-javascript.wasm",
   python: "tree-sitter-python.wasm",
   rust: "tree-sitter-rust.wasm",
+  csharp: "tree-sitter-c-sharp.wasm",
 };
+let grammarHashCache: string | null = null;
+
+/**
+ * Content hash of the exact grammar assets this build can use. Persisting the
+ * asset bytes (rather than package versions) makes copied/bundled installs and
+ * local development obey the same rebuild contract.
+ */
+export function grammarManifestHash(): string {
+  if (grammarHashCache) return grammarHashCache;
+  const hash = createHash("sha256");
+  for (const wasmFile of [...new Set(Object.values(WASM_GRAMMAR_FILES))].sort()) {
+    hash.update(wasmFile);
+    hash.update("\0");
+    hash.update(readFileSync(grammarWasmPath(wasmFile)));
+    hash.update("\0");
+  }
+  grammarHashCache = hash.digest("hex");
+  return grammarHashCache;
+}
 
 /** File extension → language. The single source of truth for "index this file?". */
 const EXTENSION_MAP: Record<string, Language> = {
@@ -42,6 +64,7 @@ const EXTENSION_MAP: Record<string, Language> = {
   ".jsx": "jsx",
   ".py": "python",
   ".rs": "rust",
+  ".cs": "csharp",
 };
 
 /** Glob pattern for every extension registered above. */
@@ -69,10 +92,13 @@ export async function initRuntime(): Promise<void> {
  * documented WASM-heap race when grammars load concurrently on Node.
  */
 export async function loadGrammars(languages: Language[]): Promise<void> {
-  await initRuntime();
   const toLoad = [...new Set(languages)].filter(
     (lang) => lang in WASM_GRAMMAR_FILES && !languageCache.has(lang),
   );
+  // Successful compiler-only extraction has no tree-sitter work. In a fresh
+  // candidate process, initializing its WASM runtime here would be wasted.
+  if (toLoad.length === 0) return;
+  await initRuntime();
   for (const lang of toLoad) {
     const wasmFile = WASM_GRAMMAR_FILES[lang]!;
     const grammar = await WasmLanguage.load(grammarWasmPath(wasmFile));
@@ -129,6 +155,18 @@ export function parse(source: string, language: Language): TSTree | null {
   // frozen aliases are the read-only subset; narrow here, once.
   return tree as unknown as TSTree;
 }
+
+/**
+ * Free a parsed tree's WASM-heap memory. web-tree-sitter trees are allocated in
+ * the Emscripten heap and are not reclaimed by JavaScript GC, so every parsed
+ * tree must be deleted at the extraction boundary.
+ */
+export function disposeTree(tree: TSTree): void {
+  (tree as unknown as { delete(): void }).delete();
+}
+
+/** Compatibility name used by the v0.7.3 extraction implementation. */
+export const freeTree = disposeTree;
 
 /** Free all cached parsers + reset the runtime flag (tests / teardown). */
 export function disposeParsers(): void {

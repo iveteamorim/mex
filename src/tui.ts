@@ -1,12 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { render, Box, Text, useApp, useInput } from "ink";
 import { stdin, stdout } from "node:process";
-import type { DriftReport, MexConfig } from "./types.js";
+import type { MexConfig } from "./types.js";
 import { findConfig } from "./config.js";
-import { runDriftCheck } from "./drift/index.js";
+import {
+  runDriftCheckWithGraphStatus,
+  type GraphAwareDriftReport,
+} from "./drift/index.js";
 import { checkHeartbeat, type HeartbeatResult } from "./heartbeat.js";
 import { appendEvent, readEvents, type EventEntry, type EventKind } from "./events.js";
 import { shouldShowInvite, recordInviteShown, INVITE_TEXT } from "./feedback/index.js";
+import { graphChangeDetail, graphPrimaryDiagnostic } from "./reporter.js";
 
 const h = React.createElement;
 
@@ -14,7 +18,7 @@ type View = "dashboard" | "check" | "heartbeat" | "doctor" | "timeline" | "log-k
 type LoadState = "loading" | "ready" | "error";
 
 export interface DashboardData {
-  report: DriftReport;
+  report: GraphAwareDriftReport;
   heartbeat: HeartbeatResult;
   events: EventEntry[];
 }
@@ -41,6 +45,12 @@ const MENU = [
   "Exit",
 ] as const;
 
+function stalenessInactiveHint(count: number | undefined): string | null {
+  return count
+    ? "No scaffold files include a parseable last_updated; staleness checks inactive.\nAdd last_updated: YYYY-MM-DD to frontmatter to opt files in."
+    : null;
+}
+
 const EVENT_KINDS: EventKind[] = ["note", "decision", "risk", "todo"];
 const COLORS = {
   shell: "#5B8C5A",
@@ -64,7 +74,7 @@ export function launchTui(): void {
 }
 
 export async function loadDashboard(config: MexConfig): Promise<DashboardData> {
-  const report = await runDriftCheck(config);
+  const report = await runDriftCheckWithGraphStatus(config, { graphWarning: () => {} });
   const heartbeat = checkHeartbeat(config);
   const events = readEvents(config).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   return { report, heartbeat, events };
@@ -234,9 +244,11 @@ export function Summary({ data, notice }: { data: DashboardData; notice: string 
   const errors = data.report.issues.filter((i) => i.severity === "error").length;
   const warnings = data.report.issues.filter((i) => i.severity === "warning").length;
   const scoreColor = data.report.score >= 80 ? "green" : data.report.score >= 50 ? "yellow" : "red";
+  const stalenessInactive = stalenessInactiveHint(data.heartbeat.filesWithoutLastUpdated);
   const heartbeatColor = data.heartbeat.ok ? "green" : "yellow";
   const heartbeatValue = data.heartbeat.ok ? 100 : Math.max(10, 100 - data.heartbeat.staleFiles.length * 25);
   const activity = eventActivityBars(data.events);
+  const graph = data.report.graphStatus;
   return h(Box, { flexDirection: "column" },
     notice ? h(Text, { color: "green" }, notice) : null,
     h(StatusLine, {
@@ -252,6 +264,14 @@ export function Summary({ data, notice }: { data: DashboardData; notice: string 
       bar: progressBar(heartbeatValue),
       color: heartbeatColor,
       detail: `${formatCount(data.heartbeat.staleFiles.length, "stale file")}`,
+    }),
+    stalenessInactive ? h(Text, { color: "yellow" }, stalenessInactive) : null,
+    h(StatusLine, {
+      label: "Graph",
+      value: graph.status === "fresh" ? "Fresh" : "Attention",
+      bar: progressBar(graph.status === "fresh" ? 100 : 35),
+      color: graph.status === "fresh" ? "green" : "yellow",
+      detail: `${graph.status} · ${graphChangeDetail(graph)}`,
     }),
     h(Text, null,
       h(Text, { color: COLORS.shell, bold: true }, "Events    "),
@@ -355,24 +375,35 @@ function CheckPanel({ data }: { data: DashboardData }) {
 }
 
 export function HeartbeatPanel({ data }: { data: DashboardData }) {
+  const stalenessInactive = stalenessInactiveHint(data.heartbeat.filesWithoutLastUpdated);
   return h(Box, { flexDirection: "column" },
     h(Text, { bold: true }, "Heartbeat"),
-    data.heartbeat.ok ? h(Text, { color: "green" }, "HEARTBEAT_OK · scaffold is fresh") : null,
+    data.heartbeat.ok && !stalenessInactive ? h(Text, { color: "green" }, "HEARTBEAT_OK · scaffold is fresh") : null,
+    data.heartbeat.ok && stalenessInactive ? h(Text, { color: "yellow" }, "HEARTBEAT_OK · staleness checks inactive") : null,
+    stalenessInactive ? h(Text, { dimColor: true }, stalenessInactive) : null,
     ...data.heartbeat.staleFiles.map((f) => h(Text, { key: f.file }, `Stale ${f.file} (${f.days} days)`)),
     data.heartbeat.memoryCleanupDue ? h(Text, null, "Memory cleanup is due.") : null,
     ...data.heartbeat.oldDailyMemoryFiles.map((f) => h(Text, { key: f }, `Old memory ${f}`)),
   );
 }
 
-function DoctorPanel({ data }: { data: DashboardData }) {
+export function DoctorPanel({ data }: { data: DashboardData }) {
   const errors = data.report.issues.filter((i) => i.severity === "error").length;
   const warnings = data.report.issues.filter((i) => i.severity === "warning").length;
-  const healthy = errors === 0 && data.heartbeat.ok;
+  const graphHealthy = data.report.graphStatus.status === "fresh";
+  const graphDiagnostic = graphPrimaryDiagnostic(data.report.graphStatus);
+  const stalenessInactive = stalenessInactiveHint(data.heartbeat.filesWithoutLastUpdated);
+  const healthy = errors === 0 && data.heartbeat.ok && graphHealthy;
   return h(Box, { flexDirection: "column" },
     h(Text, { bold: true }, "Doctor summary"),
     h(Text, { color: healthy ? "green" : "yellow" }, healthy ? "Scaffold looks healthy." : "Scaffold needs attention."),
     h(Text, null, `Drift ${data.report.score}/100 (${errors} errors, ${warnings} warnings)`),
-    h(Text, null, data.heartbeat.ok ? "Heartbeat OK" : "Run `mex heartbeat` for details."),
+    h(Text, null, `Graph ${data.report.graphStatus.status} (${graphChangeDetail(data.report.graphStatus)})`),
+    graphDiagnostic ? h(Text, null, `Graph detail: ${graphDiagnostic}`) : null,
+    h(Text, null, data.heartbeat.ok
+      ? (stalenessInactive ? "Heartbeat OK (staleness checks inactive)" : "Heartbeat OK")
+      : "Run `mex heartbeat` for details."),
+    stalenessInactive ? h(Text, { dimColor: true }, stalenessInactive) : null,
     h(Text, null, `${data.events.length} logged events`),
   );
 }

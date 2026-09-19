@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { join, basename } from "node:path";
 import { tmpdir } from "node:os";
 import { findConfig, saveAiTools, ensureScaffoldIdentity, getScaffoldIdentity } from "../src/config.js";
@@ -183,7 +193,13 @@ describe("findConfig — watch and heartbeat config", () => {
     });
   });
 
-  it("ignores non-positive watch and heartbeat values", () => {
+  it("accepts zero for day-based heartbeat thresholds but rejects negatives (#42)", () => {
+    setupConfig({ heartbeat: { staleDays: 0, memoryCleanupDays: 0, dailyMemoryRetentionDays: -3 } });
+    const config = findConfig(tmpDir);
+    expect(config.heartbeat).toEqual({ staleDays: 0, memoryCleanupDays: 0 });
+  });
+
+  it("ignores negative watch and heartbeat values", () => {
     setupConfig({ watch: { intervalMinutes: 0 }, heartbeat: { staleDays: -1 } });
     const config = findConfig(tmpDir);
     expect(config.watch).toBeUndefined();
@@ -344,5 +360,23 @@ describe("saveAiTools", () => {
     saveAiTools(mexPath, ["opencode", "codex"]);
     const raw = JSON.parse(readFileSync(join(mexPath, "config.json"), "utf-8"));
     expect(raw.aiTools).toEqual(["opencode", "codex"]);
+  });
+
+  it("publishes atomically without following a config symlink", () => {
+    const mexPath = join(tmpDir, ".mex");
+    const outside = join(tmpDir, "outside.json");
+    mkdirSync(mexPath, { recursive: true });
+    writeFileSync(outside, JSON.stringify({ outside: true }));
+    symlinkSync(outside, join(mexPath, "config.json"), "file");
+
+    saveAiTools(mexPath, ["codex"]);
+
+    expect(readFileSync(outside, "utf8")).toBe(JSON.stringify({ outside: true }));
+    expect(lstatSync(join(mexPath, "config.json")).isSymbolicLink()).toBe(false);
+    expect(JSON.parse(readFileSync(join(mexPath, "config.json"), "utf8"))).toEqual({
+      outside: true,
+      aiTools: ["codex"],
+    });
+    expect(readdirSync(mexPath).filter((name) => name.includes("mex-stage"))).toEqual([]);
   });
 });

@@ -1,0 +1,251 @@
+.backdrop {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  padding: 28px;
+  background: rgba(0, 0, 0, 0.76);
+  inset: 0;
+  place-items: center;
+}
+
+.dialog {
+  width: min(100%, 520px);
+  color: var(--foreground);
+}
+
+.dialog:focus {
+  outline: none;
+}
+
+.dialog:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.dialogCard {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.56);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.commandIcon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: var(--primary);
+}
+
+.commandIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.heading h2 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 550;
+  letter-spacing: -0.018em;
+  line-height: 1.2;
+}
+
+.headerAction {
+  grid-row: 1;
+  grid-column: 3;
+  align-self: center;
+}
+
+.closeButton {
+  color: var(--muted-foreground);
+}
+
+.closeButton:hover:not(:disabled) {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.content {
+  padding: 0;
+}
+
+.commandLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
+.commandLine code {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.commandPolicy {
+  height: 18px;
+  padding: 1px 6px;
+  color: var(--warning);
+  background: transparent;
+  border-color: color-mix(in srgb, var(--warning) 28%, var(--border));
+  font-size: 8px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.body {
+  padding: 14px;
+}
+
+.warning {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  padding: 11px;
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 5%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--warning) 26%, var(--border));
+  border-radius: var(--radius-md);
+}
+
+.warning > svg {
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+}
+
+.warning p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 12px 0 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.facts > div {
+  min-width: 0;
+  padding: 10px 10px 10px 0;
+  border-right: 1px solid var(--border);
+}
+
+.facts > div:last-child {
+  padding-left: 10px;
+  border-right: 0;
+}
+
+.facts dt,
+.facts dd {
+  margin: 0;
+}
+
+.facts dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--foreground);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.facts dt svg {
+  width: 12px;
+  height: 12px;
+  color: var(--muted-foreground);
+}
+
+.facts dd {
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.pendingNote {
+  min-width: 0;
+  color: var(--muted-foreground);
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.cancelButton,
+.confirmButton {
+  min-height: 30px;
+}
+
+.dialog button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.dialog button:disabled {
+  opacity: 0.55;
+}
+
+.spinner {
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(1turn); }
+}
+
+@media (max-width: 620px) {
+  .backdrop {
+    padding: 16px;
+  }
+
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pendingNote {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

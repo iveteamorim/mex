@@ -1,0 +1,79 @@
+.alert {
+  position: relative;
+  display: grid;
+  width: 100%;
+  gap: 2px;
+  padding: 8px 10px;
+  color: var(--card-foreground);
+  font-size: 14px;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.alert:has(.action) {
+  padding-right: 72px;
+}
+
+.alert:has(> svg) {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 8px;
+}
+
+.alert > svg {
+  grid-row: span 2;
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+  transform: translateY(2px);
+}
+
+.alert[data-variant="destructive"] {
+  color: var(--destructive);
+}
+
+.title,
+.description {
+  min-width: 0;
+}
+
+.alert:has(> svg) .title,
+.alert:has(> svg) .description {
+  grid-column-start: 2;
+}
+
+.title {
+  font-weight: 500;
+}
+
+.description {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  text-wrap: balance;
+}
+
+.alert[data-variant="destructive"] .description {
+  color: color-mix(in oklch, var(--destructive) 90%, transparent);
+}
+
+.title a,
+.description a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.title a:hover,
+.description a:hover {
+  color: var(--foreground);
+}
+
+.description p:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+.action {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}

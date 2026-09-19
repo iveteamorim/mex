@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, rmSync } from "node:fs";
 import { resolve, dirname, isAbsolute, basename } from "node:path";
 import { randomUUID } from "node:crypto";
-import type { MexConfig, AiTool, StalenessThresholds, WatchConfig, HeartbeatConfig, ScaffoldIdentity } from "./types.js";
+import type { MexConfig, AiTool, StalenessThresholds, WatchConfig, HeartbeatConfig, ScaffoldIdentity, WikiConfig, WikiSynthesisConfig } from "./types.js";
 import { DEFAULT_STALENESS_THRESHOLDS } from "./drift/checkers/staleness.js";
 
 /**
@@ -18,6 +18,8 @@ export interface CreateConfigInput {
   stalenessThresholds?: StalenessThresholds;
   watch?: WatchConfig;
   heartbeat?: HeartbeatConfig;
+  /** Wiki indexing scope. Optional and additive; defaults to D10's lists. */
+  wiki?: WikiConfig;
 }
 
 /**
@@ -44,6 +46,7 @@ export function createConfig(input: CreateConfigInput): MexConfig {
     stalenessThresholds: input.stalenessThresholds,
     watch: input.watch,
     heartbeat: input.heartbeat,
+    wiki: normalizeWikiConfig(input.wiki),
   };
 }
 
@@ -86,7 +89,8 @@ export function findConfig(startDir?: string): MexConfig {
   const watch = loadWatchConfig(persistedConfig);
   const heartbeat = loadHeartbeatConfig(persistedConfig);
   const identity = loadScaffoldIdentity(persistedConfig);
-  return { projectRoot, scaffoldRoot, aiTools, stalenessThresholds, watch, heartbeat, identity };
+  const wiki = loadWikiConfig(persistedConfig);
+  return { projectRoot, scaffoldRoot, aiTools, stalenessThresholds, watch, heartbeat, identity, wiki };
 }
 
 function findProjectRoot(dir: string): string | null {
@@ -107,6 +111,8 @@ const CONFIG_FILE = "config.json";
 
 interface MexPersistedConfig {
   aiTools?: unknown;
+  setupMode?: unknown;
+  wiki?: unknown;
   staleness?: unknown;
   watch?: unknown;
   heartbeat?: unknown;
@@ -123,6 +129,26 @@ function loadAiTools(raw: MexPersistedConfig | null): AiTool[] {
   const arr = raw?.aiTools;
   if (!Array.isArray(arr)) return [];
   return arr.filter((v): v is AiTool => typeof v === "string" && VALID_AI_TOOLS.has(v));
+}
+
+/** Read an existing setup tool selection without requiring a complete scaffold. */
+export function loadConfiguredAiTools(scaffoldRoot: string): AiTool[] {
+  return loadAiTools(loadPersistedConfig(scaffoldRoot));
+}
+
+/** Distinguish an explicit empty selection from a setup that never chose tools. */
+export function hasConfiguredAiTools(scaffoldRoot: string): boolean {
+  return Array.isArray(loadPersistedConfig(scaffoldRoot)?.aiTools);
+}
+
+/** Read setup intent without initializing config; older projects use code-repo. */
+export function loadConfiguredSetupMode(scaffoldRoot: string): "code-repo" | "agent-memory" {
+  return loadPersistedConfig(scaffoldRoot)?.setupMode === "agent-memory" ? "agent-memory" : "code-repo";
+}
+
+/** Persist setup intent using the same atomic, key-preserving config writer. */
+export function saveConfiguredSetupMode(scaffoldRoot: string, mode: "code-repo" | "agent-memory"): void {
+  mergeIntoConfig(scaffoldRoot, { setupMode: mode });
 }
 
 function loadStalenessThresholds(scaffoldRoot: string, raw: MexPersistedConfig | null): StalenessThresholds | undefined {
@@ -184,19 +210,120 @@ function loadWatchConfig(raw: MexPersistedConfig | null): WatchConfig | undefine
   return intervalMinutes === undefined ? undefined : { intervalMinutes };
 }
 
+// ── Wiki indexing scope (implementation plan, D10) ──
+
+/**
+ * Paths the wiki engine never indexes.
+ *
+ * Ordered, and matched against scaffold-relative POSIX paths.
+ */
+export const DEFAULT_WIKI_EXCLUDE: readonly string[] = ["**/node_modules/**"];
+
+/**
+ * Reserved read-only prefixes.
+ *
+ * None of these directories exist yet, and that is the point: D10 fixes the set
+ * before anything consumes it, so a read-only path is a first-class concept
+ * from the first commit instead of a retrofit. A matching file is parsed,
+ * indexed, queried and grounded exactly like any other — the restriction is on
+ * writes, and P5's `operations/plan.ts` is where it is enforced.
+ */
+export const DEFAULT_WIKI_READ_ONLY: readonly string[] = [
+  "team/**",
+  "workstreams/**",
+  "inbox/**",
+  "relays/**",
+  "playbooks/**",
+  "events/activity/**",
+];
+
+/** Keep only the strings; a non-string entry is dropped rather than stored. */
+function globList(value: unknown, fallback: readonly string[]): string[] {
+  if (!Array.isArray(value)) return [...fallback];
+  const globs = value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
+  return globs.length > 0 ? globs : [...fallback];
+}
+
+/**
+ * §12 scope defaults.
+ *
+ * Measured rather than invented: every number is the reference pipeline's own,
+ * except `maxTokens`, which is D10's default neighbourhood budget — a cluster
+ * context is handed to an agent the same way a neighbourhood is, and having one
+ * number for both is what D10 asks for.
+ */
+export const DEFAULT_WIKI_SYNTHESIS: WikiSynthesisConfig = {
+  minFiles: 1,
+  maxTokens: 4000,
+  primaryContextLines: 3,
+  maxFileLines: 400,
+  supportingMaxLines: 120,
+  maxCandidates: 60,
+  maxPerUnit: 6,
+  maxGroups: 40,
+  maxNodes: 60,
+};
+
+/** A positive finite number, or the default. A garbage value costs one setting. */
+function positiveNumber(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function normalizeSynthesisConfig(value: unknown): WikiSynthesisConfig {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return { ...DEFAULT_WIKI_SYNTHESIS };
+  const raw = value as Record<string, unknown>;
+  const out = { ...DEFAULT_WIKI_SYNTHESIS };
+  const keys = Object.keys(DEFAULT_WIKI_SYNTHESIS) as Array<keyof WikiSynthesisConfig>;
+  for (const key of keys) {
+    out[key] = positiveNumber(raw[key], DEFAULT_WIKI_SYNTHESIS[key]);
+  }
+  return out;
+}
+
+/** Fill in D10's defaults around whatever the caller supplied. */
+export function normalizeWikiConfig(value: Partial<WikiConfig> | undefined): WikiConfig {
+  return {
+    exclude: globList(value?.exclude, DEFAULT_WIKI_EXCLUDE),
+    readOnly: globList(value?.readOnly, DEFAULT_WIKI_READ_ONLY),
+    synthesis: normalizeSynthesisConfig(value?.synthesis),
+  };
+}
+
+/**
+ * Read `wiki` out of `.mex/config.json`.
+ *
+ * **Degrades to defaults; never throws.** Config parsing runs on the path of
+ * every mex command, including the many that have nothing to do with the wiki,
+ * so a hand-edited `"wiki": "yes"` must cost the user a wiki setting rather
+ * than the whole CLI. `MexPersistedConfig`'s index signature already carries the
+ * key through the JSON load untouched, so this is purely additive.
+ */
+function loadWikiConfig(raw: MexPersistedConfig | null): WikiConfig {
+  const wiki = raw?.wiki;
+  if (typeof wiki !== "object" || wiki === null || Array.isArray(wiki)) return normalizeWikiConfig(undefined);
+  return normalizeWikiConfig(wiki as Partial<WikiConfig>);
+}
+
 function loadHeartbeatConfig(raw: MexPersistedConfig | null): HeartbeatConfig | undefined {
   if (!raw || typeof raw.heartbeat !== "object" || raw.heartbeat === null || Array.isArray(raw.heartbeat)) {
     return undefined;
   }
   const h = raw.heartbeat as Record<string, unknown>;
   const out: HeartbeatConfig = {};
-  const staleDays = readPositiveNumber(h.staleDays);
-  const memoryCleanupDays = readPositiveNumber(h.memoryCleanupDays);
-  const dailyMemoryRetentionDays = readPositiveNumber(h.dailyMemoryRetentionDays);
+  // Day-based heartbeat thresholds accept 0 ("stale as soon as older than
+  // today", #42) while still rejecting negatives and garbage.
+  const staleDays = readDayThreshold(h.staleDays);
+  const memoryCleanupDays = readDayThreshold(h.memoryCleanupDays);
+  const dailyMemoryRetentionDays = readDayThreshold(h.dailyMemoryRetentionDays);
   if (staleDays !== undefined) out.staleDays = staleDays;
   if (memoryCleanupDays !== undefined) out.memoryCleanupDays = memoryCleanupDays;
   if (dailyMemoryRetentionDays !== undefined) out.dailyMemoryRetentionDays = dailyMemoryRetentionDays;
   return Object.keys(out).length ? out : undefined;
+}
+
+function readDayThreshold(v: unknown): number | undefined {
+  if (typeof v === "number" && Number.isFinite(v) && v >= 0) return v;
+  return undefined;
 }
 
 function readPositiveNumber(v: unknown): number | undefined {
@@ -247,8 +374,15 @@ function mergeIntoConfig(scaffoldRoot: string, patch: Record<string, unknown>): 
     } catch { /* start fresh */ }
   }
   Object.assign(existing, patch);
-  mkdirSync(dirname(configPath), { recursive: true });
-  writeFileSync(configPath, JSON.stringify(existing, null, 2) + "\n");
+  const configDirectory = dirname(configPath);
+  mkdirSync(configDirectory, { recursive: true });
+  const stagedPath = resolve(configDirectory, `.config.json.mex-stage-${randomUUID()}`);
+  try {
+    writeFileSync(stagedPath, JSON.stringify(existing, null, 2) + "\n", { flag: "wx" });
+    renameSync(stagedPath, configPath);
+  } finally {
+    rmSync(stagedPath, { force: true });
+  }
 }
 
 export function saveAiTools(scaffoldRoot: string, tools: AiTool[]): void {

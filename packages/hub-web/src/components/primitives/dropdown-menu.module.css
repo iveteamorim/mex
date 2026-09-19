@@ -1,0 +1,78 @@
+.positioner {
+  z-index: 50;
+  isolation: isolate;
+  outline: none;
+}
+
+.content {
+  z-index: 50;
+  width: var(--anchor-width);
+  min-width: 8rem;
+  max-height: var(--available-height);
+  padding: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: var(--popover-foreground);
+  background: var(--popover);
+  border-radius: var(--radius-lg);
+  outline: none;
+  box-shadow:
+    0 4px 6px -1px color-mix(in oklch, var(--foreground) 14%, transparent),
+    0 2px 4px -2px color-mix(in oklch, var(--foreground) 12%, transparent),
+    0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent);
+  transform-origin: var(--transform-origin);
+}
+
+.label {
+  padding: 4px 6px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.label[data-inset] {
+  padding-left: 28px;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 14px;
+  cursor: default;
+  border-radius: var(--radius-md);
+  outline: none;
+  user-select: none;
+}
+
+.item:focus {
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+
+.item[data-inset] {
+  padding-left: 28px;
+}
+
+.item[data-variant="destructive"] {
+  color: var(--destructive);
+}
+
+.item[data-variant="destructive"]:focus {
+  color: var(--destructive);
+  background: color-mix(in oklch, var(--destructive) 10%, transparent);
+}
+
+.item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  pointer-events: none;
+}

@@ -30,6 +30,7 @@ import type {
   TSTree,
 } from "../types.js";
 import {
+  canonicalNodeIdentity,
   generateNodeId,
   getChildByField,
   getNodeText,
@@ -55,6 +56,7 @@ const SKIP_RECEIVERS = new Set(["this", "super"]);
 class TsFamilyWalker {
   private readonly nodes: ExtractedNode[] = [];
   private readonly edges: ExtractedEdge[] = [];
+  private readonly identityOccurrences = new Map<string, number>();
   /** Ids of the enclosing scopes; the last element is the current parent. */
   private readonly scopeStack: string[] = [];
 
@@ -133,12 +135,21 @@ class TsFamilyWalker {
     extra?: Partial<ExtractedNode>,
   ): string | null {
     if (!name) return null;
-    const id = generateNodeId(this.filePath, kind, name);
+    const qualifiedName = this.qualify(name);
+    // Same-file same-identity declarations (redeclarations, hostile fixtures)
+    // get an ordinal-disambiguated role, mirroring the python/rust extractors —
+    // without it a duplicate id aborts the whole staged corpus.
+    const baseIdentity = canonicalNodeIdentity(this.filePath, kind, qualifiedName, kind, extra?.signature);
+    const ordinal = this.identityOccurrences.get(baseIdentity) ?? 0;
+    this.identityOccurrences.set(baseIdentity, ordinal + 1);
+    const declarationRole = ordinal === 0 ? kind : `${kind}:ordinal:${ordinal}`;
+    const id = generateNodeId(this.filePath, kind, name, qualifiedName, declarationRole, extra?.signature);
     this.nodes.push({
       id,
+      identityKey: canonicalNodeIdentity(this.filePath, kind, qualifiedName, declarationRole, extra?.signature),
       kind,
       name,
-      qualifiedName: this.qualify(name),
+      qualifiedName,
       filePath: this.filePath,
       language: this.language,
       startLine: node.startPosition.row + 1,

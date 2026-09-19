@@ -1,0 +1,280 @@
+.reviewDialog {
+  width: min(880px, calc(100vw - 24px));
+  max-width: 880px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+}
+
+.confirmationSummary {
+  display: grid;
+  gap: 8px;
+  padding: 11px 12px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.confirmationSummary h3,
+.confirmationSummary p,
+.confirmationSummary ul {
+  margin: 0;
+}
+
+.confirmationSummary h3 {
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.confirmationSummary ul {
+  display: grid;
+  gap: 5px;
+  padding-left: 17px;
+  color: var(--text-secondary);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.confirmationSummary > p:last-child {
+  font-size: 10.5px;
+}
+
+.confirmationEyebrow {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewFailure,
+.previewDocket,
+.previewDiagnostics {
+  display: grid;
+  gap: 8px;
+}
+
+.previewDocket {
+  gap: 10px;
+}
+
+.technicalDetails {
+  border-top: 1px solid var(--border);
+}
+
+.technicalDetails > [data-slot="button"] {
+  margin: 8px 0;
+  padding-inline: 0;
+}
+
+.technicalDetails > [data-slot="button"] svg {
+  transition: transform 150ms ease;
+}
+
+.technicalDetails > [data-panel-open] [data-icon="inline-start"] {
+  transform: rotate(180deg);
+}
+
+.technicalContent {
+  display: grid;
+  gap: 15px;
+  padding: 4px 0 16px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.previewDiagnostics h4 {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 8.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.previewDiagnostics ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 17px;
+}
+
+.authorityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.authorityGrid > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background: var(--card);
+}
+
+.authorityGrid dt {
+  color: var(--muted-foreground);
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.authorityGrid dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.authorityGrid code {
+  font-size: 9px;
+}
+
+.previewHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.previewHeading p,
+.previewHeading h3 {
+  margin: 0;
+}
+
+.previewHeading p {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewHeading h3 {
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+.digest {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  font-size: 9px;
+}
+
+.digest code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.purposeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.diff {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.diff header {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.diff header svg {
+  width: 14px;
+}
+
+.diff header strong {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.changeRevisions {
+  margin: 0;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.diff pre {
+  max-height: 220px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  color: var(--text-secondary);
+  background: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.boundNote,
+.localChange {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.boundNote svg,
+.localChange svg {
+  width: 14px;
+  flex: none;
+  margin-top: 1px;
+}
+
+.boundNote {
+  margin: 0;
+}
+
+.localChange {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.localChange span {
+  display: flex;
+  flex-direction: column;
+}
+
+.localChange small {
+  margin-top: 2px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+@media (max-width: 1180px) {
+  .authorityGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

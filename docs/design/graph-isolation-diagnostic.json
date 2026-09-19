@@ -1,0 +1,773 @@
+{
+  "kind": "local-causal-diagnostic-not-pinned-calibration",
+  "purpose": "Bounded same-code causal diagnostic of disposable graph candidate processes versus a reused in-process runtime. This local result is not pinned release calibration and must not supply release budget values.",
+  "generatedAt": "2026-09-08T23:17:48.191Z",
+  "sourceHead": "4d6683eec1a0bdcafe99d7b431d84cde7f02864d",
+  "worktreeCleanAfterMeasurement": true,
+  "rawReportSha256": "7926b080d863bc40ac00dddc1c733e14d65d117f143424d4b3ff8629dd9fcdfb",
+  "environment": {
+    "node": "v22.17.1",
+    "sqlite": "3.50.0",
+    "v8": "12.4.254.21-node.27",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "design": {
+    "fixture": "release-small-four-TypeScript-files",
+    "warmupsPerMode": 2,
+    "measuredPerMode": 3,
+    "sameOptimizedEngineAndParentValidation": true,
+    "separatePersistentParentPerMode": true,
+    "forcedGc": false,
+    "resourceScope": "maintenance parent and observed descendants",
+    "sampler": {
+      "scope": "hub-and-descendants",
+      "rss": "sum-of-resident-sets-in-one-sample",
+      "cpu": "observed-process-lifetime-deltas",
+      "intervalMs": 100,
+      "limitation": "Shared pages may be counted twice; short-lived children and final CPU between samples may be missed."
+    },
+    "note": "Direct rebuildGraph diagnostic, not a Hub HTTP benchmark. Both modes include the same parent maintenance and publication validation. Process mode launches a disposable current-source candidate each time; in-process mode reuses loaded runtime/JIT state.",
+    "modeOrder": [
+      "process",
+      "in-process"
+    ],
+    "limitations": "One local macOS allocation and fixed mode order; three measured runs per mode establish a bounded causal diagnostic, not pinned release calibration or an exact import/JIT/watchdog cost decomposition.",
+    "harness": "Temporary source bundles built with esbuild (Node 22 target, ESM, external dependencies) against the checkout dependency installation. Schema and grammar assets copied alongside. Separate copies of the initialized frozen small release fixture; each mode uses one persistent parent for five rebuilds. No measured Node flags or forced GC.",
+    "bounds": {
+      "externalDeadlineMs": 120000,
+      "workerReplyDeadlineMs": 30000,
+      "aggregateSampledRssGuardBytes": 2147483648
+    }
+  },
+  "bundleHashes": {
+    "worker.mjs": "5179040af2e643c9a967b687e6151acb4c81f4de8475d2bad92bb9ab88168ee8",
+    "graph-candidate.js": "55e89707ff0baa2516b049e56090c4629cb6e69091caee715ae3413f2952a3e3"
+  },
+  "measurement": {
+    "elapsedMs": "Time around rebuildGraph only; excludes the following logical graph digest, IPC delivery and sampler shutdown.",
+    "parentCpuMs": "process.cpuUsage delta around rebuildGraph in its persistent parent; excludes candidate child CPU.",
+    "marks": "Milliseconds from the rebuildGraph start to observed progress or internal hook callbacks; callbacks available in each mode differ.",
+    "returnMemory": "Parent process.memoryUsage after rebuildGraph and the logical graph digest; all fields are bytes. This is a surviving-process snapshot, not a forced-GC retained-heap measurement.",
+    "resources": "Aggregate sampled maintenance parent and observed descendants, from before the invocation through result delivery, including the digest and IPC interval. RSS fields are bytes, cpuMs is observed process-lifetime CPU deltas; maxProcesses is the largest sampled process count.",
+    "summary": "Per-mode elapsed medians and aggregate peak RSS use only the three measured iterations. Final parent RSS is from the last iteration. All ten original iterations remain below.",
+    "samplerScopeNote": "The reused release sampler metadata names its root hub-and-descendants; this diagnostic roots it at the direct maintenance worker, with no Hub HTTP server."
+  },
+  "parity": {
+    "allTenSucceededAndFresh": true,
+    "commonResult": {
+      "state": "succeeded",
+      "filesIndexed": 4,
+      "nodesCreated": 32,
+      "edgesCreated": 38,
+      "status": "fresh",
+      "parseHealth": {
+        "total": 4,
+        "ok": 4,
+        "partial": 0,
+        "failed": 0,
+        "failedPaths": [],
+        "failedPathsTruncated": false
+      }
+    },
+    "allCoreDigestsEqual": true,
+    "allCountsEqual": true,
+    "digestMethod": {
+      "algorithm": "SHA-256 of JSON.stringify({nodes,edges,files,fingerprints,refs}).",
+      "nodes": "All fields except updated_at; rows sorted by JSON.stringify(row).localeCompare.",
+      "edges": "All fields except autoincrement id; same row sorting.",
+      "files": "All fields except modified_at and indexed_at; same row sorting.",
+      "fingerprints": "node_id, hex(minhash) AS minhash, neighbors, token_count, ordered by node_id.",
+      "refs": "All unresolved_refs fields except autoincrement id; same row sorting.",
+      "scope": "Logical core graph parity only; does not compare every table, timestamps, metadata or physical SQLite bytes."
+    }
+  },
+  "samples": [
+    {
+      "mode": "process",
+      "iteration": 1,
+      "warmup": true,
+      "elapsedMs": 723.099625,
+      "parentCpuMs": 84.225,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 15.368707999999998
+        },
+        {
+          "phase": "stage",
+          "atMs": 54.215457999999984
+        },
+        {
+          "phase": "candidate_spawn",
+          "atMs": 55.55016599999999
+        },
+        {
+          "phase": "parse",
+          "atMs": 374.1006249999999
+        },
+        {
+          "phase": "resolve",
+          "atMs": 619.751166
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 660.518375
+        },
+        {
+          "phase": "validate",
+          "atMs": 660.5649999999999
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 682.991958
+        },
+        {
+          "phase": "publish",
+          "atMs": 691.125541
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 162807808,
+        "heapTotal": 54312960,
+        "heapUsed": 42425752,
+        "external": 15931914,
+        "arrayBuffers": 13751505
+      },
+      "resources": {
+        "rssBytes": 162824192,
+        "peakRssBytes": 395182080,
+        "cpuMs": 1040,
+        "maxProcesses": 2,
+        "sampleCount": 9
+      }
+    },
+    {
+      "mode": "process",
+      "iteration": 2,
+      "warmup": true,
+      "elapsedMs": 904.0846670000001,
+      "parentCpuMs": 54.588,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 10.706292000000076
+        },
+        {
+          "phase": "stage",
+          "atMs": 35.59466700000007
+        },
+        {
+          "phase": "candidate_spawn",
+          "atMs": 36.57787500000006
+        },
+        {
+          "phase": "parse",
+          "atMs": 557.8742500000001
+        },
+        {
+          "phase": "resolve",
+          "atMs": 808.972334
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 847.72775
+        },
+        {
+          "phase": "validate",
+          "atMs": 847.7717500000001
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 868.7050839999999
+        },
+        {
+          "phase": "publish",
+          "atMs": 876.963375
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 168689664,
+        "heapTotal": 54575104,
+        "heapUsed": 39737784,
+        "external": 2273319,
+        "arrayBuffers": 92870
+      },
+      "resources": {
+        "rssBytes": 168689664,
+        "peakRssBytes": 405307392,
+        "cpuMs": 1060,
+        "maxProcesses": 2,
+        "sampleCount": 10
+      }
+    },
+    {
+      "mode": "process",
+      "iteration": 3,
+      "warmup": false,
+      "elapsedMs": 876.0462910000001,
+      "parentCpuMs": 44.764,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 11.62154099999998
+        },
+        {
+          "phase": "stage",
+          "atMs": 35.61345800000004
+        },
+        {
+          "phase": "candidate_spawn",
+          "atMs": 36.47279100000014
+        },
+        {
+          "phase": "parse",
+          "atMs": 527.4614999999999
+        },
+        {
+          "phase": "resolve",
+          "atMs": 778.0508330000002
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 818.0947500000002
+        },
+        {
+          "phase": "validate",
+          "atMs": 818.1847910000001
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 838.8774579999999
+        },
+        {
+          "phase": "publish",
+          "atMs": 847.9189160000001
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 169541632,
+        "heapTotal": 54837248,
+        "heapUsed": 43514160,
+        "external": 15932052,
+        "arrayBuffers": 13751603
+      },
+      "resources": {
+        "rssBytes": 169656320,
+        "peakRssBytes": 396771328,
+        "cpuMs": 920,
+        "maxProcesses": 3,
+        "sampleCount": 10
+      }
+    },
+    {
+      "mode": "process",
+      "iteration": 4,
+      "warmup": false,
+      "elapsedMs": 879.5032920000003,
+      "parentCpuMs": 64.856,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 14.678417000000081
+        },
+        {
+          "phase": "stage",
+          "atMs": 39.59062500000027
+        },
+        {
+          "phase": "candidate_spawn",
+          "atMs": 40.370792000000165
+        },
+        {
+          "phase": "parse",
+          "atMs": 534.1774170000003
+        },
+        {
+          "phase": "resolve",
+          "atMs": 786.0798750000004
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 822.985709
+        },
+        {
+          "phase": "validate",
+          "atMs": 823.0244170000001
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 842.3342500000003
+        },
+        {
+          "phase": "publish",
+          "atMs": 851.2854590000002
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 171524096,
+        "heapTotal": 54837248,
+        "heapUsed": 37172464,
+        "external": 2249601,
+        "arrayBuffers": 69152
+      },
+      "resources": {
+        "rssBytes": 171524096,
+        "peakRssBytes": 417382400,
+        "cpuMs": 1080,
+        "maxProcesses": 2,
+        "sampleCount": 10
+      }
+    },
+    {
+      "mode": "process",
+      "iteration": 5,
+      "warmup": false,
+      "elapsedMs": 882.3670000000002,
+      "parentCpuMs": 69.309,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 18.476292000000285
+        },
+        {
+          "phase": "stage",
+          "atMs": 40.62395900000001
+        },
+        {
+          "phase": "candidate_spawn",
+          "atMs": 41.56916700000011
+        },
+        {
+          "phase": "parse",
+          "atMs": 531.2083750000002
+        },
+        {
+          "phase": "resolve",
+          "atMs": 788.0578750000004
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 826.7629590000006
+        },
+        {
+          "phase": "validate",
+          "atMs": 826.803167
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 846.7960840000005
+        },
+        {
+          "phase": "publish",
+          "atMs": 854.2553749999997
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 171917312,
+        "heapTotal": 55099392,
+        "heapUsed": 37237992,
+        "external": 2249594,
+        "arrayBuffers": 69145
+      },
+      "resources": {
+        "rssBytes": 171917312,
+        "peakRssBytes": 423313408,
+        "cpuMs": 1090,
+        "maxProcesses": 2,
+        "sampleCount": 10
+      }
+    },
+    {
+      "mode": "in-process",
+      "iteration": 1,
+      "warmup": true,
+      "elapsedMs": 409.47450000000003,
+      "parentCpuMs": 803.312,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 15.52600000000001
+        },
+        {
+          "phase": "stage",
+          "atMs": 55.139667
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 351.91925000000003
+        },
+        {
+          "phase": "validate",
+          "atMs": 351.98066700000004
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 373.81508400000007
+        },
+        {
+          "phase": "publish",
+          "atMs": 380.37912500000004
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 244318208,
+        "heapTotal": 124092416,
+        "heapUsed": 94566096,
+        "external": 14909094,
+        "arrayBuffers": 12728685
+      },
+      "resources": {
+        "rssBytes": 244285440,
+        "peakRssBytes": 244285440,
+        "cpuMs": 810,
+        "maxProcesses": 1,
+        "sampleCount": 5
+      }
+    },
+    {
+      "mode": "in-process",
+      "iteration": 2,
+      "warmup": true,
+      "elapsedMs": 260.835333,
+      "parentCpuMs": 451.76,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 14.208292000000029
+        },
+        {
+          "phase": "stage",
+          "atMs": 39.153625000000034
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 200.53437500000007
+        },
+        {
+          "phase": "validate",
+          "atMs": 200.604875
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 223.77587500000004
+        },
+        {
+          "phase": "publish",
+          "atMs": 232.78370800000005
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 286752768,
+        "heapTotal": 109363200,
+        "heapUsed": 46445176,
+        "external": 14875744,
+        "arrayBuffers": 12695295
+      },
+      "resources": {
+        "rssBytes": 286752768,
+        "peakRssBytes": 294404096,
+        "cpuMs": 450,
+        "maxProcesses": 2,
+        "sampleCount": 4
+      }
+    },
+    {
+      "mode": "in-process",
+      "iteration": 3,
+      "warmup": false,
+      "elapsedMs": 228.46966699999996,
+      "parentCpuMs": 306.749,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 14.26237500000002
+        },
+        {
+          "phase": "stage",
+          "atMs": 38.24895900000001
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 173.80383399999994
+        },
+        {
+          "phase": "validate",
+          "atMs": 173.85683400000005
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 193.550167
+        },
+        {
+          "phase": "publish",
+          "atMs": 201.24904200000003
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 294895616,
+        "heapTotal": 125927424,
+        "heapUsed": 95962496,
+        "external": 27523170,
+        "arrayBuffers": 25342721
+      },
+      "resources": {
+        "rssBytes": 294895616,
+        "peakRssBytes": 295157760,
+        "cpuMs": 310,
+        "maxProcesses": 2,
+        "sampleCount": 4
+      }
+    },
+    {
+      "mode": "in-process",
+      "iteration": 4,
+      "warmup": false,
+      "elapsedMs": 220.15945899999997,
+      "parentCpuMs": 243.71,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 13.114542000000029
+        },
+        {
+          "phase": "stage",
+          "atMs": 37.133959000000004
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 166.501667
+        },
+        {
+          "phase": "validate",
+          "atMs": 166.54874999999993
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 185.73087499999997
+        },
+        {
+          "phase": "publish",
+          "atMs": 193.30279199999995
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 302596096,
+        "heapTotal": 172113920,
+        "heapUsed": 142000784,
+        "external": 28605640,
+        "arrayBuffers": 26425191
+      },
+      "resources": {
+        "rssBytes": 302596096,
+        "peakRssBytes": 302596096,
+        "cpuMs": 250,
+        "maxProcesses": 1,
+        "sampleCount": 4
+      }
+    },
+    {
+      "mode": "in-process",
+      "iteration": 5,
+      "warmup": false,
+      "elapsedMs": 219.6812910000001,
+      "parentCpuMs": 244.137,
+      "marks": [
+        {
+          "phase": "discover",
+          "atMs": 13.49958300000003
+        },
+        {
+          "phase": "stage",
+          "atMs": 36.46279100000015
+        },
+        {
+          "phase": "candidate_built",
+          "atMs": 163.14637500000003
+        },
+        {
+          "phase": "validate",
+          "atMs": 163.19095800000014
+        },
+        {
+          "phase": "candidate_validated",
+          "atMs": 184.39962500000001
+        },
+        {
+          "phase": "publish",
+          "atMs": 192.67262500000015
+        }
+      ],
+      "graph": {
+        "counts": {
+          "nodes": 32,
+          "edges": 38,
+          "files": 4,
+          "fingerprints": 16,
+          "refs": 8
+        },
+        "sha256": "3aab6bb4fc5db62e8dd60c90428f49dd08629937307b01897cfe4d8b08a7ba04"
+      },
+      "returnMemory": {
+        "rss": 336035840,
+        "heapTotal": 130334720,
+        "heapUsed": 50367624,
+        "external": 14899399,
+        "arrayBuffers": 12718950
+      },
+      "resources": {
+        "rssBytes": 336035840,
+        "peakRssBytes": 336216064,
+        "cpuMs": 240,
+        "maxProcesses": 2,
+        "sampleCount": 4
+      }
+    }
+  ],
+  "summary": {
+    "process": {
+      "samples": [
+        876.0462910000001,
+        879.5032920000003,
+        882.3670000000002
+      ],
+      "medianMs": 879.5032920000003,
+      "maxRssBytes": 423313408,
+      "observedCpuMs": [
+        920,
+        1080,
+        1090
+      ],
+      "counts": {
+        "nodes": 32,
+        "edges": 38,
+        "files": 4,
+        "fingerprints": 16,
+        "refs": 8
+      },
+      "finalParentRssBytes": 171917312,
+      "sampleOrder": "Elapsed samples are sorted ascending; observedCpuMs follows measured iteration order. Per-iteration pairs are retained in samples."
+    },
+    "in-process": {
+      "samples": [
+        219.6812910000001,
+        220.15945899999997,
+        228.46966699999996
+      ],
+      "medianMs": 220.15945899999997,
+      "maxRssBytes": 336216064,
+      "observedCpuMs": [
+        310,
+        250,
+        240
+      ],
+      "counts": {
+        "nodes": 32,
+        "edges": 38,
+        "files": 4,
+        "fingerprints": 16,
+        "refs": 8
+      },
+      "finalParentRssBytes": 336035840,
+      "sampleOrder": "Elapsed samples are sorted ascending; observedCpuMs follows measured iteration order. Per-iteration pairs are retained in samples."
+    }
+  },
+  "interpretation": {
+    "medianDifferenceMs": 659.3438330000004,
+    "medianRatio": 3.994846716987983,
+    "finding": "On this small fixture, disposable candidate processes take longer and have a higher sampled aggregate peak RSS, while leaving a lower-RSS surviving parent. Equal logical core outputs and matching parent validation support attribution to candidate lifecycle/runtime reuse rather than different graph work.",
+    "limits": "One local macOS allocation, fixed mode order and three measured iterations per mode. No precise import/JIT/watchdog cost decomposition, general peak-memory improvement, leak conclusion, large-project forecast or pinned budget calibration is established."
+  },
+  "outcome": "passed",
+  "totalDiagnosticElapsedMs": 8658.5395
+}

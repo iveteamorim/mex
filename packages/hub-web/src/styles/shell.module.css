@@ -1,0 +1,599 @@
+.viewportFrame {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.workspace {
+  min-width: 0;
+  background: var(--background);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  width: 232px;
+  height: 100vh;
+  flex-direction: column;
+  padding: 14px 12px 12px;
+  overflow: hidden;
+  color: var(--sidebar-foreground);
+  background: var(--sidebar-token);
+  border-right: 1px solid var(--sidebar-border);
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebarHeader {
+  flex: none;
+  padding-bottom: 12px;
+}
+
+.brand {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px 10px;
+}
+
+.brandMark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  overflow: hidden;
+  place-items: center;
+}
+
+.brandMark img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.brandWordmark,
+.locality > span,
+.repoIdentity > span:last-child,
+.sessionMeta > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.brandWordmark {
+  flex: 1;
+}
+
+.brand strong {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.sidebarSeparator {
+  background: var(--sidebar-border);
+}
+
+.searchLauncher {
+  display: grid;
+  min-height: 36px;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  color: var(--sidebar-foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 3%);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.searchLauncher:hover,
+.searchLauncherActive {
+  color: var(--foreground);
+  background: var(--sidebar-accent);
+  border-color: var(--border-strong);
+}
+
+.searchLauncher svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.7;
+}
+
+.searchLauncher [data-slot="kbd"] {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-color: var(--border);
+  font-size: 9px;
+}
+
+.navScroller {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 0 18px;
+}
+
+.navList,
+.footerList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groupHeading {
+  margin: 0 2px 3px;
+}
+
+.groupDisclosure {
+  width: 100%;
+  justify-content: space-between;
+  padding-inline: 7px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.groupDisclosure:hover {
+  color: var(--sidebar-accent-foreground);
+}
+
+.groupDisclosure[data-active="true"] {
+  color: var(--foreground);
+  background: var(--primary-soft);
+}
+
+.groupDisclosureMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.groupDisclosure svg {
+  transition: transform var(--transition-fast);
+}
+
+.groupDisclosure[data-expanded="false"] svg {
+  transform: rotate(-90deg);
+}
+
+.navLink {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  min-height: 32px;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  color: var(--muted-foreground);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 450;
+  text-decoration: none;
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--sidebar-accent-foreground);
+  background: var(--sidebar-accent);
+  border-color: var(--sidebar-border);
+}
+
+.navLinkActive {
+  color: var(--foreground);
+  background: var(--sidebar-accent);
+  border-color: var(--border);
+}
+
+.navLinkActive::before {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: -1px;
+  width: 2px;
+  background: var(--primary);
+  border-radius: 0 2px 2px 0;
+  content: "";
+}
+
+.navLink svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.7;
+}
+
+.navLink [data-slot="kbd"] {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  color: var(--muted-foreground);
+  background: var(--background);
+  border-color: var(--border);
+  font-size: 9px;
+}
+
+.navLink [data-slot="badge"],
+.groupDisclosure [data-slot="badge"] {
+  min-width: 0;
+  height: 18px;
+  padding-inline: 5px;
+  font-size: 9px;
+  font-weight: 550;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+}
+
+.sidebarFooter {
+  flex: none;
+}
+
+.footerNavigation {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 9px;
+}
+
+.footerList > li {
+  min-width: 0;
+}
+
+.identityText {
+  display: block;
+  overflow: hidden;
+  margin: -3px 9px 4px 34px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locality {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 8px 2px;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-align: left;
+}
+
+.tooltipAnchor {
+  display: block;
+  min-width: 0;
+}
+
+.sidebarTooltip {
+  position: fixed;
+  z-index: 50;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 6px 10px;
+  color: var(--background);
+  background: var(--foreground);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+
+.locality > svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted-foreground);
+}
+
+.locality strong {
+  color: var(--sidebar-foreground);
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.locality small {
+  margin-top: 1px;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+}
+
+.contextBar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto auto;
+  height: 52px;
+  align-items: center;
+  padding: 0 24px;
+  background: color-mix(in oklch, var(--background) 94%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.repoIdentity,
+.repoFacts,
+.repoFacts > span,
+.sessionMeta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.repoIdentity {
+  gap: 8px;
+}
+
+.repoGlyph {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--muted-foreground);
+  place-items: center;
+}
+
+.repoGlyph svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.7;
+}
+
+.repoIdentity strong,
+.sessionMeta strong {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repoFacts {
+  gap: 13px;
+  padding: 0 18px;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border);
+}
+
+.repoFacts > span {
+  gap: 5px;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.repoFacts > span > span {
+  overflow: hidden;
+  max-width: min(24vw, 250px);
+  text-overflow: ellipsis;
+}
+
+.repoFacts svg {
+  width: 13px;
+  height: 13px;
+}
+
+/*
+ * The one outbound link in the Hub, and the only control in this bar — the
+ * repository facts beside it are readouts. It is the Hub's own outline button
+ * rather than a hand-drawn one, which is both cheaper and more consistent: an
+ * earlier version restyled it from scratch and put 705 bytes into the entry
+ * stylesheet, enough on its own to breach the initial-CSS budget.
+ *
+ * Only the mark's colour is ours. The label stays neutral, because a fully
+ * branded button would outrank the repository state, which is what the bar is
+ * actually for.
+ */
+.discordLink svg {
+  color: var(--discord);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.sessionMeta {
+  padding-left: 17px;
+}
+
+.sessionMeta small {
+  color: var(--muted-foreground);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sessionMeta strong {
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+.main {
+  min-width: 0;
+  min-height: calc(100vh - 52px);
+  padding: 24px clamp(24px, 3vw, 40px) 48px;
+  outline: none;
+}
+
+.skipLink {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  padding: 7px 10px;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--transition-fast);
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.desktopRequired {
+  display: grid;
+  min-height: 100vh;
+  padding: 36px;
+  color: var(--foreground);
+  background: var(--background);
+  place-content: center;
+  text-align: center;
+}
+
+.desktopRequired h1 {
+  max-width: 520px;
+  margin: 14px auto 9px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.desktopRequired > p:last-child {
+  max-width: 540px;
+  margin: 0 auto;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.desktopWindow {
+  display: grid;
+  width: 124px;
+  height: 76px;
+  grid-template-columns: repeat(3, 7px) 1fr;
+  gap: 5px;
+  align-items: start;
+  margin: 0 auto;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.desktopWindow > span {
+  width: 7px;
+  height: 7px;
+  background: var(--border-strong);
+  border-radius: 50%;
+}
+
+.desktopWindow > div {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--muted-foreground);
+}
+
+.desktopWindow svg {
+  width: 18px;
+}
+
+.eyebrow {
+  margin: 16px 0 0;
+  color: var(--primary);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1190px) {
+  .contextBar {
+    padding: 0 16px;
+  }
+
+  .repoFacts {
+    gap: 9px;
+    padding: 0 12px;
+  }
+
+  .repoFacts > span > span {
+    max-width: 170px;
+  }
+
+  /*
+   * The mark alone below this width. The repository facts are what the bar is
+   * for, so the invitation gives up its label first rather than crowding them —
+   * the `title` still names it, and so does the accessible name. The button
+   * keeps its own padding and box, so it still reads as something to press.
+   */
+  .discordLink > span {
+    display: none;
+  }
+
+  .sessionMeta {
+    padding-left: 12px;
+  }
+
+  .main {
+    padding: 22px 24px 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink,
+  .searchLauncher,
+  .skipLink {
+    transition: none;
+  }
+}

@@ -2,7 +2,47 @@
 
 ## Runtime requirement
 
-mex 0.7.0 requires Node.js 22.5 or newer. The code graph uses the built-in `node:sqlite` module; older Node releases are unsupported. Users who cannot upgrade Node can remain on mex v0.6.3, which supports Node.js 20 or newer.
+mex 0.8.x requires Node.js 22.5 or newer. The code graph and the wiki index use
+the built-in `node:sqlite` module; older Node releases are unsupported.
+
+Users who cannot upgrade Node can remain on mex v0.6.3, which supports Node.js
+20 or newer. Note what that costs: the code graph shipped in 0.7.0, so v0.6.3
+has no `mex graph`, no `mex impact`, and no code-node grounding. It is a
+scaffold-and-drift-checking release, not an older version of the same feature
+set.
+
+### SQLite FTS5
+
+**A supported Node version is necessary but not sufficient.** Both databases
+need SQLite's FTS5 full-text extension, and `node:sqlite` embeds whatever
+SQLite the Node binary was built with. FTS5 is a compile-time option that Node
+does not document or guarantee, so whether you have it depends on the *build*,
+not the version number alone — official builds, distro packages, and
+self-compiled Node can differ at the same version.
+
+Check the Node you actually run in one command:
+
+```console
+$ node --no-warnings -e "new (require('node:sqlite').DatabaseSync)(':memory:').exec('CREATE VIRTUAL TABLE t USING fts5(x)')" && echo "FTS5 ok"
+```
+
+Silence plus `FTS5 ok` means you are fine. `no such module: fts5` means that
+Node build cannot run the graph or the wiki index; install a different build or
+version of Node. mex preflights this itself, so `mex graph` and
+`mex wiki rebuild-index` name the problem and your Node version rather than
+failing with a bare SQLite error.
+
+Known data points, which are reports rather than a supported-range claim:
+
+| Node | Platform | FTS5 |
+|---|---|---|
+| 23.10.0 | Windows 11 | missing ([#110](https://github.com/mex-memory/mex/issues/110)) |
+| 24.11.0 | Windows 11 | present |
+
+`engines` stays at `>=22.5`: FTS5 does not track version order, so narrowing
+the range would lock out working builds without excluding broken ones. If you
+hit a build without it, please add it to the table via issue #110 — the sample
+is small, and that is the only thing that would justify a floor.
 
 This document defines `mex-agent`'s public contract: what's stable, what isn't,
 and what counts as a breaking change. It is intended for embedders — tools that
@@ -11,6 +51,51 @@ shipping new versions.
 
 If you only use the `mex` CLI, most of this still applies, but CLI flags
 themselves are best-effort (see [CLI surface](#cli-surface) below).
+
+## Upgrading to 0.8.2
+
+Install `mex-agent@0.8.2`, then run `mex skills sync --dry-run` and
+`mex skills sync` in each project whose managed agent skills and instructions
+you want to update. Review conflicts with locally edited instructions and start
+a new agent session afterward. An already completed 0.8.0 or 0.8.1 setup does not need
+to run setup again just for this package upgrade. Installing the package alone
+does not change the repository.
+
+In 0.8.2, `mex setup` opens the browser setup wizard and bare `mex` opens
+Hub (or setup when incomplete). Terminal users and scripts should use
+`mex setup --cli`; `mex tui` keeps the terminal dashboard. `setup --dry-run`
+remains a read-only terminal preview. `--no-open` and `--port` apply to browser
+launches. Optional global installation pins the running version. No public
+package exports or Graph/Wiki/Relay storage formats change in this release.
+
+New **open-to-team Relays use artifact schema v4**. Upgrade teammates to 0.8.1
+before exchanging these handoffs; 0.8.0 cannot read the new format. Existing
+schema-v1, v2, and v3 Relays remain supported, and newly published named-recipient
+Relays continue to use v3. This Relay artifact version is separate from Graph
+and checkout-local database schema versions.
+
+Tracked Markdown remains canonical. Graph/Wiki indexes and `.mex/local/` stay
+checkout-local and ignored by Git. Follow the explicit action reported by
+`mex graph status` after upgrading; ordinary reads never rebuild or migrate an
+index. A successful agent session no longer authorizes replacing a grounding
+baseline: existing baselines change only through explicit, scoped acceptance.
+
+Telemetry now includes CLI and Hub events under one random installation UUID,
+with the existing scaffold UUID and configured AI-tool names when available.
+These are pseudonymous usage signals, not verified people or team sizes. Use
+`mex telemetry inspect` to inspect the catalog and `mex telemetry disable` to
+opt out; `DO_NOT_TRACK=1` and `MEX_TELEMETRY=0` also disable collection and
+sending. See [TELEMETRY.md](TELEMETRY.md) for payloads, exclusions, and delivery
+limits. Existing opt-out preferences remain effective.
+
+### Nix source package
+
+The source `flake.nix` takes its version from `package.json`, but its fixed
+`npmDepsHash` predates the current dependency lockfile and needs regeneration
+and a successful `nix build` before that package can be considered verified.
+The release checks cover the npm installation path; they do not establish
+Nix build support. The helper `prefetch-npm-deps package-lock.json` can compute
+the dependency hash in an environment where it is available.
 
 ## The public API
 
@@ -23,17 +108,17 @@ import { /* … */ } from "mex-agent";
 Concretely, that's everything re-exported from
 [`src/index.ts`](./src/index.ts):
 
-- **Functions** — `findConfig`, `createConfig`, `appendEvent`, `readEvents`,
-  `eventLogPath`, `runDriftCheck`, `parseFrontmatter`, `checkHeartbeat`,
-  `runHeartbeat`.
+- **Functions** — `findConfig`, `createConfig`, `getScaffoldIdentity`,
+  `appendEvent`, `readEvents`, `eventLogPath`, `runDriftCheck`,
+  `parseFrontmatter`, `checkHeartbeat`, `runHeartbeat`.
 - **Runtime constants** — `EVENT_KINDS`, `DEFAULT_STALENESS_THRESHOLDS`,
   `DEFAULT_SCAFFOLD_PATTERNS`, `DEFAULT_HEARTBEAT_PATTERNS`.
 - **Types** — `MexConfig`, `CreateConfigInput`, `EventEntry`, `EventKind`,
   `LogOpts`, `DriftReport`, `DriftIssue`, `RunDriftCheckOpts`,
   `HeartbeatResult`, `HeartbeatOpts`, `CheckHeartbeatOpts`,
   `StalenessThresholds`, `WatchConfig`, `HeartbeatConfig`, `AiTool`,
-  `IssueCode`, `Severity`, `ScaffoldFrontmatter`, `FrontmatterEdge`, `Claim`,
-  `ClaimKind`.
+  `ScaffoldIdentity`, `IssueCode`, `Severity`, `ScaffoldFrontmatter`,
+  `FrontmatterEdge`, `Claim`, `ClaimKind`.
 
 The CI smoke test at [`test/public-api.test.ts`](./test/public-api.test.ts)
 asserts the existence and basic shape of these exports. Any change that breaks
@@ -113,9 +198,13 @@ itself, and some are reserved for embedders.
 - `ROUTER.md`, `AGENTS.md`, `SETUP.md`, `SYNC.md` — top-level scaffold files.
 - `context/*.md` — context documents (scanned by drift checkers).
 - `patterns/*.md` — pattern documents (scanned by drift checkers).
-- `events/decisions.jsonl` — append-only event log.
+- `team/members/**`, `workstreams/**`, `inbox/**`, and `relays/**` — canonical team workflow records.
+- `specs/**`, `topics/**`, and `playbooks/**` — canonical Wiki and shared workflow records.
+- `events/decisions.jsonl`, `events/activity/**`, and `events/operations.jsonl` — canonical event and operation records.
 - `config.json` — persisted scaffold configuration.
-- `graph.db` (plus SQLite sidecar files) — generated code graph, fingerprints, and grounding baselines.
+- `.gitignore` — managed protection for checkout-local state.
+- `graph.db*` and `wiki.db*` — generated Graph and Wiki indexes, including SQLite sidecars.
+- `local/**` — checkout-local drafts, cursors, jobs, and signing state.
 
 Embedders should not write to these paths.
 
@@ -127,9 +216,9 @@ to them. Embedders may use them freely:
 - `.mex/traces/**` — long-form decision traces.
 - `.mex/failures/**` — failure / postmortem records.
 
-Other paths under `.mex/` are unclaimed. If you're an embedder and need a new
-namespace, open an issue first — `mex-agent` may add features later that
-conflict otherwise.
+Other paths under `.mex/` are not part of the embedder contract and may be
+claimed by `mex-agent` in a later release. Open an issue before introducing a
+new namespace.
 
 ## CLI surface
 

@@ -1,0 +1,871 @@
+{
+  "schemaVersion": 1,
+  "kind": "graph-maintenance-timing-calibration",
+  "source": {
+    "runUrl": "https://github.com/mex-memory/mex/actions/runs/34288560611",
+    "pullRequest": 180,
+    "pullRequestHead": "4d6683eec1a0bdcafe99d7b431d84cde7f02864d",
+    "repositoryHead": "6d92bb04d757c8a00693ef679d1f4281669a9b57",
+    "primaryAttempt": "first",
+    "primarySelection": "The first corrected pinned attempt is the deterministic calibration source; the second independently confirms the old-budget tradeoff and is not pooled or selected per metric.",
+    "finalReportSha256": "66bb54c302ea6cb41084c668007711eacf65abd83931f2fe81d325277ef746a5"
+  },
+  "environment": {
+    "os": "ubuntu-24.04",
+    "platform": "linux",
+    "architecture": "x64",
+    "node": "v22.22.0",
+    "pinnedBudgetEnvironment": true
+  },
+  "configuration": {
+    "fixtureProfiles": {
+      "small": {
+        "sourceFiles": 4,
+        "wikiEntities": 4,
+        "workstreams": 1,
+        "inboxDrafts": 1,
+        "inboxProposals": 1,
+        "members": 2,
+        "relayDrafts": 1,
+        "relays": 1,
+        "activityEvents": 4
+      },
+      "medium": {
+        "sourceFiles": 16,
+        "wikiEntities": 16,
+        "workstreams": 1,
+        "inboxDrafts": 1,
+        "inboxProposals": 1,
+        "members": 2,
+        "relayDrafts": 1,
+        "relays": 1,
+        "activityEvents": 16
+      },
+      "large": {
+        "sourceFiles": 48,
+        "wikiEntities": 48,
+        "workstreams": 1,
+        "inboxDrafts": 1,
+        "inboxProposals": 1,
+        "members": 2,
+        "relayDrafts": 1,
+        "relays": 1,
+        "activityEvents": 48
+      }
+    },
+    "processMeasurement": {
+      "scope": "hub-and-descendants",
+      "rss": "sum-of-resident-sets-in-one-sample",
+      "cpu": "observed-process-lifetime-deltas",
+      "intervalMs": 10,
+      "limitation": "Shared pages may be counted twice; short-lived children and final CPU between samples may be missed."
+    },
+    "maintenanceObservation": "job-event-stream",
+    "samples": {
+      "timing": 10,
+      "idleMemory": 5
+    },
+    "runtimeBudgetsEnforced": true,
+    "assetBudgetsEnforced": true,
+    "provisionalBudgets": false
+  },
+  "formula": "ceil(measured p95 * 1.15)",
+  "sampleCount": 10,
+  "previousCalibrationStatus": "pinned-checkpoints-A-G-and-Settings-34286120355",
+  "unownedBudgetSha256": "d4209e5549ed49c37dcd4e4814eab0ceb7640124d75bdf433347ea9de1514c80",
+  "calibratedLeaves": [
+    {
+      "metric": "runtime.maintenanceMs.small.graph_refresh",
+      "previousBudgetMs": 984,
+      "primaryP95Ms": 1420.61,
+      "budgetMs": 1634
+    },
+    {
+      "metric": "runtime.maintenanceMs.small.graph_rebuild",
+      "previousBudgetMs": 496,
+      "primaryP95Ms": 1468.48,
+      "budgetMs": 1689
+    },
+    {
+      "metric": "runtime.maintenanceMs.medium.graph_refresh",
+      "previousBudgetMs": 1237,
+      "primaryP95Ms": 1600.897,
+      "budgetMs": 1842
+    },
+    {
+      "metric": "runtime.maintenanceMs.medium.graph_rebuild",
+      "previousBudgetMs": 743,
+      "primaryP95Ms": 1581.908,
+      "budgetMs": 1820
+    },
+    {
+      "metric": "runtime.maintenanceMs.large.graph_rebuild",
+      "previousBudgetMs": 1229,
+      "primaryP95Ms": 1980.154,
+      "budgetMs": 2278
+    }
+  ],
+  "unchangedLargeGraphRefreshMs": 1812,
+  "attempts": [
+    {
+      "role": "primary",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "mex-release-benchmark-attempt",
+        "repositoryHead": "6d92bb04d757c8a00693ef679d1f4281669a9b57",
+        "github": {
+          "runId": "34288560611",
+          "runAttempt": "1",
+          "sha": "6d92bb04d757c8a00693ef679d1f4281669a9b57"
+        },
+        "runnerAllocation": {
+          "job": "release_performance_attempt_1",
+          "runnerName": "GitHub Actions 1000000935",
+          "runnerOs": "Linux",
+          "runnerArch": "X64"
+        },
+        "rawReportSha256": "fec98eae2728a017fcaf3480d275d47180d88740b248468d69a6fa858768c9b3",
+        "retryRequired": true,
+        "disposition": "confirmation_required"
+      },
+      "graph": {
+        "small": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1341.863,
+                1345.533,
+                1368.565,
+                1373.907,
+                1378.077,
+                1383.913,
+                1387.332,
+                1390.599,
+                1416.879,
+                1420.61
+              ],
+              "min": 1341.863,
+              "median": 1380.995,
+              "p95": 1420.61,
+              "max": 1420.61
+            },
+            "peakRssBytes": {
+              "samples": [
+                517021696,
+                521039872,
+                522711040,
+                523661312,
+                526897152
+              ],
+              "min": 517021696,
+              "median": 522711040,
+              "p95": 526897152,
+              "max": 526897152
+            },
+            "cpuMs": {
+              "samples": [
+                2390,
+                2410,
+                2430,
+                2450,
+                2460,
+                2460,
+                2490,
+                2500,
+                2520,
+                2520
+              ],
+              "min": 2390,
+              "median": 2460,
+              "p95": 2520,
+              "max": 2520
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1391.8,
+                1391.816,
+                1398.561,
+                1413.862,
+                1417.463,
+                1423.925,
+                1429.694,
+                1430.895,
+                1431.209,
+                1468.48
+              ],
+              "min": 1391.8,
+              "median": 1420.694,
+              "p95": 1468.48,
+              "max": 1468.48
+            },
+            "peakRssBytes": {
+              "samples": [
+                422674432,
+                423641088,
+                429113344,
+                430256128,
+                430649344
+              ],
+              "min": 422674432,
+              "median": 429113344,
+              "p95": 430649344,
+              "max": 430649344
+            },
+            "cpuMs": {
+              "samples": [
+                2520,
+                2530,
+                2570,
+                2590,
+                2610,
+                2630,
+                2640,
+                2640,
+                2660,
+                2800
+              ],
+              "min": 2520,
+              "median": 2620,
+              "p95": 2800,
+              "max": 2800
+            }
+          }
+        },
+        "medium": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1520.31,
+                1531.869,
+                1532.251,
+                1534.805,
+                1542.041,
+                1551.169,
+                1560.108,
+                1577.819,
+                1581.672,
+                1600.897
+              ],
+              "min": 1520.31,
+              "median": 1546.605,
+              "p95": 1600.897,
+              "max": 1600.897
+            },
+            "peakRssBytes": {
+              "samples": [
+                598917120,
+                600551424,
+                600866816,
+                601272320,
+                635428864
+              ],
+              "min": 598917120,
+              "median": 600866816,
+              "p95": 635428864,
+              "max": 635428864
+            },
+            "cpuMs": {
+              "samples": [
+                2740,
+                2760,
+                2780,
+                2800,
+                2800,
+                2800,
+                2850,
+                2850,
+                2900,
+                2960
+              ],
+              "min": 2740,
+              "median": 2800,
+              "p95": 2960,
+              "max": 2960
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1546.797,
+                1555.926,
+                1556.308,
+                1557.454,
+                1566.463,
+                1567.502,
+                1576.954,
+                1578.601,
+                1581.423,
+                1581.908
+              ],
+              "min": 1546.797,
+              "median": 1566.983,
+              "p95": 1581.908,
+              "max": 1581.908
+            },
+            "peakRssBytes": {
+              "samples": [
+                602345472,
+                603676672,
+                638533632,
+                639234048,
+                642658304
+              ],
+              "min": 602345472,
+              "median": 638533632,
+              "p95": 642658304,
+              "max": 642658304
+            },
+            "cpuMs": {
+              "samples": [
+                2760,
+                2770,
+                2770,
+                2770,
+                2780,
+                2800,
+                2810,
+                2830,
+                2840,
+                2840
+              ],
+              "min": 2760,
+              "median": 2790,
+              "p95": 2840,
+              "max": 2840
+            }
+          }
+        },
+        "large": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1892.69,
+                1898.16,
+                1904.118,
+                1917.955,
+                1923.385,
+                1923.55,
+                1939.172,
+                1949.167,
+                1953.842,
+                1955.065
+              ],
+              "min": 1892.69,
+              "median": 1923.468,
+              "p95": 1955.065,
+              "max": 1955.065
+            },
+            "peakRssBytes": {
+              "samples": [
+                610271232,
+                614817792,
+                614899712,
+                615059456,
+                615129088
+              ],
+              "min": 610271232,
+              "median": 614899712,
+              "p95": 615129088,
+              "max": 615129088
+            },
+            "cpuMs": {
+              "samples": [
+                3320,
+                3330,
+                3340,
+                3380,
+                3380,
+                3380,
+                3380,
+                3390,
+                3410,
+                3440
+              ],
+              "min": 3320,
+              "median": 3380,
+              "p95": 3440,
+              "max": 3440
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1910.85,
+                1918.468,
+                1921.088,
+                1929.351,
+                1930.704,
+                1947.294,
+                1954.774,
+                1964.977,
+                1977.912,
+                1980.154
+              ],
+              "min": 1910.85,
+              "median": 1938.999,
+              "p95": 1980.154,
+              "max": 1980.154
+            },
+            "peakRssBytes": {
+              "samples": [
+                615219200,
+                615550976,
+                615976960,
+                617656320,
+                618491904
+              ],
+              "min": 615219200,
+              "median": 615976960,
+              "p95": 618491904,
+              "max": 618491904
+            },
+            "cpuMs": {
+              "samples": [
+                3330,
+                3330,
+                3360,
+                3370,
+                3370,
+                3380,
+                3390,
+                3430,
+                3440,
+                3450
+              ],
+              "min": 3330,
+              "median": 3375,
+              "p95": 3450,
+              "max": 3450
+            }
+          }
+        }
+      }
+    },
+    {
+      "role": "confirmation",
+      "manifest": {
+        "schemaVersion": 1,
+        "kind": "mex-release-benchmark-attempt",
+        "repositoryHead": "6d92bb04d757c8a00693ef679d1f4281669a9b57",
+        "github": {
+          "runId": "34288560611",
+          "runAttempt": "1",
+          "sha": "6d92bb04d757c8a00693ef679d1f4281669a9b57"
+        },
+        "runnerAllocation": {
+          "job": "release_performance_attempt_2",
+          "runnerName": "GitHub Actions 1000000940",
+          "runnerOs": "Linux",
+          "runnerArch": "X64"
+        },
+        "rawReportSha256": "732d2b897b4592ba7e89d9fedb508c0c86027ae7cb239580ed51aa5a9de9efb9",
+        "retryRequired": true,
+        "disposition": "confirmation_required"
+      },
+      "graph": {
+        "small": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1123.844,
+                1181.976,
+                1251.239,
+                1263.552,
+                1356.591,
+                1405.457,
+                1441.052,
+                1594.281,
+                1613.055,
+                1853.568
+              ],
+              "min": 1123.844,
+              "median": 1381.024,
+              "p95": 1853.568,
+              "max": 1853.568
+            },
+            "peakRssBytes": {
+              "samples": [
+                513835008,
+                516476928,
+                524251136,
+                527007744,
+                559038464
+              ],
+              "min": 513835008,
+              "median": 524251136,
+              "p95": 559038464,
+              "max": 559038464
+            },
+            "cpuMs": {
+              "samples": [
+                2050,
+                2070,
+                2070,
+                2100,
+                2110,
+                2120,
+                2130,
+                2130,
+                2150,
+                2160
+              ],
+              "min": 2050,
+              "median": 2115,
+              "p95": 2160,
+              "max": 2160
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1304.684,
+                1315.851,
+                1348.025,
+                1389.671,
+                1391.572,
+                1409.607,
+                1414.26,
+                1460.416,
+                1475.798,
+                1608.501
+              ],
+              "min": 1304.684,
+              "median": 1400.59,
+              "p95": 1608.501,
+              "max": 1608.501
+            },
+            "peakRssBytes": {
+              "samples": [
+                421404672,
+                429764608,
+                525230080,
+                532393984,
+                532467712
+              ],
+              "min": 421404672,
+              "median": 525230080,
+              "p95": 532467712,
+              "max": 532467712
+            },
+            "cpuMs": {
+              "samples": [
+                2080,
+                2100,
+                2180,
+                2280,
+                2280,
+                2290,
+                2300,
+                2310,
+                2330,
+                2360
+              ],
+              "min": 2080,
+              "median": 2285,
+              "p95": 2360,
+              "max": 2360
+            }
+          }
+        },
+        "medium": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1271.705,
+                1285.42,
+                1314.929,
+                1329.755,
+                1447.731,
+                1553.504,
+                1571.778,
+                1606.949,
+                1640.042,
+                1714.77
+              ],
+              "min": 1271.705,
+              "median": 1500.617,
+              "p95": 1714.77,
+              "max": 1714.77
+            },
+            "peakRssBytes": {
+              "samples": [
+                605356032,
+                609439744,
+                609964032,
+                612069376,
+                615657472
+              ],
+              "min": 605356032,
+              "median": 609964032,
+              "p95": 615657472,
+              "max": 615657472
+            },
+            "cpuMs": {
+              "samples": [
+                2370,
+                2380,
+                2390,
+                2400,
+                2400,
+                2420,
+                2430,
+                2450,
+                2460,
+                2470
+              ],
+              "min": 2370,
+              "median": 2410,
+              "p95": 2470,
+              "max": 2470
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1323.223,
+                1323.635,
+                1327.093,
+                1363.659,
+                1419.472,
+                1424.562,
+                1438.274,
+                1450.918,
+                1506.022,
+                1550.249
+              ],
+              "min": 1323.223,
+              "median": 1422.017,
+              "p95": 1550.249,
+              "max": 1550.249
+            },
+            "peakRssBytes": {
+              "samples": [
+                610123776,
+                610553856,
+                612372480,
+                612442112,
+                612491264
+              ],
+              "min": 610123776,
+              "median": 612372480,
+              "p95": 612491264,
+              "max": 612491264
+            },
+            "cpuMs": {
+              "samples": [
+                2420,
+                2450,
+                2450,
+                2470,
+                2470,
+                2480,
+                2480,
+                2490,
+                2500,
+                2510
+              ],
+              "min": 2420,
+              "median": 2475,
+              "p95": 2510,
+              "max": 2510
+            }
+          }
+        },
+        "large": {
+          "graph_refresh": {
+            "elapsedMs": {
+              "samples": [
+                1625.325,
+                1629.425,
+                1647.157,
+                1671.584,
+                1711.165,
+                1819.815,
+                1859.421,
+                1904.886,
+                1908.309,
+                1925.563
+              ],
+              "min": 1625.325,
+              "median": 1765.49,
+              "p95": 1925.563,
+              "max": 1925.563
+            },
+            "peakRssBytes": {
+              "samples": [
+                620830720,
+                627740672,
+                629227520,
+                629358592,
+                632696832
+              ],
+              "min": 620830720,
+              "median": 629227520,
+              "p95": 632696832,
+              "max": 632696832
+            },
+            "cpuMs": {
+              "samples": [
+                2850,
+                2870,
+                2870,
+                2880,
+                2890,
+                2920,
+                2920,
+                2920,
+                2990,
+                3020
+              ],
+              "min": 2850,
+              "median": 2905,
+              "p95": 3020,
+              "max": 3020
+            }
+          },
+          "graph_rebuild": {
+            "elapsedMs": {
+              "samples": [
+                1585.808,
+                1599.499,
+                1600.839,
+                1611.116,
+                1612.166,
+                1617.531,
+                1929.309,
+                1944.566,
+                2009.876,
+                2074.786
+              ],
+              "min": 1585.808,
+              "median": 1614.849,
+              "p95": 2074.786,
+              "max": 2074.786
+            },
+            "peakRssBytes": {
+              "samples": [
+                626761728,
+                632528896,
+                635752448,
+                642117632,
+                643031040
+              ],
+              "min": 626761728,
+              "median": 635752448,
+              "p95": 643031040,
+              "max": 643031040
+            },
+            "cpuMs": {
+              "samples": [
+                2790,
+                2810,
+                2820,
+                2870,
+                2890,
+                2890,
+                2900,
+                2920,
+                2930,
+                2990
+              ],
+              "min": 2790,
+              "median": 2890,
+              "p95": 2990,
+              "max": 2990
+            }
+          }
+        }
+      }
+    }
+  ],
+  "confirmedMaterialAssessments": [
+    {
+      "metric": "runtime.maintenanceMs.small.graph_refresh",
+      "category": "maintenance_ms",
+      "classification": "material",
+      "reason": "repeated_material_threshold",
+      "budget": 984,
+      "relativeExcessRatio": 0.15,
+      "minimumExcess": 50,
+      "materialThreshold": 1131.6,
+      "firstMeasured": 1420.61,
+      "secondMeasured": 1853.568,
+      "requiredSupportingSamples": 2,
+      "firstSampleCount": 10,
+      "firstSupportingSamples": 10,
+      "secondSampleCount": 10,
+      "secondSupportingSamples": 9
+    },
+    {
+      "metric": "runtime.maintenanceMs.small.graph_rebuild",
+      "category": "maintenance_ms",
+      "classification": "material",
+      "reason": "repeated_material_threshold",
+      "budget": 496,
+      "relativeExcessRatio": 0.15,
+      "minimumExcess": 50,
+      "materialThreshold": 570.4,
+      "firstMeasured": 1468.48,
+      "secondMeasured": 1608.501,
+      "requiredSupportingSamples": 2,
+      "firstSampleCount": 10,
+      "firstSupportingSamples": 10,
+      "secondSampleCount": 10,
+      "secondSupportingSamples": 10
+    },
+    {
+      "metric": "runtime.maintenanceMs.medium.graph_refresh",
+      "category": "maintenance_ms",
+      "classification": "material",
+      "reason": "repeated_material_threshold",
+      "budget": 1237,
+      "relativeExcessRatio": 0.15,
+      "minimumExcess": 50,
+      "materialThreshold": 1422.55,
+      "firstMeasured": 1600.897,
+      "secondMeasured": 1714.77,
+      "requiredSupportingSamples": 2,
+      "firstSampleCount": 10,
+      "firstSupportingSamples": 10,
+      "secondSampleCount": 10,
+      "secondSupportingSamples": 6
+    },
+    {
+      "metric": "runtime.maintenanceMs.medium.graph_rebuild",
+      "category": "maintenance_ms",
+      "classification": "material",
+      "reason": "repeated_material_threshold",
+      "budget": 743,
+      "relativeExcessRatio": 0.15,
+      "minimumExcess": 50,
+      "materialThreshold": 854.45,
+      "firstMeasured": 1581.908,
+      "secondMeasured": 1550.249,
+      "requiredSupportingSamples": 2,
+      "firstSampleCount": 10,
+      "firstSupportingSamples": 10,
+      "secondSampleCount": 10,
+      "secondSupportingSamples": 10
+    },
+    {
+      "metric": "runtime.maintenanceMs.large.graph_rebuild",
+      "category": "maintenance_ms",
+      "classification": "material",
+      "reason": "repeated_material_threshold",
+      "budget": 1229,
+      "relativeExcessRatio": 0.15,
+      "minimumExcess": 50,
+      "materialThreshold": 1413.35,
+      "firstMeasured": 1980.154,
+      "secondMeasured": 2074.786,
+      "requiredSupportingSamples": 2,
+      "firstSampleCount": 10,
+      "firstSupportingSamples": 10,
+      "secondSampleCount": 10,
+      "secondSupportingSamples": 10
+    }
+  ],
+  "note": "The user accepted higher measured small-job wall-clock cost for responsive, cancellable Hub construction. This calibrates only these five Graph maintenance timing leaves with the existing formula; it is a product tradeoff, not a speedup claim. Large Graph refresh, all memory/asset/read/other limits, fixtures, materiality policy and confirmation rules remain unchanged. A clean enforcing run on the calibrated head is still required."
+}

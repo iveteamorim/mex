@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mex.dev/schemas/release-benchmark-budgets-v1.json",
+  "title": "MEX release benchmark budgets",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "provisional", "calibration", "environment", "samples", "assets", "runtime"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "provisional": { "type": "boolean" },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "runtimeFormula", "assetFormula"],
+      "properties": {
+        "status": { "type": "string", "maxLength": 100 },
+        "runtimeFormula": { "const": "ceil(measured p95 * 1.15)" },
+        "assetFormula": { "const": "ceil(built bytes * 1.05)" }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "platform", "architecture", "node"],
+      "properties": {
+        "os": { "const": "ubuntu-24.04" },
+        "platform": { "const": "linux" },
+        "architecture": { "const": "x64" },
+        "node": { "type": "string", "pattern": "^v22\\.[0-9]+\\.[0-9]+$" }
+      }
+    },
+    "samples": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timing", "idleMemory"],
+      "properties": {
+        "timing": { "const": 10 },
+        "idleMemory": { "const": 5 }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxJsChunkBytes", "initial", "routes"],
+      "properties": {
+        "maxJsChunkBytes": { "$ref": "#/$defs/nonNegativeInteger" },
+        "initial": { "$ref": "#/$defs/assetGroup" },
+        "routes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home", "search", "knowledge", "knowledgeDetail", "code", "codeSymbol", "workstreams", "specs", "specsDetail", "playbooks", "catchUp", "inbox", "relays", "members", "activity", "jobs", "health", "notFound"],
+          "properties": {
+            "home": { "$ref": "#/$defs/assetGroup" },
+            "search": { "$ref": "#/$defs/assetGroup" },
+            "knowledge": { "$ref": "#/$defs/assetGroup" },
+            "knowledgeDetail": { "$ref": "#/$defs/assetGroup" },
+            "code": { "$ref": "#/$defs/assetGroup" },
+            "codeSymbol": { "$ref": "#/$defs/assetGroup" },
+            "workstreams": { "$ref": "#/$defs/assetGroup" },
+            "specs": { "$ref": "#/$defs/assetGroup" },
+            "specsDetail": { "$ref": "#/$defs/assetGroup" },
+            "playbooks": { "$ref": "#/$defs/assetGroup" },
+            "catchUp": { "$ref": "#/$defs/assetGroup" },
+            "inbox": { "$ref": "#/$defs/assetGroup" },
+            "relays": { "$ref": "#/$defs/assetGroup" },
+            "members": { "$ref": "#/$defs/assetGroup" },
+            "activity": { "$ref": "#/$defs/assetGroup" },
+            "jobs": { "$ref": "#/$defs/assetGroup" },
+            "health": { "$ref": "#/$defs/assetGroup" },
+            "settings": { "$ref": "#/$defs/assetGroup" },
+            "notFound": { "$ref": "#/$defs/assetGroup" }
+          }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coldHubReadyMs", "idleRssBytes", "idleCpuMs", "apiLatencyMs", "maintenanceMs", "maintenancePeakRssBytes", "browserHeapBytes", "databaseToInputRatio"],
+      "properties": {
+        "coldHubReadyMs": { "$ref": "#/$defs/profileBudgets" },
+        "idleRssBytes": { "$ref": "#/$defs/profileBudgets" },
+        "idleCpuMs": { "$ref": "#/$defs/profileBudgets" },
+        "apiLatencyMs": { "$ref": "#/$defs/profiledReadBudgets" },
+        "maintenanceMs": { "$ref": "#/$defs/profiledMaintenanceBudgets" },
+        "maintenancePeakRssBytes": { "$ref": "#/$defs/profiledMaintenanceBudgets" },
+        "browserHeapBytes": { "$ref": "#/$defs/profiledRouteBudgets" },
+        "databaseToInputRatio": { "$ref": "#/$defs/profiledDatabaseBudgets" }
+      }
+    }
+  },
+  "$defs": {
+    "nonNegativeInteger": { "type": "integer", "minimum": 0 },
+    "nonNegativeNumber": { "type": "number", "minimum": 0 },
+    "assetGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jsBytes", "cssBytes", "fontBytes"],
+      "properties": {
+        "jsBytes": { "$ref": "#/$defs/nonNegativeInteger" },
+        "cssBytes": { "$ref": "#/$defs/nonNegativeInteger" },
+        "fontBytes": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "profileBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["small", "medium", "large"],
+      "properties": {
+        "small": { "$ref": "#/$defs/nonNegativeNumber" },
+        "medium": { "$ref": "#/$defs/nonNegativeNumber" },
+        "large": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "readBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["search", "code", "knowledge", "activity"],
+      "properties": {
+        "search": { "$ref": "#/$defs/nonNegativeNumber" },
+        "code": { "$ref": "#/$defs/nonNegativeNumber" },
+        "knowledge": { "$ref": "#/$defs/nonNegativeNumber" },
+        "activity": { "$ref": "#/$defs/nonNegativeNumber" },
+        "inboxDrafts": { "$ref": "#/$defs/nonNegativeNumber" },
+        "inboxProposals": { "$ref": "#/$defs/nonNegativeNumber" },
+        "relayDrafts": { "$ref": "#/$defs/nonNegativeNumber" },
+        "relays": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "profiledReadBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["small", "medium", "large"],
+      "properties": {
+        "small": { "$ref": "#/$defs/readBudgets" },
+        "medium": { "$ref": "#/$defs/readBudgets" },
+        "large": { "$ref": "#/$defs/readBudgets" }
+      }
+    },
+    "maintenanceBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph_refresh", "graph_rebuild", "wiki_refresh", "wiki_rebuild"],
+      "properties": {
+        "graph_refresh": { "$ref": "#/$defs/nonNegativeNumber" },
+        "graph_rebuild": { "$ref": "#/$defs/nonNegativeNumber" },
+        "wiki_refresh": { "$ref": "#/$defs/nonNegativeNumber" },
+        "wiki_rebuild": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "profiledMaintenanceBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["small", "medium", "large"],
+      "properties": {
+        "small": { "$ref": "#/$defs/maintenanceBudgets" },
+        "medium": { "$ref": "#/$defs/maintenanceBudgets" },
+        "large": { "$ref": "#/$defs/maintenanceBudgets" }
+      }
+    },
+    "routeBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "search", "knowledge", "knowledgeDetail", "code", "codeSymbol", "workstreams", "specs", "specsDetail", "playbooks", "catchUp", "inbox", "relays", "members", "activity", "jobs", "health", "notFound"],
+      "properties": {
+        "home": { "$ref": "#/$defs/nonNegativeNumber" },
+        "search": { "$ref": "#/$defs/nonNegativeNumber" },
+        "knowledge": { "$ref": "#/$defs/nonNegativeNumber" },
+        "knowledgeDetail": { "$ref": "#/$defs/nonNegativeNumber" },
+        "code": { "$ref": "#/$defs/nonNegativeNumber" },
+        "codeSymbol": { "$ref": "#/$defs/nonNegativeNumber" },
+        "workstreams": { "$ref": "#/$defs/nonNegativeNumber" },
+        "specs": { "$ref": "#/$defs/nonNegativeNumber" },
+        "specsDetail": { "$ref": "#/$defs/nonNegativeNumber" },
+        "playbooks": { "$ref": "#/$defs/nonNegativeNumber" },
+        "catchUp": { "$ref": "#/$defs/nonNegativeNumber" },
+        "inbox": { "$ref": "#/$defs/nonNegativeNumber" },
+        "relays": { "$ref": "#/$defs/nonNegativeNumber" },
+        "members": { "$ref": "#/$defs/nonNegativeNumber" },
+        "activity": { "$ref": "#/$defs/nonNegativeNumber" },
+        "jobs": { "$ref": "#/$defs/nonNegativeNumber" },
+        "health": { "$ref": "#/$defs/nonNegativeNumber" },
+        "settings": { "$ref": "#/$defs/nonNegativeNumber" },
+        "notFound": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "profiledRouteBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["small", "medium", "large"],
+      "properties": {
+        "small": { "$ref": "#/$defs/routeBudgets" },
+        "medium": { "$ref": "#/$defs/routeBudgets" },
+        "large": { "$ref": "#/$defs/routeBudgets" }
+      }
+    },
+    "databaseBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph", "wiki"],
+      "properties": {
+        "graph": { "$ref": "#/$defs/nonNegativeNumber" },
+        "wiki": { "$ref": "#/$defs/nonNegativeNumber" }
+      }
+    },
+    "profiledDatabaseBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["small", "medium", "large"],
+      "properties": {
+        "small": { "$ref": "#/$defs/databaseBudgets" },
+        "medium": { "$ref": "#/$defs/databaseBudgets" },
+        "large": { "$ref": "#/$defs/databaseBudgets" }
+      }
+    }
+  }
+}

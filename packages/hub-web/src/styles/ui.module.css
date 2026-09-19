@@ -1,0 +1,242 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 36px;
+  margin-bottom: 30px;
+}
+
+.pageHeader[data-compact="true"] {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.pageHeader h1 {
+  margin: 7px 0 9px;
+  color: var(--foreground);
+  font-size: clamp(32px, 2.65vw, 40px);
+  font-weight: 460;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+
+.pageHeader[data-compact="true"] h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.eyebrow,
+.panelEyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 580;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.pageDescription {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 15px;
+  letter-spacing: 0.006em;
+  line-height: 1.55;
+}
+
+.headerActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding-bottom: 2px;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 22px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelHeader h2 {
+  margin: 4px 0 0;
+  color: var(--foreground);
+  font-size: 17px;
+  font-weight: 480;
+  letter-spacing: -0.02em;
+}
+
+.panelHeader p:not(.panelEyebrow) {
+  margin: 6px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.inlineLink {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+  color: var(--link);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.inlineLink svg {
+  width: 13px;
+  transition: transform var(--transition-fast);
+}
+
+.inlineLink:hover svg {
+  transform: translateX(2px);
+}
+
+.statusPill {
+  display: inline-flex;
+  min-height: 21px;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-color: var(--border);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 520;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.statusPill[data-tone="success"] {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.statusPill[data-tone="warning"] {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+}
+
+.statusPill[data-tone="danger"] {
+  color: var(--destructive);
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.statusPill[data-tone="info"] {
+  color: var(--info);
+  background: var(--info-soft);
+  border-color: var(--info-border);
+}
+
+.statePanel {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  min-height: 132px;
+  align-items: center;
+  gap: 16px;
+  padding: 23px;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.statePanelCompact {
+  min-height: 96px;
+  margin: 15px;
+  padding: 16px;
+  background: var(--muted);
+}
+
+.statePanel [data-slot="empty-header"] {
+  max-width: none;
+  align-items: flex-start;
+  gap: 0;
+  text-align: left;
+}
+
+.statePanel h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 480;
+  letter-spacing: -0.015em;
+}
+
+.statePanel [data-slot="empty-description"] {
+  max-width: 720px;
+  margin-top: 5px;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.stateIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  place-items: center;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.stateIcon[data-state="error"] {
+  color: var(--destructive);
+  background: var(--danger-soft);
+}
+
+.stateIcon[data-state="unavailable"] {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.stateIcon[data-state="loading"] {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.stateIcon svg {
+  width: 19px;
+}
+
+.stateAction {
+  align-self: center;
+}
+
+.spin {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+
+  .inlineLink svg {
+    transition: none;
+  }
+}

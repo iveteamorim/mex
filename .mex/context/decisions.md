@@ -15,61 +15,69 @@ edges:
 # Decisions usually ground sparsely; add only symbols that implement the decision.
 # Entry shape: { node: "function:<tier-1-id>", fingerprint: "mh:64:<hex>" }
 grounds_to: []
-last_updated: [YYYY-MM-DD]
+last_updated: 2026-09-06
 ---
 
 # Decisions
 
-<!-- If a decision names its concrete implementation point, link it as below;
-     do not anchor vague concepts:
-```markdown
-[`someFunction()`](mex://function:<tier-1-id>)
-```
--->
-
-<!-- HOW TO USE THIS FILE:
-     Each decision follows the format below.
-     When a decision changes: DO NOT delete the old entry.
-     Mark it as superseded, add the new entry above it.
-     The history must be preserved — this is the event clock. -->
-
 ## Decision Log
 
-<!-- Document key decisions using the format below.
-     Include decisions that: are non-obvious, have important constraints,
-     or where the reasoning prevents future mistakes.
-     Do not document every decision — only ones where "why" matters.
-     Minimum 3 decision entries during initial population. If you cannot identify 3,
-     write placeholder entries with "[TO DETERMINE]" and explain what decision is pending.
+When a decision changes, retain the old entry, mark it superseded, and add the
+replacement above it. Dates below are the date these active decisions were
+recorded in the scaffold; they do not assert the date of the original design work.
 
-     Format for each entry:
+<!-- mex:entity
+id: mx_01M1M0CJC2YM3HEBWE64JZG3F3
+type: decision
+status: promoted
+revision: 1
+-->
+### Dogfood the ordinary setup path
+**Date recorded:** 2026-09-03
+**Status:** Active
+**Decision:** The MEX repository runs the same `mex setup` flow as consumer repositories; there is no `--self` branch.
+**Reasoning:** Self-hosting should exercise the shipped path, and the old repository guard came from the pre-package installer rather than a current recursion or storage constraint.
+**Alternatives considered:** A `--self` escape hatch was rejected because it creates a second path that can drift and hides consumer-facing resume bugs.
+**Consequences:** Setup must be merge-safe over an authored scaffold, reuse persisted tool selection before population completes, and have packed regression coverage for a MEX-shaped target.
 
-     ### [Decision Title]
-     **Date:** YYYY-MM-DD (check git history for real dates when possible)
-     **Status:** Active | Superseded by [title]
-     **Decision:** [What was decided, in one sentence]
-     **Reasoning:** [Why this was chosen]
-     **Alternatives considered:** [What else was considered and why it was rejected]
-     **Consequences:** [What this means for the codebase going forward]
+<!-- mex:entity
+id: mx_01M1M0CJBATK0BSTMSB0H1183D
+type: decision
+status: promoted
+revision: 1
+-->
+### Keep canonical knowledge in Git-tracked files
+**Date recorded:** 2026-09-03
+**Status:** Active
+**Decision:** Markdown/JSONL is canonical; Graph, Wiki, and checkout-local SQLite stores are disposable projections or private state.
+**Reasoning:** Knowledge, review history, and drift baselines must survive rebuilds and reach another clone through ordinary Git review.
+**Alternatives considered:** Database-only knowledge was rejected because ignored indexes disappear on rebuild and are not shared or reviewable.
+**Consequences:** Never commit `.mex/graph.db*`, `.mex/wiki.db*`, or `.mex/local/`; maintenance may recreate them, while durable change signals stay in Markdown.
 
-     Example:
+<!-- mex:entity
+id: mx_01M1M0CJAJ6XASAWJ7NB1K8KVP
+type: decision
+status: promoted
+revision: 1
+-->
+### Make reads immutable and writes explicit
+**Date recorded:** 2026-09-03
+**Status:** Active
+**Decision:** Ordinary reads do not initialize, migrate, repair, refresh, or otherwise mutate repository or local state.
+**Reasoning:** Hidden writes make observations non-repeatable, introduce races, and can replace the last trustworthy state without user intent.
+**Alternatives considered:** Opportunistic migration/repair during reads was rejected in favor of explicit maintenance and preview/apply workflows.
+**Consequences:** Reads use immutable snapshots and stable diagnostics; maintenance and canonical mutations require bounded authority, revalidation, and failure-atomic publication.
 
-     ### Use PostgreSQL for all persistent storage
-     **Date:** 2024-03-01
-     **Status:** Active
-     **Decision:** All persistent data lives in PostgreSQL, no secondary databases.
-     **Reasoning:** Simplicity — one database to operate, backup, and reason about.
-     **Alternatives considered:** Redis for sessions (rejected — adds operational complexity for minimal gain), MongoDB for user preferences (rejected — relational model fits our data).
-     **Consequences:** No caching layer at database level. Application-level caching if needed.
-
-     Example of a superseded entry:
-
-     ### Use Redis for session storage
-     **Date:** 2024-02-15
-     **Status:** Superseded by "Use PostgreSQL for all persistent storage"
-     **Decision:** Store user sessions in Redis.
-     **Reasoning:** Fast read/write for session data.
-     **Alternatives considered:** PostgreSQL (chosen later due to operational simplicity).
-     **Consequences:** ~~Requires Redis infrastructure alongside PostgreSQL.~~
-     **Superseded because:** Maintaining two data stores added operational complexity
-     without meaningful performance benefit for our scale. -->
+<!-- mex:entity
+id: mx_01M1M0CJ9Y77MGH0R0EFPFT0QJ
+type: decision
+status: promoted
+revision: 1
+-->
+### Keep internal application boundaries out of the npm API
+**Date recorded:** 2026-09-03
+**Status:** Active
+**Decision:** Only exports from `src/index.ts` are public; Hub and Team workflow contracts remain internal until deliberately promoted.
+**Reasoning:** Internal ports can evolve with their consumers without accidentally becoming a compatibility promise to external embedders.
+**Alternatives considered:** Deep/public exports for every useful internal adapter were rejected because they widen semver and declaration obligations prematurely.
+**Consequences:** New internal functionality should use repository-local imports and conformance tests; a package-root export requires an explicit compatibility decision and public API test update.

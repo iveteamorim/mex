@@ -5,7 +5,7 @@ import { deserializeFingerprint, serializeFingerprint } from "../../graph/finger
 import type { GraphEngine } from "../../graph/engine.js";
 import type { GroundedSource, GroundingChecker } from "../../graph/grounding.js";
 import type { Fingerprint, Reconciler } from "../../graph/reconcile.js";
-import { findMexAnchors } from "../../markdown.js";
+import { extractGroundings, findMexAnchors } from "../../markdown.js";
 
 interface GroundingReconcilerCapabilities {
   getGroundedSource?(scaffoldFile: string, nodeId: string): GroundedSource | null;
@@ -28,12 +28,46 @@ export function makeGroundingChecker(
     const scaffoldFile = relative(projectRoot, filePath).replaceAll("\\", "/");
     const issues: DriftIssue[] = [];
 
-    for (const grounding of frontmatter?.grounds_to ?? []) {
+    let content: string | null;
+    try { content = readFileSync(filePath, "utf-8"); } catch { content = null; }
+
+    // **Read through `extractGroundings`, which knows both key paths.**
+    //
+    // A pre-wiki scaffold keeps `grounds_to` at the frontmatter root. Once
+    // `wiki migrate` adopts a file as an entity, §13.4 moves the key under the
+    // `mex` map — and reading the root key directly, as this did, then finds
+    // nothing. The loop ran zero times and the checker reported no grounding
+    // issues at all: not stale, not missing, not gone. Measured on a migrated
+    // scaffold with a fresh graph and four groundings in one file, `mex check`
+    // returned zero `GROUNDING_*` codes of any kind.
+    //
+    // That is silent, and it is worse than a false positive, because a
+    // scaffold that checks clean is one nobody looks at. `extractGroundings`
+    // resolves the key path the same way the writer does, so the two ends
+    // agree; the frontmatter value is the fallback for a file that cannot be
+    // re-read here, which is the only case the old path still covers.
+    const declared = content === null ? (frontmatter?.grounds_to ?? []) : extractGroundings(content);
+
+    for (const grounding of declared) {
       if (!isGrounding(grounding)) continue;
       const current = graph.getNode(grounding.node);
       const baselineSource = capabilities.getGroundedSource?.(scaffoldFile, grounding.node) ?? null;
       if (current) {
-        if (baselineSource && current.bodyHash !== baselineSource.bodyHash) {
+        // **The committed hash wins, and the cached one is only a fallback.**
+        //
+        // `_mex_grounded_source` lives in `.mex/graph.db`, which is gitignored
+        // and disposable by invariant — `mex graph rebuild` is offered as a
+        // routine repair. Reading the baseline only from there meant a rebuild
+        // silently ended drift detection for every grounding in the scaffold:
+        // `baselineSource` came back null, this branch reported nothing, and
+        // the grounding went on looking healthy forever. A teammate who cloned
+        // never had a baseline in the first place.
+        //
+        // So prefer `grounding.bodyHash`, which is in Git. The cache still
+        // answers for a grounding authored before that field existed, which is
+        // exactly the pre-existing behaviour and no worse than it was.
+        const baselineBodyHash = grounding.bodyHash ?? baselineSource?.bodyHash;
+        if (baselineBodyHash !== undefined && current.bodyHash !== baselineBodyHash) {
           issues.push(issue("GROUNDING_DRIFT", "warning", source,
             `Grounded node body changed: ${grounding.node}`));
         }
@@ -45,6 +79,12 @@ export function makeGroundingChecker(
       if (!baseline) continue;
       const resolution = reconciler.reconcile(grounding.node, baseline);
       if (resolution.kind === "MOVED") {
+        const moved = graph.getNode(resolution.nodeId);
+        const baselineBodyHash = grounding.bodyHash ?? baselineSource?.bodyHash;
+        if (moved && baselineBodyHash !== undefined && moved.bodyHash !== baselineBodyHash) {
+          issues.push(issue("GROUNDING_DRIFT", "warning", source,
+            `Grounded node body changed: ${grounding.node}; candidate: ${resolution.nodeId}`));
+        }
         grounding.node = resolution.nodeId;
         const movedFingerprint = capabilities.getFingerprint?.(resolution.nodeId);
         if (movedFingerprint) grounding.fingerprint = serializeFingerprint(movedFingerprint);
@@ -57,8 +97,7 @@ export function makeGroundingChecker(
       }
     }
 
-    let content: string;
-    try { content = readFileSync(filePath, "utf-8"); } catch { return issues; }
+    if (content === null) return issues;
     for (const anchor of findMexAnchors(content)) {
       if (graph.getNode(anchor.nodeId)) continue;
       const baselineSource = capabilities.getGroundedSource?.(scaffoldFile, anchor.nodeId) ?? null;

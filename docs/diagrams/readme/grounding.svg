@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Keep the explanation tied to code</title>
+  <desc id="desc">A grounding connects a Wiki claim to a code symbol. When tracked code changes, grounding can flag drift for a person or agent to review. A drift signal does not establish that the explanation is incorrect.</desc>
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <clipPath id="focus">
+      <circle cx="600" cy="274" r="74"/>
+    </clipPath>
+  </defs>
+  <rect width="1200" height="520" fill="#226483"/>
+  <rect width="1200" height="520" filter="url(#grain)" opacity="0.055"/>
+  <g fill="#F1EEDC">
+    <text x="48" y="46" font-family="monospace" font-size="16" letter-spacing="2">MEX / 0.8</text>
+    <text x="1152" y="46" text-anchor="end" font-family="monospace" font-size="16" letter-spacing="2">06 / GROUNDING</text>
+    <text x="48" y="110" font-family="Georgia, serif" font-size="42">Keep the explanation tied to code.</text>
+  </g>
+  <circle cx="423" cy="168" r="4" fill="#FF5738"/>
+  <text x="600" y="175" fill="#F1EEDC" text-anchor="middle" font-family="Trebuchet MS, Verdana, sans-serif" font-size="20">Code changed? Review the claim.</text>
+  <g fill="none" stroke="#F1EEDC" stroke-width="1.7">
+    <ellipse cx="249" cy="274" rx="37" ry="75"/>
+    <ellipse cx="951" cy="274" rx="37" ry="75"/>
+    <path d="M 249,199 C 383,199 475,272 600,274 C 725,276 817,199 951,199"/>
+    <path d="M 223,222 C 370,222 475,273 600,274 C 725,275 830,222 977,222"/>
+    <path d="M 212,274 H 988"/>
+    <path d="M 223,326 C 370,326 475,275 600,274 C 725,273 830,326 977,326"/>
+    <path d="M 249,349 C 383,349 475,276 600,274 C 725,272 817,349 951,349"/>
+  </g>
+  <circle cx="600" cy="274" r="74" fill="#171B18"/>
+  <g clip-path="url(#focus)" fill="none" stroke="#FF5738" stroke-width="2.2">
+    <path d="M 249,199 C 383,199 475,272 600,274 C 725,276 817,199 951,199"/>
+    <path d="M 223,222 C 370,222 475,273 600,274 C 725,275 830,222 977,222"/>
+    <path d="M 212,274 H 988"/>
+    <path d="M 223,326 C 370,326 475,275 600,274 C 725,273 830,326 977,326"/>
+    <path d="M 249,349 C 383,349 475,276 600,274 C 725,272 817,349 951,349"/>
+  </g>
+  <circle cx="600" cy="274" r="6" fill="#FF5738"/>
+  <g fill="#226483">
+    <rect x="193" y="249" width="112" height="50"/>
+    <rect x="917" y="245" width="68" height="59"/>
+  </g>
+  <text x="249" y="288" fill="#F1EEDC" text-anchor="middle" font-family="monospace" font-size="38">&lt;/&gt;</text>
+  <g fill="none" stroke="#F1EEDC" stroke-width="2">
+    <path d="M 933,251 H 958 L 969,262 V 298 H 933 Z M 958,251 V 262 H 969"/>
+    <path d="M 941,274 H 961 M 941,282 H 961 M 941,290 H 953"/>
+  </g>
+  <g fill="#F1EEDC" text-anchor="middle" font-family="Trebuchet MS, Verdana, sans-serif" font-size="26">
+    <text x="249" y="395">Code symbol</text>
+    <text x="600" y="395">Grounding</text>
+    <text x="951" y="395">Wiki claim</text>
+  </g>
+  <path d="M 48,444 H 1152" stroke="#F1EEDC" stroke-width="1" opacity="0.45"/>
+  <text x="48" y="480" fill="#F1EEDC" font-family="Trebuchet MS, Verdana, sans-serif" font-size="20">Grounding flags drift. A person or agent reviews what it means.</text>
+</svg>

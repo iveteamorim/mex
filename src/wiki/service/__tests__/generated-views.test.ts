@@ -1,0 +1,151 @@
+/**
+ * P6's stated seam, closed — and the properties that make the closure safe.
+ *
+ * The write itself is a marker-bounded splice, so the assertion that matters is
+ * not "the block was rewritten" but "nothing outside the markers moved". The
+ * fixture therefore carries hand-written prose above *and* below the region and
+ * names both, rather than comparing a hash.
+ */
+
+import { describe, it, expect, afterEach } from "vitest";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { wikiRegenerateViews } from "../write.js";
+import { readAuditLog } from "../../operations/audit.js";
+import { GENERATED_BEGIN, GENERATED_END } from "../../migration/generated.js";
+
+const ONE = "mx_01K4FAM7W8N9R3T5Y6Q2ZBCHJD";
+const TWO = "mx_01BX5ZZKBKACTAV9WEVGEMMVRZ";
+
+const ABOVE = "Prose above the markers that nobody generated.";
+const BELOW = "Prose below the markers, equally hand-written.";
+
+const INDEX_MD = `# Patterns
+
+${ABOVE}
+
+${GENERATED_BEGIN}
+- something stale that no longer matches
+${GENERATED_END}
+
+${BELOW}
+`;
+
+const pattern = (id: string, title: string) => `<!-- mex:entity
+id: ${id}
+type: pattern
+status: promoted
+revision: 1
+-->
+## ${title}
+
+Body of ${title}.
+`;
+
+const roots: string[] = [];
+
+afterEach(() => {
+  for (const root of roots.splice(0)) {
+    try {
+      rmSync(root, { recursive: true, force: true });
+    } catch {
+      // Windows keeps handles on just-closed files.
+    }
+  }
+});
+
+function scaffold(files: Record<string, string> = {}): string {
+  const root = mkdtempSync(join(tmpdir(), "mex-genview-"));
+  roots.push(root);
+  const all = {
+    "patterns/INDEX.md": INDEX_MD,
+    "patterns/one.md": pattern(ONE, "Return problem documents"),
+    "patterns/two.md": pattern(TWO, "Retry with backoff"),
+    ...files,
+  };
+  for (const [path, text] of Object.entries(all)) {
+    const absolute = join(root, path);
+    mkdirSync(join(absolute, ".."), { recursive: true });
+    writeFileSync(absolute, text, "utf-8");
+  }
+  return root;
+}
+
+function indexText(root: string): string {
+  return readFileSync(join(root, "patterns/INDEX.md"), "utf-8");
+}
+
+describe("regenerating a generated view", () => {
+  it("reports drift without writing, by default", () => {
+    const root = scaffold();
+    const before = indexText(root);
+    const result = wikiRegenerateViews({ scaffoldRoot: root, dryRun: true });
+    expect(result.data.examined).toEqual(["patterns/INDEX.md"]);
+    expect(result.data.changedFiles).toEqual(["patterns/INDEX.md"]);
+    expect(result.data.dryRun).toBe(true);
+    expect(indexText(root)).toBe(before);
+  });
+
+  it("rewrites only the bytes between the markers", () => {
+    const root = scaffold();
+    const before = indexText(root);
+    const result = wikiRegenerateViews({ scaffoldRoot: root });
+    expect(result.data.changedFiles).toEqual(["patterns/INDEX.md"]);
+
+    const after = indexText(root);
+    expect(after).not.toBe(before);
+    // Both sentinels survive verbatim — the assertion the marker bound exists
+    // for, and one a hash comparison could not distinguish from luck.
+    expect(after).toContain(ABOVE);
+    expect(after).toContain(BELOW);
+    expect(after.slice(0, after.indexOf(GENERATED_BEGIN))).toBe(before.slice(0, before.indexOf(GENERATED_BEGIN)));
+    expect(after.slice(after.indexOf(GENERATED_END))).toBe(before.slice(before.indexOf(GENERATED_END)));
+    // And the new content is really the entities, not an empty block.
+    expect(after).toContain("Return problem documents");
+    expect(after).toContain("Retry with backoff");
+  });
+
+  it("is idempotent — a second run finds nothing to do", () => {
+    const root = scaffold();
+    wikiRegenerateViews({ scaffoldRoot: root });
+    const settled = indexText(root);
+    const again = wikiRegenerateViews({ scaffoldRoot: root });
+    expect(again.data.changedFiles).toEqual([]);
+    expect(indexText(root)).toBe(settled);
+  });
+
+  it("appends no audit line, because a rendering is not a knowledge operation", () => {
+    const root = scaffold();
+    wikiRegenerateViews({ scaffoldRoot: root });
+    // The ledger answers "what changed in this wiki". A regenerated section
+    // contains nothing that is not already recorded in the entities it lists.
+    expect(readAuditLog(root).entries).toEqual([]);
+  });
+
+  it("refuses a reserved path rather than rewriting it", () => {
+    const root = scaffold();
+    const before = indexText(root);
+    const result = wikiRegenerateViews({ scaffoldRoot: root, readOnly: ["patterns/**"] });
+    expect(result.data.changedFiles).toEqual([]);
+    expect(result.diagnostics.map((entry) => entry.code)).toContain("WRITE_SCOPE_VIOLATION");
+    expect(indexText(root)).toBe(before);
+  });
+
+  it("leaves a generated block it has no rule for alone", () => {
+    const root = scaffold({
+      "context/somewhere-else.md": `# Notes\n\n${GENERATED_BEGIN}\n- generated by something else\n${GENERATED_END}\n`,
+    });
+    const before = readFileSync(join(root, "context/somewhere-else.md"), "utf-8");
+    const result = wikiRegenerateViews({ scaffoldRoot: root });
+    expect(result.data.examined).toEqual(["patterns/INDEX.md"]);
+    expect(readFileSync(join(root, "context/somewhere-else.md"), "utf-8")).toBe(before);
+  });
+
+  it("says nothing was found when a scaffold has no generated sections", () => {
+    const root = scaffold({ "patterns/INDEX.md": "# Patterns\n\nJust prose.\n" });
+    const result = wikiRegenerateViews({ scaffoldRoot: root });
+    expect(result.data.examined).toEqual([]);
+    expect(result.data.changedFiles).toEqual([]);
+  });
+});

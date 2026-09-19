@@ -1,0 +1,187 @@
+.preview {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.previewHeader p,
+.previewHeader h3 {
+  margin: 0;
+}
+
+.previewHeader p {
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.previewHeader h3 {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 560;
+}
+
+.authorityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.authorityGrid div {
+  min-width: 0;
+  padding: 8px 10px;
+  background: var(--card);
+}
+
+.authorityGrid dt {
+  color: var(--muted-foreground);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.authorityGrid dd {
+  overflow: hidden;
+  margin: 3px 0 0;
+  color: var(--foreground);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+.changeStack {
+  display: grid;
+  gap: 8px;
+}
+
+.change {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.change header {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 7px 9px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.change header svg {
+  width: 13px;
+  color: var(--primary);
+}
+
+.change header strong,
+.change header span {
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.change header span {
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+
+.change pre {
+  max-height: 180px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  color: var(--text-secondary);
+  background: oklch(0.115 0 0);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.localChanges {
+  display: grid;
+  gap: 7px;
+}
+
+.localChanges > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  color: var(--text-secondary);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-sm);
+}
+
+.localChanges svg {
+  width: 14px;
+  color: var(--primary);
+}
+
+.localChanges span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.localChanges strong,
+.localChanges small {
+  font-size: 10.5px;
+}
+
+.localChanges small {
+  color: var(--muted-foreground);
+}
+
+.exactNote,
+.diagnostics {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.exactNote svg,
+.diagnostics svg {
+  width: 13px;
+  flex: none;
+}
+
+.exactNote svg { color: var(--success); }
+.diagnostics svg { color: var(--warning); }
+
+@media (max-width: 620px) {
+  .authorityGrid { grid-template-columns: 1fr; }
+}

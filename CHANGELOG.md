@@ -4,6 +4,256 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.2] - Unreleased
+
+### Added
+- Dependency claims are now checked against `pyproject.toml`. A bounded line scan reads `[project] dependencies`, the per-extra arrays in `[project.optional-dependencies]`, PEP 735 `[dependency-groups]`, and `[tool.poetry.dependencies]` together with its named groups — arrays written one item per line included, since that is what Python packaging tools emit. PEP 508 specifiers give the package name with the constraint kept as version evidence, environment markers no longer truncate the rest of the array, a poetry inline table contributes its `version` constraint rather than the whole table, and a project listed in its own `all` extra is not read as a dependency of itself. A Python claim also matches its PEP 503 equivalent, so prose writing the import spelling (`sentence_transformers`) no longer contradicts a manifest carrying the distribution name (`sentence-transformers`); npm names stay exact, where `lodash.debounce` and `lodash-debounce` are different packages. Python projects previously had every documented package reported `DEPENDENCY_MISSING`, or — with no `package.json` anywhere — no dependency checking at all (#3).
+- Setup completion guide with fresh-session verification, optional version-pinned global installation, and optional embedded email/name contact submission through Web3Forms. Only submitted/skipped contact markers are saved per computer; contact details stay out of project files and telemetry.
+- A bounded Next.js App Router resolver turning `app/**/route.ts|js` modules (including `src/app` roots) into route nodes: one per exported HTTP handler (`GET` through `HEAD`), with the URL path derived from the route file's directory, dynamic segments such as `[id]` and catch-alls preserved verbatim, and route groups `(marketing)` excluded the way Next resolves them. Same-file handlers resolve only when unambiguous; Pages Router, layouts, and pages stay out of scope (#95).
+- Coverage reporting for source files no extractor indexes. `mex graph` now prints the recognized-but-unindexed file count grouped by extension after the build summary, with the full histogram behind `--json` as `unindexedSources`; `mex graph query` and `mex impact` add `filesIndexed` and `unindexedSources` coverage context to `TARGET_NOT_FOUND` records (only when it changes the record's meaning, so misses in fully covered repositories are unchanged); `mex graph scope` names them in a warning when its evidence is weak or empty, without changing `status`; and `mex doctor` shows a Coverage line. Counts are captured once per build: reads verify them with directory stamps, and counts that can no longer be verified are still reported, marked as observed at the last build. A mixed repository used to build a complete-looking graph while every `.svelte`, `.vue` or `.go` file was silently absent, indistinguishable from an empty one (#163).
+- A bounded Flask framework resolver connecting `@app.route()` and shortcut decorators (`@app.get()`, `@app.post()`, and their Blueprint equivalents) to their handler functions. One stable route node is emitted per explicitly declared HTTP method — with an ordinal in the role so a route declared twice in one file cannot collide ids and fail the build — Flask path converters such as `<int:user_id>` are preserved verbatim, `methods=` is read from list or tuple literals (unreadable values skip the route rather than guessing `GET`), receiver names include Blueprint instances carrying a static `url_prefix` and Flask/Blueprint objects imported from other modules, docstrings and comments are blanked before scanning, same-file handlers resolve only when unambiguous, and detection keys on a staged Python module actually importing flask — the reliable observable, since dependency manifests are not staged corpus files (#112).
+- A bounded NestJS controller route resolver: `@Controller()` prefixes combine with `@Get`/`@Post`/`@Put`/`@Patch`/`@Delete`/`@Options`/`@Head`/`@All` method paths into `METHOD /path` route nodes, with the handler in the signature and an ordinal in the role so versioned duplicates (`@Version('1')`/`@Version('2')`) keep distinct ids. Controller arguments are read from string literals and `{ path: '…' }` objects; unreadable forms (constants, arrays) skip rather than guess. Comments are blanked before scanning, routes resolve to same-file handlers — disambiguating between controllers in one file via the owning class — and edge resolution is labeled `nestjs-route-handler` (#98).
+- A first-run Project Hub tour that spotlights the live sidebar (Search, Project, Teamwork, System, Settings, and Context) once per checkout. Completion is recorded in `.mex/local/hub-onboarding.json`, so it survives Hub relaunches; Settings can replay it, and the setup wizard never shows it.
+
+### Changed
+- `mex setup` now opens browser setup by default; `mex setup --cli` retains terminal setup and `--dry-run` stays a read-only terminal preview. Bare `mex` opens the Hub or setup, while `mex tui` retains the terminal dashboard.
+- The Hub stays on completion after a setup commit and opens the full dashboard only on **Open Hub**. Global installation in both flows pins the running release and verifies the installed version.
+
+- Project Hub Overview now opens with a compact Context card above the atlas instead of a header button. It links to Context when the Wiki index is fresh and to Health otherwise, so a stale or unavailable index no longer leads to a page that cannot load.
+
+### Fixed
+- Agent population failures retain the real copyable manual prompt for retry or manual continuation. Integration pointer notes are visible as non-blocking guidance.
+- Setup and Overview share the computer's contact preference so completing or skipping the invitation does not immediately trigger another request.
+
+- `mex sync` now migrates an inline `mex://` anchor together with a `grounds_to` entry for the same moved node. The anchor used to reconcile on its own against the stored baseline instead of the refreshed frontmatter fingerprint. When that baseline was missing, or still listed a neighbour that had since been re-identified, the anchor was skipped or scored `AMBIGUOUS`, sync moved the shared baseline row anyway, and the next `mex check` reported `GROUNDING_GONE` until the link was edited by hand (#128).
+
+## [0.8.1] - 2026-09-10
+
+### Added
+
+- A Context graph in the Project Hub showing existing Wiki entities,
+  relationships, and direct code groundings, with type filters, selection
+  details, pan/zoom, and a list alternative.
+- Inbox contributions for one addition or correction to existing architecture,
+  component, convention, decision, pattern, or guide knowledge. Local drafts
+  publish as Git-shareable Markdown proposals; explicit approval writes the
+  existing Wiki knowledge and retains contribution evidence.
+- Open-to-team Relays that eligible active Members can take, including teammates
+  who join later; local drafts may leave recipients undecided.
+  `mex relay draft save --from <draft.json>` shortens local saving through the existing signed workflow.
+  Hub and CLI show audience, current eligibility, and the sharing boundary.
+- Member reactivation with the original identity, plus checkout-local agent
+  logging preferences in Hub Settings and `mex logging`: `significant` (the
+  quiet default), `checkpoints`, and `manual`. Managed agent instructions now
+  retrieve relevant bounded Timeline notes without automatically promoting
+  those notes to accepted project knowledge.
+- Additive Graph ignore globs under `.mex/config.json`'s `graph.ignore`, with
+  repository-relative validation that behaves consistently across platforms.
+- `mex telemetry disable` and `mex telemetry enable`, writing the same `~/.mex/config.json` key as `mex config set telemetry on|off`. `mex telemetry --help` and `mex telemetry status` now name the `DO_NOT_TRACK=1` and `MEX_TELEMETRY=0` env opt-outs and say which one is in effect; previously the only switch lived under `config` and the env vars appeared solely in the first-run notice (#110).
+
+### Changed
+
+- Agent instructions and skills mention MEX naturally alongside useful findings
+  instead of requiring a fixed acknowledgement footer or routine context-loading
+  narration.
+- Hub navigation centers Context, Code, Inbox, Relays, Team, and Activity.
+  Specs and Workstreams leave primary navigation; existing artifacts and direct
+  routes remain readable.
+- Hub Graph refresh/rebuild constructs candidates in a disposable Node process,
+  keeping compiler work off the Hub event loop. The parent retains validation,
+  cancellation, and atomic publication. Reused SQLite statements, smaller
+  temporary collections, and outer-owned fingerprint transactions reduce
+  avoidable work. CLI construction remains in process; changed-source builds
+  still rebuild the eligible corpus, and aggregate peak memory is not capped.
+- Targeted CLI Graph reads can report useful results with explicit qualifications
+  for config drift, partial parses, and excluded changed source files. Incompatible
+  engine identity still refuses reads; Hub reads retain strict freshness.
+  Graph config identity now uses extraction-relevant fields, so formatting and
+  dependency-version-only edits no longer invalidate the index. Unparseable
+  configuration still falls back to exact bytes.
+- Telemetry now records namespaced CLI commands and outcomes, fixed Hub
+  page/action categories, and terminal job results through a bounded local queue
+  and cancellable delivery. CLI/Hub share a random installation UUID; optional
+  metadata contains only an existing scaffold UUID and known configured AI-tool
+  names. This supports repeat/shared-project estimates, not verified team size
+  or detection of the invoking agent. Names, remotes, content, paths, search
+  text, and contact details remain excluded; existing opt-outs apply.
+- `mex feedback` opens the same voluntary form as the Hub's Help shape MEX card,
+  without adding an analytics identity to the form URL. See [TELEMETRY.md](TELEMETRY.md)
+  for the event catalog, pseudonymous identifiers, exclusions, and opt-outs.
+
+### Fixed
+
+- Successful agent exit no longer authorizes grounding baseline renewal.
+  Interactive sync requires explicit acceptance of individual groundings and
+  revalidates document/code identity; moved-symbol repair preserves prior change
+  evidence instead of accepting changed behavior.
+- Unknown untyped `context/*.md` files are no longer automatically classified
+  as architecture. Wiki creation/synthesis preserves supplied provenance or
+  records the operation's provenance; Inbox corrections retain original
+  attribution and grounding alongside proposal evidence.
+- Setup links selected tools to the scaffold even when their instruction files
+  already exist or setup resumes without showing the selection menu. Existing
+  instructions are preserved, and repository self-setup reuses saved tool
+  choices while preserving authored knowledge.
+- Windows artifact handling now uses exact bytes by default, with explicit
+  checkout-neutral handling for canonical Team records. Wiki revisions and
+  recovery stay exact, legacy Timeline IDs remain stable across LF/CRLF, and
+  affected Team/Wiki ownership checks preserve full-width device/inode identity
+  and replacement files during failure cleanup.
+- Graph maintenance can publish otherwise valid candidates with documented
+  per-file skips or incomplete parses, instead of discarding the entire build.
+  Failed maintenance reports the diagnostics that blocked publication.
+- `mex graph` now fails with an actionable message naming the running Node version when the built-in `node:sqlite` module lacks FTS5 support, instead of surfacing SQLite's raw `no such module: fts5` on the first schema statement that needs it. FTS5 availability is not guaranteed by every Node build/version inside the documented `engines` range (#110).
+- The FTS5 preflight now covers every consumer, not only `mex graph`'s writable open: read-only and immutable graph opens (`mex check`, `graph scope`/`query`/`get`, `impact`) and the wiki index, whose `wiki_fts` table has the same dependency. `mex wiki rebuild-index` reports the new `WIKI_INDEX_FTS5_UNAVAILABLE` diagnostic rather than `WIKI_INDEX_REBUILD_REQUIRED`, which would have sent users round a loop rebuilding an index no rebuild can fix (#110).
+- The wiki index's two direct read paths — contract status inspection and the read session — also preflight FTS5 now, instead of letting SQLite's raw error escape. Reachable by building the index on one Node and reading it on another (#110).
+- COMPATIBILITY.md documents the FTS5 requirement, a one-line command to check the Node you actually run, and that the v0.6.3 fallback predates the code graph. The preflight's error message pointed at a document that said nothing about FTS5 (#110).
+- `mex graph rebuild`/`refresh`/`repair` and `mex wiki rebuild-index` now ensure `.mex/.gitignore` exists before creating a store. Only `mex setup` did this, so building a store in a checkout that had never run setup left `graph.db`, `-wal` and `-shm` untracked, ready for the next `git add -A` to commit (#110).
+
+### Compatibility
+
+- New open-to-team Relays use schema v4. Teammates need MEX 0.8.1 before
+  consuming those artifacts; existing named v1–v3 Relays and legacy Spec
+  proposals remain supported. New named Relays continue using v3.
+- The Graph store remains schema v4. Ordinary reads never migrate or repair
+  indexes. Upgrading the npm package does not update project agent instructions;
+  review `mex skills sync --dry-run`, then run `mex skills sync` in existing
+  projects to refresh managed skills and anchors and start a new agent session.
+  A completed 0.8.0 setup does not need to run again solely for this upgrade;
+  follow any explicit maintenance action reported by `mex graph status`.
+
+## [0.8.0] - 2026-09-02
+
+### Added
+- A bounded release-performance gate for local Hub startup, idle CPU/RAM,
+  browser heap, API latency, maintenance working sets, asset closure, and
+  Graph/Wiki database ratios, plus `mex capabilities --json` for agent-safe
+  discovery of installed and currently available commands.
+- An internal repository TeamWorkflowPort with strict canonical repositories,
+  checkout-local state, leases, operation recovery, and conformance coverage
+  for members, Activity, Workstreams, Inbox, Relays, Playbooks, and manual runs.
+- Bounded Member and canonical Activity CLI/private Hub workflows with signed
+  preview/apply, local actor selection, exact revisions, and immutable Activity
+  emission for accepted canonical mutations.
+- Bounded canonical Workstream CLI and private Hub surfaces with signed
+  preview/apply for create, update, and one-way archive; each successful
+  canonical mutation emits exactly one immutable Activity event.
+- Fresh-index, read-only Spec CLI and Hub views over explicit Wiki hierarchy,
+  provenance, sources, and grounding without implicit index maintenance.
+- A governed Team Inbox and Spec-authoring workflow for local drafts, portable
+  canonical proposals, explicit approval/rejection/withdrawal/repair, and exact
+  single-Spec create or update through the real Wiki preview/apply boundary.
+- Official `mex-inbox` and `mex-relay` project skills for Claude Code and Codex,
+  installed by `mex setup` and safely refreshed with `mex skills sync` without
+  overwriting user instructions, modified managed copies, or unrelated skills.
+
+### Changed
+- `mex setup` now preserves existing scaffold files, launches the first selected
+  available Claude Code or Codex CLI from the project root, completes Wiki
+  migration/indexing after population, and stops at an explicit Git commit
+  checkpoint before Hub.
+- The integration graph uses schema v4: v0.7.3's compact BLOB fingerprints and
+  integer-reference LSH storage combined with subject-generalized Wiki
+  grounding. The v0.7.3 sequential compiler, crash isolation, fallback, and
+  WASM-tree cleanup run inside the existing immutable freshness and atomic
+  publication boundaries.
+- `mex graph repair` now uses the graph maintenance lease and a validated
+  same-directory candidate instead of mutating the published database in place.
+- Inbox and Relay contracts now support bounded action-scoped discovery while
+  preserving the existing complete contract catalogs for compatibility.
+
+### Fixed
+- Fresh setup now installs and verifies ignore protection for Graph/Wiki
+  databases and `.mex/local/`, refuses broad rules that hide canonical config,
+  and no longer overwrites authored files merely because they contain template
+  examples or date placeholders.
+- Setup now refuses malformed or redirected canonical config, publishes config
+  updates atomically, honors Wiki exclude/read-only scope, and blocks readiness
+  when authored grounding cannot be verified.
+- Claude Code and Codex population now uses an ignored prompt file with a short
+  launcher argument, avoiding Windows command-line length limits.
+- New Claude Code and Codex root instructions bootstrap `.mex/AGENTS.md` and
+  `.mex/ROUTER.md` on later sessions instead of installing only skill policy.
+
+### Compatibility
+- Explicit graph maintenance recognizes v1, v2, released-main v3,
+  integration-grounding v3, and complete hybrid v3 stores structurally. v2 and
+  complete v3 lineages upgrade losslessly to schema v4; v1, partial, or
+  ambiguous stores require a safe rebuild. Ordinary reads never migrate.
+- Installing or upgrading the npm package only delivers the skill payload; it
+  does not mutate a repository. Activation remains an explicit `mex setup` or
+  `mex skills sync` action, and no plugin package is required.
+
+## [0.7.3] - 2026-08-27
+
+### Added
+- `mex graph repair` checkpoints a stranded write-ahead log and verifies store integrity in place, so a graph left behind by an interrupted build or check no longer requires a full rebuild to recover.
+
+### Changed
+- `mex check` now reads the last published graph read-only. It never synchronizes the graph as a side effect, and reports how many source files the graph is behind instead of silently re-staging the corpus.
+- TypeScript projects are extracted one at a time, with each compiler program released before the next is created, instead of holding every project's program and type checker in memory simultaneously.
+- Graph stores use schema v3, a compact encoding of the fingerprint and locality-sensitive-hashing tables: binary MinHash sketches, integer band hashes, integer fingerprint references, and the composite primary key as the only index.
+- The per-file semantic type-check pass is now opt-in. Parser health has always been derived from syntactic diagnostics, and reference resolution uses the type checker directly, so the full semantic pass only added diagnostic detail at a cost that scaled with the installed dependency surface.
+- Discovered TypeScript projects are configured with `skipLibCheck` and `noEmit`, because extraction needs symbol and type queries rather than a full compile.
+
+### Fixed
+- A malformed source file that triggers an internal TypeScript compiler assertion no longer aborts the entire graph build. The affected project is isolated and its files fall back to Tree-sitter extraction.
+- Two same-identity declarations in one TypeScript or JavaScript file no longer abort corpus staging with a duplicate node id; they are ordinal-disambiguated, matching the existing Python and Rust extractors.
+- Tree-sitter parse trees are released after extraction. They are allocated in the WebAssembly heap and were never reclaimed, so every parsed file leaked for the lifetime of the process.
+- Grammars are now loaded for compiler-language files that compiler extraction could not stage, so the Tree-sitter fallback can actually extract them.
+
+### Performance
+- On a 3,254-file multi-project repository, peak resident memory during a graph build fell from 5.17 GB to 2.11 GB and wall-clock time fell from 448 s to 309 s, with byte-identical graph output.
+- Graph stores are roughly 36-40% smaller: 700.1 MB to 451.1 MB on that repository, and 269.8 MB to 162.9 MB on a 494-file repository. The fingerprint and LSH tables themselves shrank by about 86% and are no longer the largest consumer in a store.
+- A drift check on a repository with edited sources no longer pays graph-staging cost at all, because `mex check` no longer stages.
+
+### Compatibility
+- Node.js 22.5 or newer remains required.
+- Schema-v2 `.mex/graph.db` files migrate to v3 losslessly the next time a writing command runs (`mex graph`, `mex sync`, `mex graph ground`). No rebuild is required and existing groundings continue to resolve. Read-only commands report the usual rebuild guidance until that migration has run.
+- Schema-v1 stores still require a one-time `mex graph` rebuild, unchanged from 0.7.2.
+- Serialized `mh:64:` grounding anchors in scaffold Markdown are unchanged; no scaffold edits are needed.
+- Graph output is unchanged by this release except for the TypeScript project isolation and duplicate-identity fixes, which add nodes and edges that previously aborted or were absent. The compiler extractor version advances, so the first `mex graph` after upgrading performs a full rebuild.
+
+## [0.7.2] - 2026-08-20
+
+### Added
+- Compiler-backed TypeScript extraction now resolves calls, imports, inheritance, containment, and callback flow with stable declaration identities, while retaining bounded Tree-sitter support for TypeScript, JavaScript, Python, and Rust.
+- Source-chunk search, parser-health metadata, graph-integrity reporting, and deterministic native holdouts for Hono, TypeScript's compiler subtree, MEX, and mixed-language fixtures.
+- Evidence-aware JSONL protocol v3 records for source ranges, directed execution flows, summaries, omissions, and trustworthy fallback guidance.
+
+### Changed
+- `mex graph scope` now defaults to bounded source-backed retrieval instead of a minimal manifest, prioritizing the most relevant declarations and real high-confidence execution paths in the first response.
+- Scope budgets adapt to repository size, enforce file/node/flow/source ceilings, and distinguish mandatory evidence from optional truncation.
+- TypeScript 5.9.3 is now an exact runtime dependency because graph construction uses the compiler API.
+- CI verifies Node.js 22 and 24, runs the evaluator tests on Node 22, and uses Node 24-based GitHub Actions.
+- Tool-config sync ignores unmarked user-authored files and reports the actual managed config that moved.
+
+### Fixed
+- Stale or unreadable source files can no longer silently erase trusted graph state; changed-file failures abort publication and preserve the last good graph.
+- Callback synthesis no longer maps extra arguments onto a non-rest final parameter, and rest callbacks are linked only when the corresponding indexed element is invoked.
+- Retrieval now preserves compiler-proven cross-file flows, source-aligned declarations, whole primary answers, and fair source allocation without manufacturing relationships or exceeding the output ledger.
+- Deterministic identity, duplicate/dangling-edge, FTS, confidence, parser-loss, and production-to-test integrity checks fail closed in the evaluation harness.
+- Headless comparison runs now enforce exact command permissions, subject/bundle identity, rate-limit-safe resume semantics, and blind answer grading.
+
+### Performance
+- In a descriptive 24-session, 12-task Claude Sonnet pilot against a files-only baseline, the candidate answered 7/12 tasks correctly versus 6/12 while reducing new tokens by 54.5%, processed tokens by 72.5%, estimated cost by 56.6%, and mean latency by 22.9%.
+- First responses returned 22/23 required source spans, all required Hono flows, and graph evidence for all 12 tasks. The pilot used one repetition per task and did not include the released `main` implementation as an arm.
+
+### Compatibility
+- Node.js 22.5 or newer remains required.
+- Existing schema-v1 `.mex/graph.db` files require a one-time `mex graph` rebuild; the Markdown scaffold itself does not need to be reset.
+- The richer graph currently uses more disk than 0.7.1. Incremental/no-op rebuild and storage optimization are deferred to a follow-up release.
+
+## [0.7.1] - 2026-08-05
+
+### Changed
+- Agent guidance in the shipped tool configs now describes when to use each graph command, rather than preferring graph commands over text search in all cases. `mex graph query` and `mex graph get` lead when a symbol name is known — they are exact and typically 200-500 output tokens. `mex graph scope` is positioned as a starting point for unfamiliar tasks, with an explicit note that it matches on words rather than meaning, so a task phrased in vocabulary the code does not use will return weak results.
+- Agents are now told to fall back to Grep/Glob when a scope manifest does not contain what they need, and to rephrase a scope task at most once. The previous wording discouraged text search, which could lead an agent to spend additional calls expanding a manifest that was not going to answer the question.
+- Applied to `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, and `.github/copilot-instructions.md`.
+
+### Note for existing scaffolds
+Upgrading does not modify an existing `.mex/` scaffold. To pick up the new guidance, replace the `## Code Graph` section of your tool config files with the version in `templates/AGENTS.md`.
+
 ## [0.7.0] - 2026-07-25
 
 ### Added
@@ -76,6 +326,33 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - README and CONTRIBUTING now list all 11 drift checkers (including `tool-config-sync`, `todo-fixme`, and `broken-link`).
+
+## [0.5.1] - 2026-06-02
+
+### Fixed
+- **`--version` derived from package.json** — `mex --version` was hard-coded to `"0.3.5"` in `src/cli.ts` while `package.json` had advanced to 0.5.0, so the CLI reported a version two releases behind itself. The version is now read from `package.json` at runtime (new `src/version.ts`) so it can never drift again, with a regression test asserting the program's configured version matches `package.json`. [#48](https://github.com/mex-memory/mex/issues/48)
+
+### Changed
+- CLI-level test coverage for `log` and `timeline` option parsing, so flag regressions surface before release. [#47](https://github.com/mex-memory/mex/pull/47)
+- Documentation: a drift-checker contribution guide, and the bug-report template corrected for the CLI.
+
+## [0.5.0] - 2026-05-18
+
+### Added
+- **Compatibility contract** — [COMPATIBILITY.md](COMPATIBILITY.md) now defines the package's public contract for embedders: the stable surface is exactly what `src/index.ts` re-exports (functions, runtime constants, types), CLI flags are best-effort, and what counts as a breaking change is spelled out. [#45](https://github.com/mex-memory/mex/pull/45)
+- **Event trace field** — `EventEntry` and `LogOpts` accept an optional free-form `trace` string, typically a path under `.mex/traces/`, for embedders that capture richer context than the short `message` field holds. Written only when provided and preserved by `readEvents` and `mex timeline --json`.
+
+### Compatibility
+- The `trace` field is additive and optional — existing event logs and JSONL consumers are unaffected, and no scaffold migration is required.
+
+## [0.4.0] - 2026-05-16
+
+### Added
+- **Stable public API surface** — the package now exposes a documented, contract-tested programmatic API from its entry point (`findConfig`, `createConfig`, `appendEvent`, `readEvents`, `eventLogPath`, `runDriftCheck`, `parseFrontmatter`, `checkHeartbeat`, `runHeartbeat`, the `DEFAULT_*` runtime constants, and their types), wired through the package `exports` field so embedders get one stable import path. [#44](https://github.com/mex-memory/mex/pull/44)
+
+### Compatibility
+- The npm package name changed to `mex-agent` in this window (the installed binary command remains `mex`); see the 0.3.5 notes for the user-facing rename summary.
+- **Package subpath imports restricted** — the new `exports` map exposes only `mex-agent` and `mex-agent/package.json`. Previously resolvable internal paths such as `mex-agent/dist/cli.js` now fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`. Import library helpers from `mex-agent`; invoke the CLI through the installed `mex` command.
 
 ## [0.3.5] - 2026-05-14
 

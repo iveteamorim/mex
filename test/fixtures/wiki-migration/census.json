@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "provenance": {
+    "realScaffoldCensus": true,
+    "source": "a real filled pre-wiki scaffold on the maintainer's machine, 25 files. Numbers only.",
+    "takenAt": "2026-08-24",
+    "refresh": "node scripts/wiki-scaffold-census.mjs <scaffold-path> > test/fixtures/wiki-migration/census.json, then node scripts/generate-wiki-migration-corpus.mjs to regenerate tier 1 against it. Only numbers ever enter this repo (plan section 6a).",
+    "note": "Numbers only. No file name, heading, prose, or user-chosen frontmatter key from any real scaffold appears here or in the generated corpus: directory names are bucketed against a closed list and key names against a closed allowlist, with everything else counted as `other`."
+  },
+  "fileCount": 25,
+  "filesByBucket": { "root": 4, "context": 13, "patterns": 8 },
+  "headingDepthHistogram": { "1": 25, "2": 114, "3": 16 },
+  "headingsPerFileHistogram": { "1": 1, "4": 4, "5": 6, "6": 3, "7": 8, "10": 1, "11": 1, "13": 1 },
+  "edgesPerFileHistogram": { "0": 5, "2": 1, "3": 13, "4": 3, "5": 2, "14": 1 },
+  "edgeConditionRate": { "withCondition": 77, "without": 0 },
+  "triggersPerFileHistogram": { "0": 6, "5": 3, "6": 6, "7": 1, "8": 2, "9": 3, "10": 1, "11": 1, "12": 2 },
+  "proseLengthBuckets": { "10-29": 1, "30-79": 14, "80-199": 8, "200-plus": 2 },
+  "frontmatterKeyFrequency": {
+    "name": 21,
+    "description": 21,
+    "last_updated": 21,
+    "edges": 20,
+    "triggers": 19,
+    "other": 0
+  },
+  "filesWithFrontmatter": 21,
+  "filesWithMalformedFrontmatter": 0,
+  "filesWithRootGroundsTo": 0,
+  "groundingsPerFileHistogram": { "0": 25 },
+  "filesWithMexKey": 0,
+  "inlineAnchorCount": 0,
+  "crlfFileCount": 0,
+  "bomFileCount": 0
+}

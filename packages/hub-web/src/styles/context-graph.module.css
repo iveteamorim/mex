@@ -1,0 +1,28 @@
+.canvas {
+  --context-type-0: #8eb5dc; --context-type-1: #75b8b0; --context-type-2: #cbb776;
+  --context-type-3: #a8bf84; --context-type-4: #c0a0dc; --context-type-5: #acb3cf;
+  position: relative; height: clamp(520px, 68vh, 760px); min-width: 0; overflow: hidden;
+  background: var(--background); touch-action: none; user-select: none;
+}
+.world { position: absolute; top: 0; left: 0; transform-origin: 0 0; transform: translate(var(--view-x), var(--view-y)) scale(var(--view-scale)); }
+.edges { position: absolute; overflow: visible; pointer-events: none; }
+.edge, .activeEdge, .groundingEdge { fill: none; stroke: var(--muted-foreground); stroke-width: .8; stroke-opacity: .26; }
+.activeEdge { stroke: var(--primary); stroke-width: 1; stroke-opacity: .7; }
+.groundingEdge { stroke: var(--primary); stroke-width: 1; stroke-opacity: .8; stroke-dasharray: 3 4; }
+.node, .codeNode { position: absolute; width: 116px; height: 60px; padding: 28px 2px 0; transform: translate(-50%, -50%); background: none; border: 0; color: var(--foreground); cursor: pointer; text-align: center; font: 400 11px/14px var(--font-sans, "Geist", sans-serif); }
+.nodeLabel { font-size: clamp(11px, calc(11px / var(--view-scale)), 16px); line-height: clamp(14px, calc(14px / var(--view-scale)), 20px); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.orb { position: absolute; top: 7px; left: calc(50% - 8px); width: 16px; height: 16px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--node-color) 70%, transparent); background: color-mix(in srgb, var(--node-color) 38%, var(--background)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--node-color) 7%, transparent); transition: transform 140ms, box-shadow 140ms; }
+.node:hover .orb { transform: scale(1.15); }
+.node[data-neighbor="true"] .orb { background: color-mix(in srgb, var(--node-color) 58%, var(--background)); }
+.node[aria-pressed="true"] .orb { border: 2px solid var(--primary); box-shadow: 0 0 0 5px var(--primary-soft); }
+.node[data-dimmed="true"] { opacity: .25; }
+.node:focus-visible, .codeNode:focus-visible { outline: 1px solid var(--ring); outline-offset: 3px; border-radius: 4px; }
+.codeNode { width: 148px; height: 72px; padding-top: 32px; font-family: "IBM Plex Mono", monospace; animation: expand 230ms cubic-bezier(.2,.8,.2,1); }
+.codeOrb { position: absolute; top: 8px; left: calc(50% - 11px); width: 22px; height: 22px; border: 1px solid var(--primary); border-radius: 50%; background: var(--background); color: var(--primary); font: 11px/21px "IBM Plex Mono", monospace; }
+.codeNode[aria-pressed="true"] .codeOrb { box-shadow: 0 0 0 4px var(--primary-soft); }
+.controls { position: absolute; display: flex; gap: 1px; right: 16px; bottom: 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+.controls button { width: 32px; height: 30px; display: grid; place-items: center; background: none; border: 0; color: var(--foreground); cursor: pointer; }
+.controls button:hover { background: var(--accent); }
+.hint { position: absolute; bottom: 17px; left: 16px; margin: 0; max-width: calc(100% - 145px); color: var(--muted-foreground); font-size: 10px; line-height: 16px; pointer-events: none; }
+@keyframes expand { from { transform: translate(calc(-50% + var(--from-x)), calc(-50% + var(--from-y))) scale(.85); } to { transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .codeNode { animation: none; } .orb { transition: none; } }

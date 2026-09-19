@@ -1,0 +1,396 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mex.dev/schemas/release-benchmark-report-v1.json",
+  "title": "MEX release benchmark report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "benchmark", "generatedAt", "environment", "configuration", "assets", "profiles", "budgetEvaluation", "budgetCandidates"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "benchmark": { "const": "mex-release-performance" },
+    "generatedAt": { "type": "string", "format": "date-time", "maxLength": 40 },
+    "environment": { "type": "object", "maxProperties": 5 },
+    "configuration": { "type": "object", "maxProperties": 7 },
+    "assets": { "$ref": "#/$defs/assets" },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 3,
+      "properties": {
+        "small": { "$ref": "#/$defs/profile" },
+        "medium": { "$ref": "#/$defs/profile" },
+        "large": { "$ref": "#/$defs/profile" }
+      }
+    },
+    "budgetEvaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetViolations", "runtimeViolations", "passed"],
+      "properties": {
+        "assetViolations": { "$ref": "#/$defs/violations" },
+        "runtimeViolations": { "$ref": "#/$defs/violations" },
+        "runtimeConfirmation": { "$ref": "#/$defs/runtimeConfirmation" },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "budgetCandidates": { "type": "object", "maxProperties": 2 }
+  },
+  "$defs": {
+    "number": { "type": "number", "minimum": 0 },
+    "samples10": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": { "$ref": "#/$defs/number" }
+    },
+    "samples5": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/number" }
+    },
+    "summary10": {
+      "allOf": [
+        { "$ref": "#/$defs/summaryBase" },
+        { "type": "object", "properties": { "samples": { "$ref": "#/$defs/samples10" } } }
+      ]
+    },
+    "summary5": {
+      "allOf": [
+        { "$ref": "#/$defs/summaryBase" },
+        { "type": "object", "properties": { "samples": { "$ref": "#/$defs/samples5" } } }
+      ]
+    },
+    "summaryBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["samples", "min", "median", "p95", "max"],
+      "properties": {
+        "samples": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/number" } },
+        "min": { "$ref": "#/$defs/number" },
+        "median": { "$ref": "#/$defs/number" },
+        "p95": { "$ref": "#/$defs/number" },
+        "max": { "$ref": "#/$defs/number" }
+      }
+    },
+    "assetGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jsBytes", "cssBytes", "fontBytes", "files"],
+      "properties": {
+        "jsBytes": { "$ref": "#/$defs/number" },
+        "cssBytes": { "$ref": "#/$defs/number" },
+        "fontBytes": { "$ref": "#/$defs/number" },
+        "files": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file", "bytes"],
+            "properties": {
+              "file": { "type": "string", "maxLength": 512 },
+              "bytes": { "$ref": "#/$defs/number" }
+            }
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initial", "routes", "largestJsChunk", "budgetCandidates", "violations"],
+      "properties": {
+        "initial": { "$ref": "#/$defs/assetGroup" },
+        "routes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home", "search", "knowledge", "knowledgeDetail", "code", "codeSymbol", "workstreams", "specs", "specsDetail", "playbooks", "catchUp", "inbox", "relays", "members", "activity", "jobs", "health", "notFound"],
+          "properties": {
+            "home": { "$ref": "#/$defs/assetGroup" },
+            "search": { "$ref": "#/$defs/assetGroup" },
+            "knowledge": { "$ref": "#/$defs/assetGroup" },
+            "knowledgeDetail": { "$ref": "#/$defs/assetGroup" },
+            "code": { "$ref": "#/$defs/assetGroup" },
+            "codeSymbol": { "$ref": "#/$defs/assetGroup" },
+            "workstreams": { "$ref": "#/$defs/assetGroup" },
+            "specs": { "$ref": "#/$defs/assetGroup" },
+            "specsDetail": { "$ref": "#/$defs/assetGroup" },
+            "playbooks": { "$ref": "#/$defs/assetGroup" },
+            "catchUp": { "$ref": "#/$defs/assetGroup" },
+            "inbox": { "$ref": "#/$defs/assetGroup" },
+            "relays": { "$ref": "#/$defs/assetGroup" },
+            "members": { "$ref": "#/$defs/assetGroup" },
+            "activity": { "$ref": "#/$defs/assetGroup" },
+            "jobs": { "$ref": "#/$defs/assetGroup" },
+            "health": { "$ref": "#/$defs/assetGroup" },
+            "settings": { "$ref": "#/$defs/assetGroup" },
+            "notFound": { "$ref": "#/$defs/assetGroup" }
+          }
+        },
+        "largestJsChunk": { "type": "object", "maxProperties": 2 },
+        "budgetCandidates": { "type": "object", "maxProperties": 3 },
+        "violations": { "$ref": "#/$defs/violations" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture", "coldHubReadyMs", "idle", "apiLatencyMs", "maintenance", "browserHeap", "database"],
+      "properties": {
+        "fixture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profile", "sourceFiles", "wikiEntities", "workstreams", "activityEvents", "input"],
+          "properties": {
+            "profile": { "enum": ["small", "medium", "large"] },
+            "sourceFiles": { "type": "integer", "minimum": 1 },
+            "wikiEntities": { "type": "integer", "minimum": 1 },
+            "workstreams": { "type": "integer", "minimum": 1 },
+            "inboxDrafts": { "const": 1 },
+            "inboxProposals": { "const": 1 },
+            "members": { "const": 2 },
+            "relayDrafts": { "const": 1 },
+            "relays": { "const": 1 },
+            "activityEvents": { "type": "integer", "minimum": 1 },
+            "input": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["graphBytes", "graphFiles", "wikiBytes", "wikiFiles"],
+              "properties": {
+                "graphBytes": { "$ref": "#/$defs/number" },
+                "graphFiles": { "$ref": "#/$defs/number" },
+                "wikiBytes": { "$ref": "#/$defs/number" },
+                "wikiFiles": { "$ref": "#/$defs/number" }
+              }
+            }
+          }
+        },
+        "coldHubReadyMs": { "$ref": "#/$defs/summary10" },
+        "idle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rssBytes", "cpuMs", "cpuPercent", "windowMs"],
+          "properties": {
+            "rssBytes": { "$ref": "#/$defs/summary5" },
+            "cpuMs": { "$ref": "#/$defs/summary5" },
+            "cpuPercent": { "$ref": "#/$defs/summary5" },
+            "windowMs": { "const": 2000 }
+          }
+        },
+        "apiLatencyMs": { "$ref": "#/$defs/readSummaries" },
+        "maintenance": { "$ref": "#/$defs/maintenanceSummaries" },
+        "browserHeap": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["routes", "outboundRequestCount", "observedLoopbackRequests"],
+              "properties": {
+                "routes": { "$ref": "#/$defs/routeSummaries" },
+                "outboundRequestCount": { "const": 0 },
+                "observedLoopbackRequests": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": { "type": "string", "maxLength": 1024 }
+                }
+              }
+            }
+          ]
+        },
+        "database": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["graph", "wiki"],
+          "properties": {
+            "graph": { "$ref": "#/$defs/databaseMeasurement" },
+            "wiki": { "$ref": "#/$defs/databaseMeasurement" }
+          }
+        }
+      }
+    },
+    "readSummaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["search", "code", "knowledge", "activity"],
+      "properties": {
+        "search": { "$ref": "#/$defs/summary10" },
+        "code": { "$ref": "#/$defs/summary10" },
+        "knowledge": { "$ref": "#/$defs/summary10" },
+        "activity": { "$ref": "#/$defs/summary10" },
+        "inboxDrafts": { "$ref": "#/$defs/summary10" },
+        "inboxProposals": { "$ref": "#/$defs/summary10" },
+        "relayDrafts": { "$ref": "#/$defs/summary10" },
+        "relays": { "$ref": "#/$defs/summary10" }
+      }
+    },
+    "maintenanceMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elapsedMs", "peakRssBytes"],
+      "properties": {
+        "elapsedMs": { "$ref": "#/$defs/summary10" },
+        "peakRssBytes": { "$ref": "#/$defs/summary5" },
+        "cpuMs": { "$ref": "#/$defs/summary10" }
+      }
+    },
+    "maintenanceSummaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph_refresh", "graph_rebuild", "wiki_refresh", "wiki_rebuild"],
+      "properties": {
+        "graph_refresh": { "$ref": "#/$defs/maintenanceMeasurement" },
+        "graph_rebuild": { "$ref": "#/$defs/maintenanceMeasurement" },
+        "wiki_refresh": { "$ref": "#/$defs/maintenanceMeasurement" },
+        "wiki_rebuild": { "$ref": "#/$defs/maintenanceMeasurement" }
+      }
+    },
+    "routeSummaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "search", "knowledge", "knowledgeDetail", "code", "codeSymbol", "workstreams", "specs", "specsDetail", "playbooks", "catchUp", "inbox", "relays", "members", "activity", "jobs", "health", "notFound"],
+      "properties": {
+        "home": { "$ref": "#/$defs/summary5" },
+        "search": { "$ref": "#/$defs/summary5" },
+        "knowledge": { "$ref": "#/$defs/summary5" },
+        "knowledgeDetail": { "$ref": "#/$defs/summary5" },
+        "code": { "$ref": "#/$defs/summary5" },
+        "codeSymbol": { "$ref": "#/$defs/summary5" },
+        "workstreams": { "$ref": "#/$defs/summary5" },
+        "specs": { "$ref": "#/$defs/summary5" },
+        "specsDetail": { "$ref": "#/$defs/summary5" },
+        "playbooks": { "$ref": "#/$defs/summary5" },
+        "catchUp": { "$ref": "#/$defs/summary5" },
+        "inbox": { "$ref": "#/$defs/summary5" },
+        "relays": { "$ref": "#/$defs/summary5" },
+        "members": { "$ref": "#/$defs/summary5" },
+        "activity": { "$ref": "#/$defs/summary5" },
+        "jobs": { "$ref": "#/$defs/summary5" },
+        "health": { "$ref": "#/$defs/summary5" },
+        "settings": { "$ref": "#/$defs/summary5" },
+        "notFound": { "$ref": "#/$defs/summary5" }
+      }
+    },
+    "databaseMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["databaseBytes", "inputBytes", "ratio"],
+      "properties": {
+        "databaseBytes": { "$ref": "#/$defs/number" },
+        "inputBytes": { "$ref": "#/$defs/number" },
+        "ratio": { "$ref": "#/$defs/number" }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric", "measured", "budget", "reason"],
+        "properties": {
+          "metric": { "type": "string", "maxLength": 256 },
+          "measured": { "type": ["number", "null"] },
+          "budget": { "type": ["number", "null"] },
+          "reason": { "type": "string", "maxLength": 100 }
+        }
+      }
+    },
+    "runtimeConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "repositoryHead", "firstPassViolations", "secondPassViolations", "confirmedViolations"],
+      "properties": {
+        "status": {
+          "enum": ["not_required", "skipped_immediate_failure", "passed", "failed", "operational_failure"]
+        },
+        "repositoryHead": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "firstPassViolations": { "$ref": "#/$defs/violations" },
+        "secondPassViolations": { "$ref": "#/$defs/violations" },
+        "confirmedViolations": { "$ref": "#/$defs/violations" },
+        "advisoryAssessments": { "$ref": "#/$defs/advisoryAssessments" },
+        "materialAssessments": { "$ref": "#/$defs/materialAssessments" },
+        "runnerAllocations": { "$ref": "#/$defs/runnerAllocations" }
+      }
+    },
+    "runnerAllocations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first"],
+      "properties": {
+        "first": { "$ref": "#/$defs/runnerAllocation" },
+        "second": { "$ref": "#/$defs/runnerAllocation" }
+      }
+    },
+    "runnerAllocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "runAttempt", "job", "runnerName", "runnerOs", "runnerArch"],
+      "properties": {
+        "runId": { "type": "string", "pattern": "^[1-9][0-9]{0,19}$" },
+        "runAttempt": { "type": "string", "pattern": "^[1-9][0-9]{0,19}$" },
+        "job": { "type": "string", "pattern": "^[A-Za-z0-9_.-]{1,128}$" },
+        "runnerName": { "type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\r\\n\\u0000]+$" },
+        "runnerOs": { "type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[^\\r\\n\\u0000]+$" },
+        "runnerArch": { "type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[^\\r\\n\\u0000]+$" }
+      }
+    },
+    "advisoryAssessments": {
+      "type": "array",
+      "maxItems": 400,
+      "items": {
+        "allOf": [
+          { "$ref": "#/$defs/materialityAssessment" },
+          {
+            "type": "object",
+            "properties": {
+              "classification": { "const": "advisory" },
+              "reason": { "enum": ["not_repeated", "below_material_threshold", "insufficient_sample_support"] }
+            }
+          }
+        ]
+      }
+    },
+    "materialAssessments": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "allOf": [
+          { "$ref": "#/$defs/materialityAssessment" },
+          {
+            "type": "object",
+            "properties": {
+              "classification": { "const": "material" },
+              "reason": { "const": "repeated_material_threshold" }
+            }
+          }
+        ]
+      }
+    },
+    "materialityAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "category", "classification", "reason", "budget", "relativeExcessRatio", "minimumExcess", "materialThreshold", "firstMeasured", "secondMeasured"],
+      "properties": {
+        "metric": { "type": "string", "maxLength": 256 },
+        "category": {
+          "enum": ["api_latency_ms", "cold_readiness_ms", "maintenance_ms", "idle_cpu_ms", "rss_bytes", "browser_heap_bytes"]
+        },
+        "classification": { "enum": ["advisory", "material"] },
+        "reason": { "enum": ["not_repeated", "below_material_threshold", "insufficient_sample_support", "repeated_material_threshold"] },
+        "budget": { "$ref": "#/$defs/number" },
+        "relativeExcessRatio": { "const": 0.15 },
+        "minimumExcess": { "$ref": "#/$defs/number" },
+        "materialThreshold": { "$ref": "#/$defs/number" },
+        "firstMeasured": { "type": ["number", "null"], "minimum": 0 },
+        "secondMeasured": { "type": ["number", "null"], "minimum": 0 },
+        "requiredSupportingSamples": { "const": 2 },
+        "firstSampleCount": { "type": "integer", "enum": [5, 10] },
+        "firstSupportingSamples": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "secondSampleCount": { "type": "integer", "enum": [5, 10] },
+        "secondSupportingSamples": { "type": "integer", "minimum": 0, "maximum": 10 }
+      }
+    }
+  }
+}

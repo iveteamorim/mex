@@ -1,0 +1,1880 @@
+{
+  "schemaVersion": 1,
+  "kind": "local-graph-performance-verification-not-release-budget",
+  "generatedAt": "2026-09-08T22:24:18.557Z",
+  "source": {
+    "baseBranch": "codex/0.8.1",
+    "baseCommit": "35bfc075888706d6b105b39b0d711ff7a588b551",
+    "implementationBranch": "codex/0.8.1-graph-performance",
+    "files": 723,
+    "seedGraphSha256": "0b6dd1f8e161f19e4a15111f125a83d2245f01c01e791f21e38f2c8a4a61af41"
+  },
+  "environment": {
+    "os": "macOS 26.0.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v22.17.1",
+    "v8": "12.4.254.21-node.27",
+    "sqlite": "3.50.0",
+    "typescript": "5.9.3"
+  },
+  "matchedEngineComparison": {
+    "method": {
+      "sameFrozenSourceAndInstalledDependencies": true,
+      "sameIndependentSeedCopy": true,
+      "order": [
+        "baseline",
+        "production"
+      ],
+      "repetitions": 1,
+      "baseline": "Instrumented engine from the base commit, preserved by the resource investigation.",
+      "production": "Final engine implementation bundle; subsequent edits affected only process progress, tests, and documentation.",
+      "scope": "engine.sync and its internal publication transaction; excludes Hub maintenance copy, validation and atomic file replacement",
+      "nativePreparation": "Counts DatabaseSync.prepare calls, including diagnostic/connection startup work",
+      "externalRssSampleIntervalMs": 1000,
+      "diagnosticGc": "Three forced GCs 100ms apart after engine close; never a production GC policy",
+      "supervisorDeadlineSeconds": 600,
+      "supervisorSampledRssGuardMiB": 4608,
+      "telemetryDisabled": true,
+      "limitations": [
+        "One sequential local pair, not a randomized or pinned-runner estimate. Host caching, compression, scheduling and instrumentation affect timings and RSS.",
+        "RSS is resident set size, not physical footprint or V8 live heap. Sampling can miss peaks; process lifetime max RSS is recorded separately.",
+        "Engine-only measurements exclude Hub parent overhead; use actualHub for combined resource observations."
+      ]
+    },
+    "runs": {
+      "baseline": {
+        "engineBundleSha256": "ea161e06667f8c879c543f48775bbb8eaeffb19d435ef72f71f0d2048c86a18b",
+        "result": {
+          "filesIndexed": 723,
+          "nodesCreated": 33479,
+          "edgesCreated": 88068,
+          "health": {
+            "ok": 723,
+            "partial": 0,
+            "failed": 0
+          },
+          "durationMs": 305712
+        },
+        "syncAndCloseMs": 306141.91766700003,
+        "totalProcessWorkMs": 306945.795917,
+        "nativePreparesAtSyncReturn": 426415,
+        "nativePreparesIncludingUnchanged": 427165,
+        "cpuAtSyncReturnMs": 299349.417,
+        "sampledPeakRssBytes": 2229764096,
+        "rssSampleCount": 307,
+        "processLifetimeMaxRssBytes": 2232270848,
+        "postGcMemory": {
+          "heapUsed": 50027096,
+          "heapTotal": 93093888,
+          "rss": 1612546048,
+          "external": 36239690,
+          "arrayBuffers": 559012
+        },
+        "unchanged": {
+          "filesIndexed": 0,
+          "nodesCreated": 0,
+          "edgesCreated": 0,
+          "durationMs": 283,
+          "elapsedMs": 283.1332499999553
+        }
+      },
+      "production": {
+        "engineBundleSha256": "730b719ef06bf5b782a271d4eaef6642ccf22fbcbd0d381121bbb7f7b4eae380",
+        "result": {
+          "filesIndexed": 723,
+          "nodesCreated": 33479,
+          "edgesCreated": 88068,
+          "health": {
+            "ok": 723,
+            "partial": 0,
+            "failed": 0
+          },
+          "durationMs": 71046
+        },
+        "syncAndCloseMs": 71424.51699999999,
+        "totalProcessWorkMs": 72307.769625,
+        "nativePreparesAtSyncReturn": 117,
+        "nativePreparesIncludingUnchanged": 144,
+        "cpuAtSyncReturnMs": 83937.832,
+        "sampledPeakRssBytes": 1763000320,
+        "rssSampleCount": 73,
+        "processLifetimeMaxRssBytes": 1782480896,
+        "postGcMemory": {
+          "heapUsed": 49921200,
+          "heapTotal": 92045312,
+          "rss": 875397120,
+          "external": 36239690,
+          "arrayBuffers": 559012
+        },
+        "unchanged": {
+          "filesIndexed": 0,
+          "nodesCreated": 0,
+          "edgesCreated": 0,
+          "durationMs": 306,
+          "elapsedMs": 306.12812499998836
+        }
+      }
+    },
+    "parity": {
+      "allEqual": true,
+      "tableCount": 12,
+      "normalizedTables": {
+        "_mex_grounded_source": {
+          "rows": 13,
+          "sha256": "4799b3e1f4401c61c30b72a02cb99180821acf42d89152025109a9eabba8ed6e"
+        },
+        "edges": {
+          "rows": 88068,
+          "sha256": "d01913ff25625d699514a1f436f8e4bf930821a2542dd9ccb0e6dc734915cd88"
+        },
+        "files": {
+          "rows": 723,
+          "sha256": "0443de844e9b476418c6d4bcf3f62153868dd63c87bd448e7e432250b12c9c96"
+        },
+        "import_bindings": {
+          "rows": 11231,
+          "sha256": "093845203504383cab13844e2c274a286320718c2ee98cc530237829c7575bb0"
+        },
+        "lsh_buckets": {
+          "rows": 757760,
+          "sha256": "8e2312ef5bc83526de8aaeb874c1aa15f27c43b260faab34f3db9f2a98dd73ef"
+        },
+        "node_aliases": {
+          "rows": 1707,
+          "sha256": "0457b6cae3c4056f9b7f49745b48fda05e9e8e469783a43d014121051d47fc6b"
+        },
+        "node_fingerprints": {
+          "rows": 23680,
+          "sha256": "aa817aba04adf15d0f05fe0e2f0e7dd09dc5fdba493b438de2f5d13a13824f34"
+        },
+        "nodes": {
+          "rows": 33479,
+          "sha256": "53a1e1a1e99d84d13b54ea155f23f77c8ac2638462b4122e48229b7913e0025d"
+        },
+        "project_metadata": {
+          "rows": 9,
+          "sha256": "45f3b5c9950772a8b6e39688bef164bd76edae182427216c2cf54a7d7c405644"
+        },
+        "schema_versions": {
+          "rows": 4,
+          "sha256": "9ce76e9408211f3a56c2221a40c8a6624513dd0bd7214a1cbcb08375393c83f5"
+        },
+        "source_chunks": {
+          "rows": 4627,
+          "sha256": "c08acb6cf46ec3bf8f09eaa44112adacc718e15b7070b131069b1860eeca35d9"
+        },
+        "unresolved_refs": {
+          "rows": 88413,
+          "sha256": "13530185dbdedd99c28d1e974b9d9c6ffee5ff7292350bd421212eca7af6d647"
+        }
+      },
+      "excludedColumns": {
+        "nodes": [
+          "updated_at"
+        ],
+        "edges": [
+          "id"
+        ],
+        "files": [
+          "indexed_at"
+        ],
+        "unresolved_refs": [
+          "id"
+        ],
+        "node_aliases": [
+          "created_at"
+        ],
+        "source_chunks": [
+          "id"
+        ],
+        "schema_versions": [
+          "applied_at"
+        ],
+        "project_metadata": [
+          "updated_at"
+        ],
+        "node_fingerprints": [
+          "ref"
+        ]
+      },
+      "snapshotExcluded": [
+        "indexedAt",
+        "lastSuccessfulIndexAt"
+      ],
+      "ftsQueries": [
+        {
+          "query": "graph",
+          "nodeResults": 30,
+          "sourceResults": 30,
+          "normalizedResultSha256": "3e3adc420981adb786d15ddaac5f6dc27dbe4a217628ed1af011248f7ee55063"
+        },
+        {
+          "query": "compiler",
+          "nodeResults": 30,
+          "sourceResults": 30,
+          "normalizedResultSha256": "5d9c548e91281e9f77365dbccb4fbf0a27407c2bba22bb13092b13756b5bf6da"
+        },
+        {
+          "query": "relay",
+          "nodeResults": 30,
+          "sourceResults": 30,
+          "normalizedResultSha256": "b26f68daf1dfdc46325b2e4ba04c5c5394ed43acaa4f68db61fec5fdd2edb4ab"
+        },
+        {
+          "query": "fingerprint",
+          "nodeResults": 30,
+          "sourceResults": 30,
+          "normalizedResultSha256": "64562514151f05b4041b10e92ceba19735188e8baa0beafa1fdc14261585976b"
+        }
+      ],
+      "checks": {
+        "final-baseline": {
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "foreignKeyViolations": []
+        },
+        "final-production": {
+          "quickCheck": [
+            {
+              "quick_check": "ok"
+            }
+          ],
+          "foreignKeyViolations": []
+        }
+      }
+    }
+  },
+  "actualHub": {
+    "schemaVersion": 1,
+    "probe": "mex-actual-hub-responsiveness",
+    "generatedAt": "2026-09-08T22:05:08.938Z",
+    "environment": {
+      "node": "v22.17.1",
+      "sqlite": "3.50.0",
+      "platform": "darwin",
+      "arch": "arm64"
+    },
+    "measurement": {
+      "pollIntervalMs": 100,
+      "maxOutstandingPerRoute": 1,
+      "httpTimeoutMs": 10000,
+      "jobDeadlineMs": 180000,
+      "totalGuardMs": 300000,
+      "scope": "Hub and observed descendants",
+      "rss": "sum of concurrent resident sets; shared pages may be counted twice",
+      "cpu": "observed process lifetime deltas; exited final CPU and short-lived children can be missed",
+      "phaseAttribution": "Client-observed job phases. Outstanding request intervals survive phase changes. A blocked Hub can delay phase observation; start/end phase and overlapping observed phases do not establish exact internal phase timing."
+    },
+    "checks": {
+      "beforeRefreshStale": true,
+      "successPublishedDifferentGraph": true,
+      "completedRefreshFresh": true,
+      "secondEditStale": true,
+      "cancelledChildCleanup": true,
+      "cancelPreservedLiveGraph": true,
+      "cancelledSourceRemainsStale": true,
+      "cancelLeftNoCandidateFiles": true
+    },
+    "runs": [
+      {
+        "kind": "changed_refresh_complete",
+        "elapsedMs": 92106.517,
+        "terminalState": "succeeded",
+        "cancelledDuringObservedParse": false,
+        "phases": [
+          {
+            "phase": "queued",
+            "atMs": 0,
+            "pendingRequests": 0,
+            "oldestPendingMs": 0
+          },
+          {
+            "phase": "running",
+            "atMs": 3655.682,
+            "pendingRequests": 1,
+            "oldestPendingMs": 6.501
+          },
+          {
+            "phase": "stage",
+            "atMs": 8424.315,
+            "pendingRequests": 1,
+            "oldestPendingMs": 4673.206
+          },
+          {
+            "phase": "parse",
+            "atMs": 9696.769,
+            "pendingRequests": 1,
+            "oldestPendingMs": 2.637
+          },
+          {
+            "phase": "resolve",
+            "atMs": 57382.893,
+            "pendingRequests": 1,
+            "oldestPendingMs": 2.052
+          },
+          {
+            "phase": "validate",
+            "atMs": 80937.995,
+            "pendingRequests": 1,
+            "oldestPendingMs": 99.001
+          },
+          {
+            "phase": "publish",
+            "atMs": 88190.874,
+            "pendingRequests": 1,
+            "oldestPendingMs": 2818.593
+          },
+          {
+            "phase": "complete",
+            "atMs": 92088.212,
+            "pendingRequests": 1,
+            "oldestPendingMs": 73.151
+          }
+        ],
+        "resources": {
+          "peakRssBytes": 2058682368,
+          "cpuMs": 110340,
+          "maxProcesses": 2,
+          "finalProcesses": 1
+        },
+        "http": {
+          "requests": 1455,
+          "failures": 0,
+          "pendingAfterDrain": 0,
+          "skippedTicks": {
+            "session": 152,
+            "job": 152,
+            "create": 0,
+            "cancel": 0
+          },
+          "httpStatuses": {
+            "200": 1454,
+            "202": 1
+          },
+          "failureCodes": {},
+          "overall": {
+            "session": {
+              "count": 727,
+              "p95Ms": 2.796,
+              "maxMs": 4673.005
+            },
+            "job": {
+              "count": 727,
+              "p95Ms": 3.944,
+              "maxMs": 4673.211
+            },
+            "create": {
+              "count": 1,
+              "p95Ms": 3642.652,
+              "maxMs": 3642.652
+            },
+            "cancel": {
+              "count": 0,
+              "p95Ms": null,
+              "maxMs": null
+            }
+          },
+          "byStartPhase": {
+            "queued": {
+              "session": {
+                "count": 1,
+                "p95Ms": 4.122,
+                "maxMs": 4.122
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 6.54,
+                "maxMs": 6.54
+              },
+              "create": {
+                "count": 1,
+                "p95Ms": 3642.652,
+                "maxMs": 3642.652
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "running": {
+              "session": {
+                "count": 1,
+                "p95Ms": 4673.005,
+                "maxMs": 4673.005
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 4673.211,
+                "maxMs": 4673.211
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "stage": {
+              "session": {
+                "count": 13,
+                "p95Ms": 3.872,
+                "maxMs": 3.872
+              },
+              "job": {
+                "count": 13,
+                "p95Ms": 3.675,
+                "maxMs": 3.675
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "parse": {
+              "session": {
+                "count": 474,
+                "p95Ms": 2.826,
+                "maxMs": 6.984
+              },
+              "job": {
+                "count": 474,
+                "p95Ms": 3.935,
+                "maxMs": 19.934
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "resolve": {
+              "session": {
+                "count": 233,
+                "p95Ms": 1.6,
+                "maxMs": 98.375
+              },
+              "job": {
+                "count": 233,
+                "p95Ms": 3.755,
+                "maxMs": 99.128
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "validate": {
+              "session": {
+                "count": 3,
+                "p95Ms": 4270.511,
+                "maxMs": 4270.511
+              },
+              "job": {
+                "count": 3,
+                "p95Ms": 4271.106,
+                "maxMs": 4271.106
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "publish": {
+              "session": {
+                "count": 2,
+                "p95Ms": 3636.542,
+                "maxMs": 3636.542
+              },
+              "job": {
+                "count": 2,
+                "p95Ms": 3637.615,
+                "maxMs": 3637.615
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "complete": {
+              "session": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "job": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            }
+          },
+          "byOverlappedPhase": {
+            "queued": {
+              "session": {
+                "count": 1,
+                "p95Ms": 4.122,
+                "maxMs": 4.122
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 6.54,
+                "maxMs": 6.54
+              },
+              "create": {
+                "count": 1,
+                "p95Ms": 3642.652,
+                "maxMs": 3642.652
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "running": {
+              "session": {
+                "count": 1,
+                "p95Ms": 4673.005,
+                "maxMs": 4673.005
+              },
+              "job": {
+                "count": 2,
+                "p95Ms": 4673.211,
+                "maxMs": 4673.211
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "stage": {
+              "session": {
+                "count": 13,
+                "p95Ms": 3.872,
+                "maxMs": 3.872
+              },
+              "job": {
+                "count": 14,
+                "p95Ms": 4673.211,
+                "maxMs": 4673.211
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "parse": {
+              "session": {
+                "count": 474,
+                "p95Ms": 2.826,
+                "maxMs": 6.984
+              },
+              "job": {
+                "count": 475,
+                "p95Ms": 3.935,
+                "maxMs": 19.934
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "resolve": {
+              "session": {
+                "count": 233,
+                "p95Ms": 1.6,
+                "maxMs": 98.375
+              },
+              "job": {
+                "count": 234,
+                "p95Ms": 3.755,
+                "maxMs": 99.128
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "validate": {
+              "session": {
+                "count": 3,
+                "p95Ms": 4270.511,
+                "maxMs": 4270.511
+              },
+              "job": {
+                "count": 4,
+                "p95Ms": 4271.106,
+                "maxMs": 4271.106
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "publish": {
+              "session": {
+                "count": 2,
+                "p95Ms": 3636.542,
+                "maxMs": 3636.542
+              },
+              "job": {
+                "count": 3,
+                "p95Ms": 3637.615,
+                "maxMs": 3637.615
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "complete": {
+              "session": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 73.189,
+                "maxMs": 73.189
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            }
+          },
+          "slowestRequests": [
+            {
+              "kind": "job",
+              "startMs": 3751.109,
+              "phaseAtStart": "running",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 8424.32,
+              "phaseAtEnd": "stage",
+              "latencyMs": 4673.211,
+              "observedPhasesOverlapped": [
+                "running",
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 3750.591,
+              "phaseAtStart": "running",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 8423.596,
+              "phaseAtEnd": "running",
+              "latencyMs": 4673.005,
+              "observedPhasesOverlapped": [
+                "running"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 81040.688,
+              "phaseAtStart": "validate",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 85311.794,
+              "phaseAtEnd": "validate",
+              "latencyMs": 4271.106,
+              "observedPhasesOverlapped": [
+                "validate"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 81040.484,
+              "phaseAtStart": "validate",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 85310.995,
+              "phaseAtEnd": "validate",
+              "latencyMs": 4270.511,
+              "observedPhasesOverlapped": [
+                "validate"
+              ]
+            },
+            {
+              "kind": "create",
+              "startMs": 5.979,
+              "phaseAtStart": "queued",
+              "httpStatus": 202,
+              "ok": true,
+              "finishMs": 3648.631,
+              "phaseAtEnd": "queued",
+              "latencyMs": 3642.652,
+              "observedPhasesOverlapped": [
+                "queued"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 88287.587,
+              "phaseAtStart": "publish",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 91925.202,
+              "phaseAtEnd": "publish",
+              "latencyMs": 3637.615,
+              "observedPhasesOverlapped": [
+                "publish"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 88287.399,
+              "phaseAtStart": "publish",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 91923.941,
+              "phaseAtEnd": "publish",
+              "latencyMs": 3636.542,
+              "observedPhasesOverlapped": [
+                "publish"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 85372.281,
+              "phaseAtStart": "validate",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 88190.94,
+              "phaseAtEnd": "publish",
+              "latencyMs": 2818.659,
+              "observedPhasesOverlapped": [
+                "validate",
+                "publish"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 85371.967,
+              "phaseAtStart": "validate",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 88190.049,
+              "phaseAtEnd": "validate",
+              "latencyMs": 2818.082,
+              "observedPhasesOverlapped": [
+                "validate"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 80838.994,
+              "phaseAtStart": "resolve",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 80938.122,
+              "phaseAtEnd": "validate",
+              "latencyMs": 99.128,
+              "observedPhasesOverlapped": [
+                "resolve",
+                "validate"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 80838.761,
+              "phaseAtStart": "resolve",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 80937.136,
+              "phaseAtEnd": "resolve",
+              "latencyMs": 98.375,
+              "observedPhasesOverlapped": [
+                "resolve"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 92015.061,
+              "phaseAtStart": "publish",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 92088.25,
+              "phaseAtEnd": "complete",
+              "latencyMs": 73.189,
+              "observedPhasesOverlapped": [
+                "publish",
+                "complete"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 92014.616,
+              "phaseAtStart": "publish",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 92087.637,
+              "phaseAtEnd": "publish",
+              "latencyMs": 73.021,
+              "observedPhasesOverlapped": [
+                "publish"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 28304.58,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 28324.514,
+              "phaseAtEnd": "parse",
+              "latencyMs": 19.934,
+              "observedPhasesOverlapped": [
+                "parse"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 28406.113,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 28420.848,
+              "phaseAtEnd": "parse",
+              "latencyMs": 14.735,
+              "observedPhasesOverlapped": [
+                "parse"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 80134.382,
+              "phaseAtStart": "resolve",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 80145.929,
+              "phaseAtEnd": "resolve",
+              "latencyMs": 11.547,
+              "observedPhasesOverlapped": [
+                "resolve"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 62629.201,
+              "phaseAtStart": "resolve",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 62638.383,
+              "phaseAtEnd": "resolve",
+              "latencyMs": 9.182,
+              "observedPhasesOverlapped": [
+                "resolve"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 64135.616,
+              "phaseAtStart": "resolve",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 64142.928,
+              "phaseAtEnd": "resolve",
+              "latencyMs": 7.312,
+              "observedPhasesOverlapped": [
+                "resolve"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 28405.688,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 28412.672,
+              "phaseAtEnd": "parse",
+              "latencyMs": 6.984,
+              "observedPhasesOverlapped": [
+                "parse"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 3649.181,
+              "phaseAtStart": "queued",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 3655.721,
+              "phaseAtEnd": "running",
+              "latencyMs": 6.54,
+              "observedPhasesOverlapped": [
+                "queued",
+                "running"
+              ]
+            }
+          ]
+        },
+        "resourcePhases": {
+          "running": {
+            "samples": 48,
+            "peakRssBytes": 404652032,
+            "maxProcesses": 2,
+            "finalProcesses": 1
+          },
+          "stage": {
+            "samples": 12,
+            "peakRssBytes": 541917184,
+            "maxProcesses": 2,
+            "finalProcesses": 2
+          },
+          "parse": {
+            "samples": 474,
+            "peakRssBytes": 1976205312,
+            "maxProcesses": 2,
+            "finalProcesses": 2
+          },
+          "resolve": {
+            "samples": 234,
+            "peakRssBytes": 2058682368,
+            "maxProcesses": 2,
+            "finalProcesses": 1
+          },
+          "validate": {
+            "samples": 73,
+            "peakRssBytes": 267010048,
+            "maxProcesses": 1,
+            "finalProcesses": 1
+          },
+          "publish": {
+            "samples": 38,
+            "peakRssBytes": 335282176,
+            "maxProcesses": 1,
+            "finalProcesses": 1
+          }
+        }
+      },
+      {
+        "kind": "changed_refresh_cancel",
+        "elapsedMs": 11232.437,
+        "terminalState": "interrupted",
+        "interruptedReason": "user_cancelled",
+        "cancelledDuringObservedParse": true,
+        "cancelRequestedAtMs": 10715.349,
+        "stateAt500MsGrace": "interrupted",
+        "phases": [
+          {
+            "phase": "queued",
+            "atMs": 0,
+            "pendingRequests": 0,
+            "oldestPendingMs": 0
+          },
+          {
+            "phase": "running",
+            "atMs": 4478.008,
+            "pendingRequests": 1,
+            "oldestPendingMs": 4.963
+          },
+          {
+            "phase": "stage",
+            "atMs": 9812.965,
+            "pendingRequests": 1,
+            "oldestPendingMs": 5238.366
+          },
+          {
+            "phase": "parse",
+            "atMs": 10715.343,
+            "pendingRequests": 1,
+            "oldestPendingMs": 4.084
+          },
+          {
+            "phase": "interrupted",
+            "atMs": 10850.947,
+            "pendingRequests": 1,
+            "oldestPendingMs": 38.799
+          }
+        ],
+        "resources": {
+          "peakRssBytes": 608321536,
+          "cpuMs": 10350,
+          "maxProcesses": 2,
+          "finalProcesses": 1
+        },
+        "http": {
+          "requests": 34,
+          "failures": 0,
+          "pendingAfterDrain": 0,
+          "skippedTicks": {
+            "session": 52,
+            "job": 52,
+            "create": 0,
+            "cancel": 0
+          },
+          "httpStatuses": {
+            "200": 33,
+            "202": 1
+          },
+          "failureCodes": {},
+          "overall": {
+            "session": {
+              "count": 16,
+              "p95Ms": 5236.74,
+              "maxMs": 5236.74
+            },
+            "job": {
+              "count": 16,
+              "p95Ms": 5238.374,
+              "maxMs": 5238.374
+            },
+            "create": {
+              "count": 1,
+              "p95Ms": 4457.835,
+              "maxMs": 4457.835
+            },
+            "cancel": {
+              "count": 1,
+              "p95Ms": 8.036,
+              "maxMs": 8.036
+            }
+          },
+          "byStartPhase": {
+            "queued": {
+              "session": {
+                "count": 1,
+                "p95Ms": 3.566,
+                "maxMs": 3.566
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 4.969,
+                "maxMs": 4.969
+              },
+              "create": {
+                "count": 1,
+                "p95Ms": 4457.835,
+                "maxMs": 4457.835
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "running": {
+              "session": {
+                "count": 1,
+                "p95Ms": 5236.74,
+                "maxMs": 5236.74
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 5238.374,
+                "maxMs": 5238.374
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "stage": {
+              "session": {
+                "count": 9,
+                "p95Ms": 4.108,
+                "maxMs": 4.108
+              },
+              "job": {
+                "count": 9,
+                "p95Ms": 4.333,
+                "maxMs": 4.333
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "parse": {
+              "session": {
+                "count": 1,
+                "p95Ms": 38.79,
+                "maxMs": 38.79
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 38.803,
+                "maxMs": 38.803
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 1,
+                "p95Ms": 8.036,
+                "maxMs": 8.036
+              }
+            },
+            "interrupted": {
+              "session": {
+                "count": 4,
+                "p95Ms": 4.293,
+                "maxMs": 4.293
+              },
+              "job": {
+                "count": 4,
+                "p95Ms": 4.276,
+                "maxMs": 4.276
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            }
+          },
+          "byOverlappedPhase": {
+            "queued": {
+              "session": {
+                "count": 1,
+                "p95Ms": 3.566,
+                "maxMs": 3.566
+              },
+              "job": {
+                "count": 1,
+                "p95Ms": 4.969,
+                "maxMs": 4.969
+              },
+              "create": {
+                "count": 1,
+                "p95Ms": 4457.835,
+                "maxMs": 4457.835
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "running": {
+              "session": {
+                "count": 1,
+                "p95Ms": 5236.74,
+                "maxMs": 5236.74
+              },
+              "job": {
+                "count": 2,
+                "p95Ms": 5238.374,
+                "maxMs": 5238.374
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "stage": {
+              "session": {
+                "count": 9,
+                "p95Ms": 4.108,
+                "maxMs": 4.108
+              },
+              "job": {
+                "count": 10,
+                "p95Ms": 5238.374,
+                "maxMs": 5238.374
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            },
+            "parse": {
+              "session": {
+                "count": 1,
+                "p95Ms": 38.79,
+                "maxMs": 38.79
+              },
+              "job": {
+                "count": 2,
+                "p95Ms": 38.803,
+                "maxMs": 38.803
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 1,
+                "p95Ms": 8.036,
+                "maxMs": 8.036
+              }
+            },
+            "interrupted": {
+              "session": {
+                "count": 4,
+                "p95Ms": 4.293,
+                "maxMs": 4.293
+              },
+              "job": {
+                "count": 5,
+                "p95Ms": 38.803,
+                "maxMs": 38.803
+              },
+              "create": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              },
+              "cancel": {
+                "count": 0,
+                "p95Ms": null,
+                "maxMs": null
+              }
+            }
+          },
+          "slowestRequests": [
+            {
+              "kind": "job",
+              "startMs": 4574.599,
+              "phaseAtStart": "running",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 9812.973,
+              "phaseAtEnd": "stage",
+              "latencyMs": 5238.374,
+              "observedPhasesOverlapped": [
+                "running",
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 4574.324,
+              "phaseAtStart": "running",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 9811.064,
+              "phaseAtEnd": "running",
+              "latencyMs": 5236.74,
+              "observedPhasesOverlapped": [
+                "running"
+              ]
+            },
+            {
+              "kind": "create",
+              "startMs": 15.015,
+              "phaseAtStart": "queued",
+              "httpStatus": 202,
+              "ok": true,
+              "finishMs": 4472.85,
+              "phaseAtEnd": "queued",
+              "latencyMs": 4457.835,
+              "observedPhasesOverlapped": [
+                "queued"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 10812.148,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10850.951,
+              "phaseAtEnd": "interrupted",
+              "latencyMs": 38.803,
+              "observedPhasesOverlapped": [
+                "parse",
+                "interrupted"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10811.585,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10850.375,
+              "phaseAtEnd": "parse",
+              "latencyMs": 38.79,
+              "observedPhasesOverlapped": [
+                "parse"
+              ]
+            },
+            {
+              "kind": "cancel",
+              "startMs": 10715.355,
+              "phaseAtStart": "parse",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10723.391,
+              "phaseAtEnd": "parse",
+              "latencyMs": 8.036,
+              "observedPhasesOverlapped": [
+                "parse"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 4473.045,
+              "phaseAtStart": "queued",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 4478.014,
+              "phaseAtEnd": "running",
+              "latencyMs": 4.969,
+              "observedPhasesOverlapped": [
+                "queued",
+                "running"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 10711.259,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10715.592,
+              "phaseAtEnd": "parse",
+              "latencyMs": 4.333,
+              "observedPhasesOverlapped": [
+                "stage",
+                "parse"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 11213.377,
+              "phaseAtStart": "interrupted",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 11217.67,
+              "phaseAtEnd": "interrupted",
+              "latencyMs": 4.293,
+              "observedPhasesOverlapped": [
+                "interrupted"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 11213.749,
+              "phaseAtStart": "interrupted",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 11218.025,
+              "phaseAtEnd": "interrupted",
+              "latencyMs": 4.276,
+              "observedPhasesOverlapped": [
+                "interrupted"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10711.059,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10715.167,
+              "phaseAtEnd": "stage",
+              "latencyMs": 4.108,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 10309.264,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10313.213,
+              "phaseAtEnd": "stage",
+              "latencyMs": 3.949,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10308.813,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10312.744,
+              "phaseAtEnd": "stage",
+              "latencyMs": 3.931,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 4472.858,
+              "phaseAtStart": "queued",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 4476.424,
+              "phaseAtEnd": "queued",
+              "latencyMs": 3.566,
+              "observedPhasesOverlapped": [
+                "queued"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10510.483,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10513.782,
+              "phaseAtEnd": "stage",
+              "latencyMs": 3.299,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 10510.714,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10513.981,
+              "phaseAtEnd": "stage",
+              "latencyMs": 3.267,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10108.567,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10111.251,
+              "phaseAtEnd": "stage",
+              "latencyMs": 2.684,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "job",
+              "startMs": 10108.802,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10111.379,
+              "phaseAtEnd": "stage",
+              "latencyMs": 2.577,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 10207.996,
+              "phaseAtStart": "stage",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 10210.528,
+              "phaseAtEnd": "stage",
+              "latencyMs": 2.532,
+              "observedPhasesOverlapped": [
+                "stage"
+              ]
+            },
+            {
+              "kind": "session",
+              "startMs": 11113.506,
+              "phaseAtStart": "interrupted",
+              "httpStatus": 200,
+              "ok": true,
+              "finishMs": 11116.023,
+              "phaseAtEnd": "interrupted",
+              "latencyMs": 2.517,
+              "observedPhasesOverlapped": [
+                "interrupted"
+              ]
+            }
+          ]
+        },
+        "resourcePhases": {
+          "running": {
+            "samples": 53,
+            "peakRssBytes": 400998400,
+            "maxProcesses": 2,
+            "finalProcesses": 1
+          },
+          "stage": {
+            "samples": 9,
+            "peakRssBytes": 588414976,
+            "maxProcesses": 2,
+            "finalProcesses": 2
+          },
+          "parse": {
+            "samples": 2,
+            "peakRssBytes": 608321536,
+            "maxProcesses": 2,
+            "finalProcesses": 1
+          },
+          "interrupted": {
+            "samples": 4,
+            "peakRssBytes": 394608640,
+            "maxProcesses": 1,
+            "finalProcesses": 1
+          }
+        }
+      }
+    ],
+    "outcome": "passed",
+    "cliSha256": "cad49214c1e692a5641a38a5503ba7005bfdce927afb14a2e4b39a71135e8fd8",
+    "graphBefore": "0b6dd1f8e161f19e4a15111f125a83d2245f01c01e791f21e38f2c8a4a61af41",
+    "graphAfterCompleted": "3ba85d808f01bbffce5bf568b7735c49cc162380ba0f154d284cb92c6b06eb9b",
+    "cancelCleanupMs": 244.785,
+    "graphAfterCancelled": "3ba85d808f01bbffce5bf568b7735c49cc162380ba0f154d284cb92c6b06eb9b",
+    "cancelledGraphStatus": {
+      "indexStatus": "stale",
+      "changes": 1,
+      "parseTotal": 723,
+      "parseFailed": 0
+    },
+    "aggregateResources": {
+      "rssBytes": 394297344,
+      "peakRssBytes": 2058682368,
+      "cpuMs": 135770,
+      "maxProcesses": 2,
+      "sampleCount": 1319
+    },
+    "hubStopped": true,
+    "elapsedMs": 119951.455
+  },
+  "repeatedEngineCharacterization": {
+    "schemaVersion": 1,
+    "benchmark": "mex-graph-characterization",
+    "generatedAt": "2026-09-08T22:22:11.897Z",
+    "environment": {
+      "node": "v22.17.1",
+      "sqlite": "3.50.0",
+      "v8": "12.4.254.21-node.27",
+      "platform": "darwin",
+      "arch": "arm64"
+    },
+    "workerBundleSha256": "1bff351b210a98339d416ff6abaa3e0da72610fa358d2969784871e1491442f3",
+    "fixture": {
+      "mutableSource": "packages/p0/module-0.ts",
+      "digest": "51b2557891202bc2b10d9e61cf93fa051ad0287a08d1be6888096bc00f875c4a",
+      "inputBytes": 465529,
+      "sourceFiles": 180,
+      "projects": 4,
+      "configFiles": 5,
+      "functionsPerFile": 12,
+      "inferredFiles": 20,
+      "dependencyDeclarations": 128,
+      "largeBodyLines": 4096
+    },
+    "measurement": {
+      "scope": "engine-worker-and-descendants",
+      "rss": "sum-of-resident-sets-in-one-sample",
+      "cpu": "observed-process-lifetime-deltas",
+      "intervalMs": 100,
+      "limitation": "Shared pages may be counted twice; short-lived children and final CPU between samples may be missed.",
+      "engineOnly": true,
+      "forcedGcAfterClose": 3,
+      "note": "Characterization only. Five operations share one process. CPU/RSS sampling is separate from post-GC retained memory; no laptop-derived release budgets."
+    },
+    "samples": [
+      {
+        "mode": "build",
+        "elapsedMs": 2234.6207080000004,
+        "cpuMs": 4422.221,
+        "result": {
+          "filesIndexed": 180,
+          "nodesCreated": 2120,
+          "edgesCreated": 4047,
+          "health": {
+            "ok": 180,
+            "partial": 0,
+            "failed": 0
+          },
+          "durationMs": 2227
+        },
+        "returnMemory": {
+          "rss": 502366208,
+          "heapTotal": 189759488,
+          "heapUsed": 65053568,
+          "external": 36811249,
+          "arrayBuffers": 1103922
+        },
+        "postGcMemory": {
+          "rss": 502153216,
+          "heapTotal": 80740352,
+          "heapUsed": 42033784,
+          "external": 35790381,
+          "arrayBuffers": 83014
+        },
+        "aggregate": {
+          "rssBytes": 502153216,
+          "peakRssBytes": 515850240,
+          "cpuMs": 4510,
+          "maxProcesses": 1,
+          "sampleCount": 30
+        }
+      },
+      {
+        "mode": "unchanged",
+        "elapsedMs": 36.687167000000045,
+        "cpuMs": 57.063,
+        "result": {
+          "filesIndexed": 0,
+          "nodesCreated": 0,
+          "edgesCreated": 0,
+          "durationMs": 36
+        },
+        "returnMemory": {
+          "rss": 502185984,
+          "heapTotal": 80740352,
+          "heapUsed": 44131016,
+          "external": 35793474,
+          "arrayBuffers": 83035
+        },
+        "postGcMemory": {
+          "rss": 502185984,
+          "heapTotal": 80740352,
+          "heapUsed": 42080280,
+          "external": 35790381,
+          "arrayBuffers": 83014
+        },
+        "aggregate": {
+          "rssBytes": 502185984,
+          "peakRssBytes": 502185984,
+          "cpuMs": 120,
+          "maxProcesses": 1,
+          "sampleCount": 3
+        }
+      },
+      {
+        "mode": "changed",
+        "elapsedMs": 1995.9336249999997,
+        "cpuMs": 3894.464,
+        "result": {
+          "filesIndexed": 180,
+          "nodesCreated": 2120,
+          "edgesCreated": 4047,
+          "health": {
+            "ok": 180,
+            "partial": 0,
+            "failed": 0
+          },
+          "durationMs": 1990
+        },
+        "returnMemory": {
+          "rss": 509165568,
+          "heapTotal": 352452608,
+          "heapUsed": 318783736,
+          "external": 36411852,
+          "arrayBuffers": 704485
+        },
+        "postGcMemory": {
+          "rss": 489357312,
+          "heapTotal": 81641472,
+          "heapUsed": 43705904,
+          "external": 35790381,
+          "arrayBuffers": 83014
+        },
+        "aggregate": {
+          "rssBytes": 489357312,
+          "peakRssBytes": 534216704,
+          "cpuMs": 3960,
+          "maxProcesses": 1,
+          "sampleCount": 26
+        }
+      },
+      {
+        "mode": "unchanged",
+        "elapsedMs": 31.94133299999976,
+        "cpuMs": 51.422,
+        "result": {
+          "filesIndexed": 0,
+          "nodesCreated": 0,
+          "edgesCreated": 0,
+          "durationMs": 32
+        },
+        "returnMemory": {
+          "rss": 489422848,
+          "heapTotal": 81641472,
+          "heapUsed": 45694072,
+          "external": 35793474,
+          "arrayBuffers": 83035
+        },
+        "postGcMemory": {
+          "rss": 489078784,
+          "heapTotal": 81575936,
+          "heapUsed": 43407048,
+          "external": 35790381,
+          "arrayBuffers": 83014
+        },
+        "aggregate": {
+          "rssBytes": 489078784,
+          "peakRssBytes": 489357312,
+          "cpuMs": 120,
+          "maxProcesses": 1,
+          "sampleCount": 3
+        }
+      },
+      {
+        "mode": "changed",
+        "elapsedMs": 2007.5755,
+        "cpuMs": 3928.895,
+        "result": {
+          "filesIndexed": 180,
+          "nodesCreated": 2120,
+          "edgesCreated": 4047,
+          "health": {
+            "ok": 180,
+            "partial": 0,
+            "failed": 0
+          },
+          "durationMs": 2000
+        },
+        "returnMemory": {
+          "rss": 521142272,
+          "heapTotal": 418152448,
+          "heapUsed": 378976544,
+          "external": 36186882,
+          "arrayBuffers": 483141
+        },
+        "postGcMemory": {
+          "rss": 493256704,
+          "heapTotal": 81690624,
+          "heapUsed": 42033976,
+          "external": 35786755,
+          "arrayBuffers": 83014
+        },
+        "aggregate": {
+          "rssBytes": 493256704,
+          "peakRssBytes": 521109504,
+          "cpuMs": 4000,
+          "maxProcesses": 1,
+          "sampleCount": 26
+        }
+      }
+    ]
+  }
+}

@@ -94,6 +94,47 @@ describe("extractClaims — paths", () => {
     expect(paths).toHaveLength(0);
   });
 
+  it("skips non-path inline code values", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Notes\n\n" +
+        "The cluster subnet is `192.168.5.0/24`. " +
+        "The ArgoCD annotation `argocd.argoproj.io/sync-wave` controls ordering. " +
+        "Use `sudo ls /var/lib/kubelet/plugins_registry/` to inspect plugins. " +
+        "YAML files can use `.yaml` or `.yml`."
+    );
+    const claims = extractClaims(path, "test.md");
+    const paths = claims.filter((c) => c.kind === "path");
+    expect(paths).toHaveLength(0);
+  });
+
+  it("skips runtime, glob, and command-shaped values", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Notes\n\n" +
+        "Transcripts live in `~/.claude/projects`. " +
+        "Backups match `.mex/graph.db*`. " +
+        "Dev runs `nodemon src/index.ts`. " +
+        "A doubled call passes `api/...` to the helper."
+    );
+    const claims = extractClaims(path, "test.md");
+    expect(claims.filter((c) => c.kind === "path")).toHaveLength(0);
+  });
+
+  it("still extracts hidden-directory paths that a dotted key would swallow", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Notes\n\n" +
+        "Ownership lives in `.github/CODEOWNERS` and CI in `.github/workflows`. " +
+        "The scaffold anchor is `.mex/ROUTER.md`."
+    );
+    const claims = extractClaims(path, "test.md");
+    const paths = claims.filter((c) => c.kind === "path").map((c) => c.value);
+    expect(paths).toContain(".github/CODEOWNERS");
+    expect(paths).toContain(".github/workflows");
+    expect(paths).toContain(".mex/ROUTER.md");
+  });
+
   it("extracts bare filenames as path claims", () => {
     const path = writeFixture(
       "test.md",
@@ -198,6 +239,70 @@ describe("extractClaims — dependencies", () => {
     expect(versions).toHaveLength(2);
     expect(versions.map((v) => v.value)).toContain("React 18");
     expect(versions.map((v) => v.value)).toContain("Node v20");
+  });
+
+  it("claims the packages named in code inside a bold dependency entry", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Key Libraries\n\n" +
+        "- **`@xyflow/react` + `dagre`** — mind-map rendering and auto-layout\n" +
+        "- **Radix UI + `class-variance-authority` + `tailwind-merge`** — primitives"
+    );
+    const claims = extractClaims(path, "test.md");
+    const deps = claims.filter((c) => c.kind === "dependency").map((d) => d.value);
+    expect(deps).toEqual([
+      "@xyflow/react",
+      "dagre",
+      "class-variance-authority",
+      "tailwind-merge",
+    ]);
+  });
+
+  it("does not claim a prose description as a dependency", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Core Technologies\n\n" +
+        "- **Supabase (Postgres + Auth)** — single datastore and identity provider\n" +
+        "- **Express 4.21 on Node** — the API server\n" +
+        "- **GitHub public REST API** — unauthenticated fetches"
+    );
+    const claims = extractClaims(path, "test.md");
+    const deps = claims.filter((c) => c.kind === "dependency");
+    expect(deps).toHaveLength(0);
+  });
+
+  it("ignores bold emphasis inside a list item's prose", () => {
+    const path = writeFixture(
+      "test.md",
+      "# External Dependencies\n\n" +
+        "- **Groq (`groq-sdk`)** — completions; the backend uses the **service-role** key"
+    );
+    const claims = extractClaims(path, "test.md");
+    const deps = claims.filter((c) => c.kind === "dependency").map((d) => d.value);
+    expect(deps).toEqual(["groq-sdk"]);
+  });
+
+  it("does not treat a package named in a dependency entry as a path", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Key Libraries\n\n- **YouTube via `youtubei.js`** — transcript retrieval"
+    );
+    const claims = extractClaims(path, "test.md");
+    expect(claims.filter((c) => c.kind === "path")).toHaveLength(0);
+    expect(claims.filter((c) => c.kind === "dependency").map((d) => d.value)).toEqual([
+      "youtubei.js",
+    ]);
+  });
+
+  it("still claims a real path written in a non-dependency section", () => {
+    const path = writeFixture(
+      "test.md",
+      "# Architecture\n\n- **Entry point** — `src/index.ts` boots the server"
+    );
+    const claims = extractClaims(path, "test.md");
+    expect(claims.filter((c) => c.kind === "path").map((c) => c.value)).toEqual([
+      "src/index.ts",
+    ]);
   });
 
   it("ignores bold text outside dependency sections", () => {

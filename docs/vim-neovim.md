@@ -11,7 +11,12 @@ Run Claude Code directly inside Neovim. This is the path with the least setup â€
 :term claude
 ```
 
-Claude Code reads `CLAUDE.md` from the project root, so mex's instructions are applied without any plugin configuration. Run `mex setup` (option 1) once to create `CLAUDE.md`, and you're done.
+Claude Code reads `CLAUDE.md` and project skills from the repository. Run
+`mex setup` (option 1) once to add MEX's managed instruction block and copy the
+official `mex-inbox` and `mex-relay` skills into `.claude/skills/`; no separate
+plugin or skill installer is needed. Start a new Claude Code session afterward,
+then invoke them as `/mex-inbox` and `/mex-relay` or with a clear natural-language
+request. After a package upgrade, use `mex skills sync` to receive updated copies.
 
 ## 2. Avante.nvim
 
@@ -33,10 +38,10 @@ Run `mex setup` with option 8 (None / other) â€” this keeps `.mex/` populated wi
 
 ## 3. Copilot.vim / copilot.lua
 
-GitHub Copilot for Neovim reads `.github/copilot-instructions.md` automatically. mex already supports this via `setup.sh` option 4:
+GitHub Copilot for Neovim reads `.github/copilot-instructions.md` automatically. mex supports this through setup option 4:
 
 ```bash
-./setup.sh
+mex setup
 # Choose option 4 when prompted
 ```
 

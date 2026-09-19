@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "id": "mex-graph-branch-comparison",
+  "description": "Pinned, reproducible comparison of main and the two existing graph-retrieval experiments.",
+  "subject": { "name": "mex", "requireClean": false },
+  "determinismRebuilds": 2,
+  "systems": {
+    "main": {
+      "role": "baseline",
+      "label": "main",
+      "buildFromGit": {
+        "root": "{harnessRoot}",
+        "revision": "main",
+        "commands": [["npm", "run", "build"]],
+        "cli": "dist/cli.js",
+        "shareNodeModules": true
+      }
+    },
+    "retrieval": {
+      "role": "candidate",
+      "label": "feat/code-graph-retrieval",
+      "buildFromGit": {
+        "root": "{harnessRoot}",
+        "revision": "feat/code-graph-retrieval",
+        "commands": [["npm", "run", "build"]],
+        "cli": "dist/cli.js",
+        "shareNodeModules": true
+      }
+    },
+    "symbol_lookup": {
+      "role": "experiment",
+      "label": "origin/fix/graph-symbol-lookup",
+      "buildFromGit": {
+        "root": "{harnessRoot}",
+        "revision": "origin/fix/graph-symbol-lookup",
+        "commands": [["npm", "run", "build"]],
+        "cli": "dist/cli.js",
+        "shareNodeModules": true
+      }
+    }
+  },
+  "tasksFile": "./mex-tasks.json",
+  "gates": {
+    "systems": ["retrieval"],
+    "floors": { "budgetComplianceRate": 1 },
+    "ceilings": { "invalidRuns": 0, "prohibitedHitRate": 0 },
+    "noRegression": { "recallAt5": 0, "mrr": 0, "completeEvidenceRate": 0 },
+    "categoryNoRegression": {
+      "exact-symbol": { "recallAt5": 0, "mrr": 0 },
+      "natural-language-symbol": { "recallAt5": 0, "mrr": 0 },
+      "paraphrase": { "recallAt5": 0, "mrr": 0 },
+      "multi-symbol-flow": { "recallAt5": 0, "completeEvidenceRate": 0 },
+      "relationship-who-calls": { "recallAt5": 0 },
+      "relationship-what-calls": { "recallAt5": 0 },
+      "negative": { "negativeAccuracy": 0 }
+    },
+    "criticalNoRegression": true,
+    "integrityNoRegression": {
+      "extractedToStoredLoss": "lower",
+      "unresolvedCallRate": "lower",
+      "danglingEdges": "lower",
+      "duplicateFileKindName": "lower"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { checkHeartbeat } from "../src/heartbeat.js";
@@ -46,8 +46,98 @@ describe("heartbeat", () => {
     expect(result.memoryCleanupDue).toBe(true);
     expect(result.oldDailyMemoryFiles).toEqual(["memory/2026-04-20.md"]);
   });
+
+  it("reports zero participating files when no scaffold file opts into staleness (#41)", () => {
+    rmSync(join(tmpDir, ".mex/ROUTER.md"));
+    writeFileSync(join(tmpDir, ".mex/ROUTER.md"), "---\nname: router\n---\n\n# Router\n");
+    const result = checkHeartbeat(config, new Date("2026-05-14T00:00:00Z"));
+    expect(result.ok).toBe(true);
+    expect(result.filesWithoutLastUpdated).toBe(1);
+  });
+
+  it.each(["", "not-a-date", "[YYYY-MM-DD]"])("reports inactive staleness for invalid last_updated %j", (value) => {
+    writeFileSync(join(tmpDir, ".mex/ROUTER.md"), frontmatter("router", JSON.stringify(value)));
+    const result = checkHeartbeat(config, new Date("2026-05-14T00:00:00Z"));
+    expect(result.ok).toBe(true);
+    expect(result.staleFiles).toEqual([]);
+    expect(result.filesWithoutLastUpdated).toBe(1);
+  });
+
+  it("omits filesWithoutLastUpdated once any file opts in", () => {
+    writeFileSync(join(tmpDir, ".mex/context/architecture.md"), "---\nname: architecture\n---\n\nno date here\n");
+    const result = checkHeartbeat(config, new Date("2026-05-14T00:00:00Z"));
+    expect(result.filesWithoutLastUpdated).toBeUndefined();
+  });
+
+  it("keeps staleness active and the field absent when files carry dates", () => {
+    const result = checkHeartbeat(config, new Date("2026-05-14T00:00:00Z"));
+    expect(result.filesWithoutLastUpdated).toBeUndefined();
+    expect(result.staleFiles).toEqual([]);
+  });
 });
 
 function frontmatter(name: string, lastUpdated: string): string {
   return `---\nname: ${name}\nlast_updated: ${lastUpdated}\n---\n\n# ${name}\n`;
 }
+
+describe("zero-day heartbeat thresholds (#42)", () => {
+  let zeroTmp: string;
+  let zeroConfig: MexConfig;
+
+  beforeEach(() => {
+    zeroTmp = mkdtempSync(join(tmpdir(), "mex-heartbeat-zero-"));
+    mkdirSync(join(zeroTmp, ".mex/context"), { recursive: true });
+    zeroConfig = {
+      projectRoot: zeroTmp,
+      scaffoldRoot: join(zeroTmp, ".mex"),
+      aiTools: [],
+      heartbeat: { staleDays: 0, memoryCleanupDays: 0, dailyMemoryRetentionDays: 0 },
+    };
+  });
+
+  afterEach(() => {
+    rmSync(zeroTmp, { recursive: true, force: true });
+  });
+
+  it("flags a file dated yesterday as stale when staleDays is 0", () => {
+    writeFileSync(join(zeroTmp, ".mex/ROUTER.md"), frontmatter("router", "2026-05-13"));
+    const result = checkHeartbeat(zeroConfig, new Date("2026-05-14T00:00:00Z"));
+    expect(result.staleFiles.map((f) => f.file)).toContain("ROUTER.md");
+  });
+
+  it("does not flag a file dated today when staleDays is 0", () => {
+    writeFileSync(join(zeroTmp, ".mex/ROUTER.md"), frontmatter("router", "2026-05-14"));
+    const result = checkHeartbeat(zeroConfig, new Date("2026-05-14T00:00:00Z"));
+    expect(result.staleFiles).toEqual([]);
+    expect(result.ok).toBe(true);
+  });
+});
+
+describe("symlinked scaffold files (#40)", () => {
+  it("counts a file reached through two glob paths exactly once", (ctx) => {
+    const root = mkdtempSync(join(tmpdir(), "mex-heartbeat-symlink-"));
+    try {
+      mkdirSync(join(root, ".mex/context"), { recursive: true });
+      mkdirSync(join(root, ".mex/patterns"), { recursive: true });
+      const real = join(root, ".mex/context/architecture.md");
+      writeFileSync(real, frontmatter("architecture", "2026-05-01"));
+      try {
+        symlinkSync(real, join(root, ".mex/patterns/architecture.md"));
+      } catch (error) {
+        if (process.platform === "win32" && ["EPERM", "EACCES"].includes((error as NodeJS.ErrnoException).code ?? "")) {
+          ctx.skip("Symlink creation requires Windows privileges");
+          return;
+        }
+        throw error;
+      }
+      const result = checkHeartbeat({
+        projectRoot: root,
+        scaffoldRoot: join(root, ".mex"),
+        aiTools: [],
+      }, new Date("2026-05-14T00:00:00Z"));
+      expect(result.staleFiles).toEqual([{ file: "context/architecture.md", days: 13 }]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});

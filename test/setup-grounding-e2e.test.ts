@@ -1,15 +1,21 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildExistingNoBriefPrompt, buildExistingWithBriefPrompt } from "../src/setup/prompts.js";
+import {
+  buildExistingNoBriefPrompt,
+  buildExistingWithBriefPrompt,
+  buildFreshPrompt,
+} from "../src/setup/prompts.js";
 import { createGraphEngine } from "../src/graph/engine-impl.js";
 import { runGraphScope } from "../src/graph/cli-agent.js";
 import { deserializeFingerprint } from "../src/graph/fingerprint.js";
 import { extractGroundings, findMexAnchors, writeGroundings } from "../src/markdown.js";
 import { checkBrokenLinks } from "../src/drift/checkers/broken-link.js";
-import { runDriftCheck } from "../src/drift/index.js";
-import { captureGroundingBaselines, loadGroundingRuntime } from "../src/graph/runtime.js";
+import { runDriftCheckWithGraphStatus } from "../src/drift/index.js";
+import { captureGroundingBaselines, loadGroundingRuntime, previewGroundingBaseline } from "../src/graph/runtime.js";
+import { finalizeSetupWiki } from "../src/setup/wiki-finalize.js";
+import { finalizeCodeRepoSetup, SetupFinalizationError } from "../src/setup/index.js";
 
 const roots: string[] = [];
 
@@ -27,8 +33,48 @@ describe("setup graph-grounding population", () => {
       expect(prompt).toContain("Never ground every node returned by scope");
       expect(prompt).toContain("architecture/stack/conventions files should ground sparsely");
       expect(prompt).toContain("Pattern files and deep domain files should ground tightly");
+      expect(prompt).toContain("use that exact launcher consistently");
+      expect(prompt).toContain("node dist/cli.js");
+      expect(prompt).toContain("Treat substantive existing content as durable project knowledge");
+      expect(prompt).toContain("managed instruction blocks");
+      expect(prompt).toMatch(/every existing project pattern/iu);
+      expect(prompt).toMatch(/do not\s+duplicate, delete, or rename a pattern/iu);
+      expect(prompt).toContain("Edge targets are relative to the .mex/ scaffold root");
       expect(prompt).not.toContain("Read 2-3 representative files");
+      // Agents are told to retain this rule in AGENTS.md; a verbatim copy must
+      // not leave a placeholder link that setup then verifies against the graph.
+      expect(findMexAnchors(prompt)).toEqual([]);
     }
+  });
+
+  it("names an unverifiable placeholder anchor in a safe finalization failure", async () => {
+    const root = mkdtempSync(join(tmpdir(), "mex-setup-placeholder-"));
+    roots.push(root);
+    const scaffoldRoot = join(root, ".mex");
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(scaffoldRoot, { recursive: true });
+    writeFileSync(join(root, "src", "service.ts"), "export function liveService(): number { return 1; }\n");
+    writeFileSync(join(scaffoldRoot, "AGENTS.md"),
+      "# Agents\n\nAnchor symbols inline as [`symbolName()`](mex://<exact-node-id>) with the node id only.\n");
+    const engine = createGraphEngine({ rootDir: root });
+    await engine.build();
+    engine.close();
+
+    const failure = await finalizeCodeRepoSetup(root, scaffoldRoot).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(SetupFinalizationError);
+    expect((failure as Error).message).toContain("<exact-node-id> in .mex/AGENTS.md");
+    expect((failure as Error).message.length).toBeLessThanOrEqual(512);
+  }, 30_000);
+
+  it("preserves authored scaffold content when a fresh project resumes setup", () => {
+    const prompt = buildFreshPrompt();
+    expect(prompt).toContain("Treat substantive existing content as durable project knowledge");
+    expect(prompt).toContain("managed instruction blocks");
+    expect(prompt).toMatch(/every existing project pattern/iu);
+    expect(prompt).toMatch(/never duplicate,\s+delete, or rename a pattern/iu);
+    expect(prompt).toContain("If no\nproject-specific patterns exist, generate 2-3 starter patterns");
+    expect(prompt).toContain("Edge targets are relative to the .mex/ scaffold root");
+    expect(prompt).toContain("fill only incomplete .mex/context/ slots");
   });
 
   it("produces a grounded and anchored scaffold from real setup graph facts", async () => {
@@ -95,20 +141,40 @@ export function calculateCheckoutTotal(items: number[], member: boolean): number
       .not.toBeNull();
     runtime!.close();
 
+    // Setup then migrates the legacy frontmatter and builds the Wiki index.
+    const finalized = await finalizeSetupWiki({ projectRoot: root, scaffoldRoot: join(root, ".mex") });
+    expect(finalized.ready).toBe(true);
+    expect(existsSync(join(root, ".mex", "wiki.db"))).toBe(true);
+    expect(extractGroundings(readFileSync(pattern, "utf-8"))[0]?.bodyHash).toMatch(/^[0-9a-f]{64}$/u);
+
     writeFileSync(join(sourceDir, "checkout.ts"), readFileSync(join(sourceDir, "checkout.ts"), "utf-8")
       .replace("subtotal >= 100 ? 0 : 12", "subtotal >= 125 ? 0 : 15"));
-    const drift = await runDriftCheck(config);
+    const warnings: string[] = [];
+    let drift = await runDriftCheckWithGraphStatus(config, { graphWarning: (message) => warnings.push(message) });
+    expect(drift.graphStatus?.status).toBe("stale");
+    expect(drift.issues.some((issue) => issue.code.startsWith("GROUNDING_"))).toBe(false);
+    expect(warnings).toContainEqual(expect.stringContaining("Run `mex graph refresh`"));
+
+    const refreshRuntime = await loadGroundingRuntime(config);
+    refreshRuntime!.close();
+    drift = await runDriftCheckWithGraphStatus(config, { graphWarning: (message) => warnings.push(message) });
+    expect(drift.graphStatus?.status).toBe("fresh");
     expect(drift.issues).toContainEqual(expect.objectContaining({
       code: "GROUNDING_DRIFT",
       file: ".mex/patterns/calculate-checkout.md",
     }));
 
-    // Same shared post-authoring routine used by sync: refresh, then check clean.
-    expect(await captureGroundingBaselines(config, { updateFingerprints: true }))
-      .toEqual({ captured: 2, skipped: 0 });
-    const clean = await runDriftCheck(config);
+    // Review this behavioral claim explicitly. Its navigation-only sibling is
+    // not a behavioral assertion and keeps its historical cache unchanged.
+    const reviewRuntime = await loadGroundingRuntime(config);
+    const acceptance = previewGroundingBaseline(config, ".mex/patterns/calculate-checkout.md", groundings[0].node, reviewRuntime!)!.acceptance;
+    reviewRuntime!.close();
+    expect(await captureGroundingBaselines(config, { acceptedGroundings: [acceptance] }))
+      .toEqual({ captured: 1, skipped: 0 });
+    const clean = await runDriftCheckWithGraphStatus(config, { graphWarning: (message) => warnings.push(message) });
+    expect(clean.graphStatus?.status).toBe("fresh");
     expect(clean.issues.filter((issue) => issue.code.startsWith("GROUNDING_"))).toEqual([]);
-  });
+  }, 30_000);
 
   it("skips and warns when authored grounding no longer resolves", async () => {
     const root = mkdtempSync(join(tmpdir(), "mex-setup-grounding-miss-"));
@@ -129,5 +195,5 @@ export function calculateCheckoutTotal(items: number[], member: boolean): number
     );
     expect(result).toEqual({ captured: 0, skipped: 1 });
     expect(warnings).toContainEqual(expect.stringContaining("function:missing"));
-  });
+  }, 30_000);
 });

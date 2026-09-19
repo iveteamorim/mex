@@ -20,12 +20,13 @@ extractor registry lives in
 |---|---|---|---|
 | **Supported** | TypeScript | `.ts` | [`sample.ts`](../src/graph/__tests__/fixtures/sample.ts), [`typescript-edge-cases.ts`](../src/graph/__tests__/fixtures/typescript-edge-cases.ts), and their focused tests exercise declarations, calls, imports, visibility, async functions, and type shapes. |
 | **Partial** | TypeScript modules | `.mts`, `.cts` | Both extensions map to the TypeScript grammar and extractor, but the current `sample.ts` fixture does not exercise them separately. |
-| **Supported** | TSX | `.tsx` | [`tsx-component.tsx`](../src/graph/__tests__/fixtures/tsx-component.tsx) and [`extraction-regression.test.ts`](../src/graph/__tests__/extraction-regression.test.ts) cover components, interfaces, imports, and calls. |
-| **Supported** | JavaScript | `.js` | [`javascript-edge-cases.js`](../src/graph/__tests__/fixtures/javascript-edge-cases.js) and [`extraction-regression.test.ts`](../src/graph/__tests__/extraction-regression.test.ts) cover classes, static methods, construction, calls, and resilient parsing. |
+| **Supported** | TSX | `.tsx` | [`tsx-component.tsx.fixture`](../src/graph/__tests__/fixtures/tsx-component.tsx.fixture) and [`extraction-regression.test.ts`](../src/graph/__tests__/extraction-regression.test.ts) cover components, interfaces, imports, and calls. |
+| **Supported** | JavaScript | `.js` | [`javascript-edge-cases.js.fixture`](../src/graph/__tests__/fixtures/javascript-edge-cases.js.fixture) and [`extraction-regression.test.ts`](../src/graph/__tests__/extraction-regression.test.ts) cover classes, static methods, construction, calls, and resilient parsing. |
 | **Partial** | JavaScript modules | `.mjs`, `.cjs` | Both extensions map to the JavaScript grammar and extractor, but they are not exercised by dedicated fixtures. |
 | **Supported** | JSX | `.jsx` | [`jsx-component.jsx`](../src/graph/__tests__/fixtures/jsx-component.jsx) and [`extraction-regression.test.ts`](../src/graph/__tests__/extraction-regression.test.ts) cover components, imports, calls, and construction. |
 | **Supported** | Python | `.py` | [`sample.py`](../src/graph/__tests__/fixtures/sample.py), [`extractor-python.test.ts`](../src/graph/__tests__/extractor-python.test.ts), and the [`python-package`](../src/graph/__tests__/fixtures/python-package) integration fixture cover extraction and cross-file package resolution. |
 | **Supported** | Rust | `.rs` | [`sample.rs`](../src/graph/__tests__/fixtures/sample.rs) and [`extractor-rust.test.ts`](../src/graph/__tests__/extractor-rust.test.ts) cover structs, traits, enums, modules, functions, methods, generics, imports, calls, implementations, construction, returns, and field types. |
+| **Partial** | C# | `.cs` | [`sample.cs`](../src/graph/__tests__/fixtures/sample.cs) and [`extractor-csharp.test.ts`](../src/graph/__tests__/extractor-csharp.test.ts) cover namespaces (including nested/file-scoped), classes, interfaces, structs, enums, properties, overloaded indexers, field initializers, `const` fields, constructors/destructors, operators/conversions, static methods, parameters, attributes, `using` imports, calls with receivers, instantiation, and base-list extends/implements. [`engine-csharp.test.ts`](../src/graph/__tests__/engine-csharp.test.ts) verifies persistence and conservative call resolution. Ran clean (0 partial/failed) across 694 real-world `.cs` files in one large external repository. Marked partial, not supported: the `extends`/`implements` split on a class's base list is a first-listed-entry heuristic, not a semantic resolution (documented in `csharp.ts`), generics/type-parameter capture (`typeParameters`, matching Rust's `.rs` support) is not yet implemented, and call binding is limited to proven lexical scope. Calls through arbitrary objects or `base`, and qualified type references (including inheritance and construction), stay unresolved without semantic binding evidence. Recursive calls with multiple same-named overloads also remain unresolved; a unique lexical recursive call can bind to itself. Static constructors have distinct `static C` names so their identities survive reordering against instance constructors. |
 | **Unsupported** | Go and other languages | All other extensions | These names may be reserved in [`src/graph/types.ts`](../src/graph/types.ts), but no grammar or extractor is registered for them. Unsupported files are skipped rather than failing a graph build. |
 
 `src/graph/types.ts` contains a wider future-facing language vocabulary. A name
@@ -127,6 +128,100 @@ legacy checks running” case in
 Unsupported source-language files are also skipped. A missing extractor does
 not make the rest of setup or drift checking fail.
 
+### Files the corpus policy will not index
+
+The graph applies a bounded per-file size ceiling (2 MB) so one pathological
+file cannot exhaust memory. A file over that ceiling is **skipped, not fatal**:
+the rest of the repository is indexed normally, and the skipped files are
+reported by name, size and limit in `mex graph` output and in the `skipped`
+array of its `--json` result.
+
+Corpus-*wide* ceilings still abort the run. They describe the whole build and
+there is no honest partial answer to "this repository is too large to index
+within the bounded policy".
+
+### Config inputs outside the project
+
+mex never reads a file outside the repository root, and a TypeScript config
+routinely points at one: `"extends": "some-package/tsconfig"` resolves through
+`node_modules`, which any hoisted pnpm/yarn layout — or a monorepo sub-package
+indexed on its own — places above the indexed root.
+
+Such an input is **declined, not fatal**. The build finishes, the affected
+project's type resolution is less complete than its config asks for, and the
+declined inputs are reported by dependency specifier (never by absolute path)
+in `mex graph` output and in the `declinedInputs` array of its `--json` result.
+The same applies to a `tsconfig` `include` or project `reference` that points
+above the root.
+
+The containment guard itself is unchanged: nothing outside the root is read,
+and nothing outside the root enters the graph's provenance.
+
+### Excluding paths from the graph
+
+`node_modules`, `.git`, `dist`, `build`, `.mex`, `coverage`, `.next` and `out`
+are always excluded. A repository can exclude more by listing globs under
+`graph.ignore` in `.mex/config.json`:
+
+```json
+{
+  "graph": {
+    "ignore": ["vendor/**", "**/*.generated.ts"]
+  }
+}
+```
+
+The list is **additive**: configured globs are appended to the built-in ones
+and cannot un-ignore them, so `node_modules` and `.mex` stay excluded whatever
+the configuration says. Globs are repository-relative; absolute paths and
+upward traversal are ignored, and the list is bounded. A missing or malformed
+config simply contributes no extra globs rather than failing a build.
+
+Changing this list changes which files the graph describes, so it changes the
+build manifest and the next `mex graph status` will report the index as stale
+until it is rebuilt.
+
+## Unresolved references
+
+Extraction records every reference it sees. The resolver then binds what it
+can to a declaration and emits an edge; what it cannot bind stays recorded as
+an unresolved reference. Those records are the graph being honest about its own
+blind spots: a name a file referenced, that the resolver could not decide the
+meaning of.
+
+They matter for `who-calls`. A dynamically generated method has real call sites
+and no literal declaration, so no node resolves and the structural answer is
+"not found" — accurate, and useless as a next step. When `who-calls` cannot
+resolve its target, it now looks the name up among the recorded unresolved
+references and reports those call sites:
+
+```bash
+mex graph query who-calls mark_failed
+```
+
+```json
+{"type":"unresolved-reference","relation":"who-calls","target":"mark_failed",
+ "name":"mark_failed","referenceKind":"calls","resolution":"unresolved",
+ "file":"app/models/job.rb","line":42,"col":8,"fromNode":"function:…",
+ "receiver":"job"}
+```
+
+Three properties of that output are deliberate:
+
+- **It is not a `result` record.** An unresolved reference is not a resolved
+  graph fact and an agent must not be able to confuse the two, so it carries
+  its own record type.
+- **It is capped and charged to the same output budget** as every other
+  response. Common names accumulate hundreds of unresolved references, and an
+  uncapped fallback on a hot name would flood the caller. The `summary` reports
+  the total that matched alongside what was returned.
+- **The response is a normal one**, with `meta` and `summary`, and a `summary`
+  whose `status` is `partial` and `evidenceStrength` is `weak`.
+
+A name with no declaration *and* no recorded reference still abstains with
+`TARGET_NOT_FOUND`. `where-defined` and `what-calls` are unchanged: they
+either resolve the requested declaration exactly or abstain.
+
 ## Known limitations
 
 - **Ambiguous references stay unresolved.** The base resolver prefers a
@@ -139,10 +234,9 @@ not make the rest of setup or drift checking fail.
   reflection, dependency injection, monkey-patching, or computed calls.
 - **Generated code is path-filtered, not identified semantically.** Common
   output trees such as `node_modules`, `dist`, `build`, `.next`, `out`,
-  `coverage`, and `.mex` are excluded by the source globs in
-  [`engine-impl.ts`](../src/graph/engine-impl.ts) and
-  [`runtime.ts`](../src/graph/runtime.ts). Generated files outside those paths
-  may still be indexed.
+  `coverage`, and `.mex` are excluded by the corpus policy in
+  [`corpus-policy.ts`](../src/graph/corpus-policy.ts). Generated files outside
+  those paths may still be indexed; add a `graph.ignore` glob to exclude them.
 - **Framework behavior is opt-in and narrow.** Express route-to-handler binding
   is the only framework fixture in v0.7.0. Other frameworks remain unsupported
   until their language extractor and resolver work merges.

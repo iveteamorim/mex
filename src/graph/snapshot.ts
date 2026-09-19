@@ -1,0 +1,313 @@
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { GRAPH_CORPUS_LIMITS } from "./corpus-policy.js";
+
+export const GRAPH_SNAPSHOT_METADATA_KEY = "graph_snapshot_v1" as const;
+export const GRAPH_SNAPSHOT_VERSION = 1 as const;
+export const GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUTS = GRAPH_CORPUS_LIMITS.maxSemanticInputFiles;
+export const GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUT_PATH_LENGTH = 4_096 as const;
+
+export type GraphSnapshotParseStatus = "ok" | "partial" | "failed";
+
+export interface GraphSnapshotParseHealth {
+  total: number;
+  ok: number;
+  partial: number;
+  failed: number;
+}
+
+/** Canonical provenance for the last graph snapshot that completed publication. */
+export interface GraphSnapshot {
+  version: typeof GRAPH_SNAPSHOT_VERSION;
+  indexedAt: string;
+  lastSuccessfulIndexAt: string;
+  indexedBranch: string | null;
+  indexedHead: string | null;
+  schemaVersion: number;
+  compilerVersion: string;
+  extractorVersion: string;
+  resolverVersion: string;
+  grammarHash: string;
+  configHash: string;
+  manifestHash: string;
+  sourceCorpusDigest: string;
+  sourceCount: number;
+  semanticInputs: GraphSnapshotSemanticInput[];
+  parseHealth: GraphSnapshotParseHealth;
+}
+
+export interface GraphSnapshotSemanticInput {
+  path: string;
+  /** Exact UTF-8 hash, or null when the compiler observed that the path was absent. */
+  contentHash: string | null;
+}
+
+export interface GraphSnapshotSource {
+  path: string;
+  contentHash: string;
+  parseStatus: GraphSnapshotParseStatus;
+}
+
+export interface GraphGitProvenance {
+  branch: string | null;
+  head: string | null;
+}
+
+export interface CreateGraphSnapshotInput {
+  indexedAt: string;
+  git: GraphGitProvenance;
+  schemaVersion: number;
+  compilerVersion: string;
+  extractorVersion: string;
+  resolverVersion: string;
+  grammarHash: string;
+  configHash: string;
+  manifestHash: string;
+  sources: readonly GraphSnapshotSource[];
+  semanticInputs?: readonly GraphSnapshotSemanticInput[];
+}
+
+/** Hash only stable corpus identity: sorted repository path and exact content hash. */
+export function computeSourceCorpusDigest(
+  sources: readonly Pick<GraphSnapshotSource, "path" | "contentHash">[],
+): string {
+  const canonical = sources
+    .map(({ path, contentHash }) => [path, contentHash] as const)
+    .sort(([leftPath, leftHash], [rightPath, rightHash]) => (
+      compareText(leftPath, rightPath) || compareText(leftHash, rightHash)
+    ));
+  return createHash("sha256").update(JSON.stringify(canonical)).digest("hex");
+}
+
+export function createGraphSnapshot(input: CreateGraphSnapshotInput): GraphSnapshot {
+  const parseHealth = countParseHealth(input.sources);
+  const sourcePaths = new Set(input.sources.map((source) => source.path));
+  const semanticInputs = canonicalSemanticInputs(input.semanticInputs ?? []);
+  if (semanticInputs.some((entry) => sourcePaths.has(entry.path))) {
+    throw new Error("Graph semantic inputs must not duplicate supported source paths.");
+  }
+  return {
+    version: GRAPH_SNAPSHOT_VERSION,
+    indexedAt: input.indexedAt,
+    lastSuccessfulIndexAt: input.indexedAt,
+    indexedBranch: input.git.branch,
+    indexedHead: input.git.head,
+    schemaVersion: input.schemaVersion,
+    compilerVersion: input.compilerVersion,
+    extractorVersion: input.extractorVersion,
+    resolverVersion: input.resolverVersion,
+    grammarHash: input.grammarHash,
+    configHash: input.configHash,
+    manifestHash: input.manifestHash,
+    sourceCorpusDigest: computeSourceCorpusDigest(input.sources),
+    sourceCount: input.sources.length,
+    semanticInputs,
+    parseHealth,
+  };
+}
+
+/** Serialize in one fixed field order so the metadata value is canonical. */
+export function serializeGraphSnapshot(snapshot: GraphSnapshot): string {
+  return JSON.stringify({
+    version: GRAPH_SNAPSHOT_VERSION,
+    indexedAt: snapshot.indexedAt,
+    lastSuccessfulIndexAt: snapshot.lastSuccessfulIndexAt,
+    indexedBranch: snapshot.indexedBranch,
+    indexedHead: snapshot.indexedHead,
+    schemaVersion: snapshot.schemaVersion,
+    compilerVersion: snapshot.compilerVersion,
+    extractorVersion: snapshot.extractorVersion,
+    resolverVersion: snapshot.resolverVersion,
+    grammarHash: snapshot.grammarHash,
+    configHash: snapshot.configHash,
+    manifestHash: snapshot.manifestHash,
+    sourceCorpusDigest: snapshot.sourceCorpusDigest,
+    sourceCount: snapshot.sourceCount,
+    semanticInputs: canonicalSemanticInputs(snapshot.semanticInputs),
+    parseHealth: {
+      total: snapshot.parseHealth.total,
+      ok: snapshot.parseHealth.ok,
+      partial: snapshot.parseHealth.partial,
+      failed: snapshot.parseHealth.failed,
+    },
+  });
+}
+
+/** Parse persisted metadata defensively; malformed or unsupported snapshots are absent. */
+export function parseGraphSnapshot(value: string | null | undefined): GraphSnapshot | null {
+  if (value == null) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return null;
+  }
+  if (!isRecord(parsed) || parsed.version !== GRAPH_SNAPSHOT_VERSION) return null;
+  if (!isIsoTimestamp(parsed.indexedAt) || !isIsoTimestamp(parsed.lastSuccessfulIndexAt)) return null;
+  if (!isNullableString(parsed.indexedBranch) || !isNullableString(parsed.indexedHead)) return null;
+  if (!isNonNegativeInteger(parsed.schemaVersion)) return null;
+  if (!isNonEmptyString(parsed.compilerVersion)
+    || !isNonEmptyString(parsed.extractorVersion)
+    || !isNonEmptyString(parsed.resolverVersion)) return null;
+  if (!isDigest(parsed.grammarHash)
+    || !isDigest(parsed.configHash)
+    || !isDigest(parsed.manifestHash)
+    || !isDigest(parsed.sourceCorpusDigest)) return null;
+  if (!isNonNegativeInteger(parsed.sourceCount)
+    || !Array.isArray(parsed.semanticInputs)
+    || !isRecord(parsed.parseHealth)) return null;
+  const semanticInputs = parseSemanticInputs(parsed.semanticInputs);
+  if (!semanticInputs) return null;
+  const { total, ok, partial, failed } = parsed.parseHealth;
+  if (!isNonNegativeInteger(total)
+    || !isNonNegativeInteger(ok)
+    || !isNonNegativeInteger(partial)
+    || !isNonNegativeInteger(failed)) return null;
+  if (total !== parsed.sourceCount || ok + partial + failed !== total) return null;
+
+  return {
+    version: GRAPH_SNAPSHOT_VERSION,
+    indexedAt: parsed.indexedAt,
+    lastSuccessfulIndexAt: parsed.lastSuccessfulIndexAt,
+    indexedBranch: parsed.indexedBranch,
+    indexedHead: parsed.indexedHead,
+    schemaVersion: parsed.schemaVersion,
+    compilerVersion: parsed.compilerVersion,
+    extractorVersion: parsed.extractorVersion,
+    resolverVersion: parsed.resolverVersion,
+    grammarHash: parsed.grammarHash,
+    configHash: parsed.configHash,
+    manifestHash: parsed.manifestHash,
+    sourceCorpusDigest: parsed.sourceCorpusDigest,
+    sourceCount: parsed.sourceCount,
+    semanticInputs,
+    parseHealth: { total, ok, partial, failed },
+  };
+}
+
+/**
+ * Read branch and HEAD without taking Git's optional index-refresh lock.
+ * A non-repository, unborn HEAD, detached HEAD, missing Git executable, or read
+ * failure is represented by the corresponding null provenance rather than
+ * making a graph build fail.
+ */
+export function readGraphGitProvenance(rootDir: string): GraphGitProvenance {
+  const result = spawnSync(
+    "git",
+    ["--no-optional-locks", "-C", rootDir, "status", "--porcelain=v2", "--branch", "--untracked-files=no"],
+    {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 5_000,
+      maxBuffer: 1024 * 1024,
+    },
+  );
+  if (result.status !== 0 || typeof result.stdout !== "string") {
+    return { branch: null, head: null };
+  }
+
+  let branch: string | null = null;
+  let head: string | null = null;
+  for (const line of result.stdout.split(/\r?\n/u)) {
+    if (line.startsWith("# branch.head ")) {
+      const value = line.slice("# branch.head ".length).trim();
+      branch = value && value !== "(detached)" ? value : null;
+    } else if (line.startsWith("# branch.oid ")) {
+      const value = line.slice("# branch.oid ".length).trim();
+      head = /^[a-f0-9]{40,64}$/u.test(value) ? value : null;
+    }
+  }
+  return { branch, head };
+}
+
+function countParseHealth(sources: readonly GraphSnapshotSource[]): GraphSnapshotParseHealth {
+  let ok = 0;
+  let partial = 0;
+  let failed = 0;
+  for (const source of sources) {
+    if (source.parseStatus === "ok") ok += 1;
+    else if (source.parseStatus === "partial") partial += 1;
+    else failed += 1;
+  }
+  return { total: sources.length, ok, partial, failed };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Locale-independent UTF-16 code-unit ordering, matching stable JS string identity. */
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === "string";
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function isDigest(value: unknown): value is string {
+  return typeof value === "string" && /^[a-f0-9]{64}$/u.test(value);
+}
+
+function isIsoTimestamp(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString() === value;
+}
+
+function canonicalSemanticInputs(
+  inputs: readonly GraphSnapshotSemanticInput[],
+): GraphSnapshotSemanticInput[] {
+  if (inputs.length > GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUTS) {
+    throw new Error(`Graph semantic input provenance exceeds the ${GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUTS}-path safety cap.`);
+  }
+  const sorted = inputs
+    .map(({ path, contentHash }) => ({ path, contentHash }))
+    .sort((left, right) => compareText(left.path, right.path));
+  for (let index = 0; index < sorted.length; index += 1) {
+    const entry = sorted[index]!;
+    if (!isSafeRelativePath(entry.path) || !isNullableDigest(entry.contentHash)) {
+      throw new Error("Graph semantic input provenance contains an invalid path or digest.");
+    }
+    if (index > 0 && sorted[index - 1]!.path === entry.path) {
+      throw new Error(`Graph semantic input provenance contains duplicate path ${entry.path}.`);
+    }
+  }
+  return sorted;
+}
+
+function parseSemanticInputs(value: readonly unknown[]): GraphSnapshotSemanticInput[] | null {
+  if (value.length > GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUTS) return null;
+  const inputs: GraphSnapshotSemanticInput[] = [];
+  let previousPath: string | undefined;
+  for (const entry of value) {
+    if (!isRecord(entry) || !isSafeRelativePath(entry.path) || !isNullableDigest(entry.contentHash)) return null;
+    if (previousPath !== undefined && compareText(previousPath, entry.path) >= 0) return null;
+    inputs.push({ path: entry.path, contentHash: entry.contentHash });
+    previousPath = entry.path;
+  }
+  return inputs;
+}
+
+function isSafeRelativePath(value: unknown): value is string {
+  if (typeof value !== "string"
+    || value.length === 0
+    || value.length > GRAPH_SNAPSHOT_MAX_SEMANTIC_INPUT_PATH_LENGTH
+    || value.includes("\\")
+    || value.includes("\0")) return false;
+  if (value.startsWith("/") || /^[A-Za-z]:\//u.test(value)) return false;
+  const parts = value.split("/");
+  return parts.every((part) => part.length > 0 && part !== "." && part !== "..");
+}
+
+function isNullableDigest(value: unknown): value is string | null {
+  return value === null || isDigest(value);
+}

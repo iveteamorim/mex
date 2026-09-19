@@ -29,6 +29,11 @@ that setup cannot author trustworthy grounding; never invent ids or fingerprints
 
 The governing rule is: READ BROAD, GROUND TIGHT.
 
+The \`mex\` spelling below names the CLI generically. If repository guidance
+specifies a checkout-local launcher, use that exact launcher consistently (for
+example, \`node dist/cli.js\` in a self-hosted checkout) so a global binary cannot
+shadow the source being populated.
+
 1. Read the relevant \`mex graph scope\` neighborhood, expanding node bodies with
    \`mex graph get <id> --detail source\` as needed to understand a task.
 2. In each scaffold file that makes a specific behavioral claim, replace its
@@ -42,9 +47,11 @@ The governing rule is: READ BROAD, GROUND TIGHT.
    context; they are not automatically grounding targets. Do not ground file,
    import, parameter, or vague component nodes.
 3. When prose names a load-bearing function, method, or class that you looked
-   up in the graph, make the readable symbol mention a navigation anchor:
-   [\`symbolName()\`](mex://<exact-node-id>). Anchor where a future agent would
-   plausibly jump to code, not every incidental mention. Inline anchors contain
+   up in the graph, make the readable symbol mention a navigation anchor of the
+   form \`[symbolName()](mex://<exact-node-id>)\`, using the real node id. Setup
+   verifies every mex:// link, so never write the placeholder as a link. Anchor
+   where a future agent would plausibly jump to code, not every incidental
+   mention. Inline anchors contain
    the node id only; never put a fingerprint in the URI.
 4. Broad architecture/stack/conventions files should ground sparsely or remain
    \`grounds_to: []\`. Pattern files and deep domain files should ground tightly
@@ -52,14 +59,39 @@ The governing rule is: READ BROAD, GROUND TIGHT.
    follow actual prose claims—never add grounding merely so every file has some.
 `;
 
+const POPULATION_MERGE_RULES = `
+This may be a first population or a resumed setup over an authored scaffold.
+Before editing, inventory .mex/AGENTS.md, .mex/ROUTER.md,
+.mex/patterns/INDEX.md, every existing .mex/context/*.md file, and every
+existing project pattern.
+
+Treat substantive existing content as durable project knowledge:
+- Fill annotation-only, placeholder, and empty slots; preserve verified prose,
+  routes, non-negotiables, decisions, managed instruction blocks, custom context
+  files, and project-specific patterns.
+- Change an authored fact only when the brief or code graph demonstrates that
+  it is stale. Make the smallest evidence-backed correction.
+- Never delete or rename an authored context or pattern file merely to make the
+  scaffold resemble the current templates.
+- Merge missing guidance into AGENTS.md. In particular, retain the graph
+  workflow and READ BROAD, GROUND TIGHT rule from this prompt alongside the
+  project's existing operating rules.
+`;
+
 /** Shared pass 2+3 instructions appended to existing-project prompts */
 const EXISTING_PASSES_2_3 = `
-PASS 2 — Generate starter patterns:
+PASS 2 — Audit and extend project patterns:
 
 Read .mex/patterns/README.md for the format and categories.
 
-Generate 3-5 starter patterns for the most common and most dangerous task
-types in this project. Focus on:
+First audit the existing project-specific patterns and .mex/patterns/INDEX.md.
+Preserve useful patterns, correct only evidence-backed stale details, and make
+sure every existing pattern is represented accurately in the index. Do not
+duplicate, delete, or rename a pattern merely to hit a target count.
+
+If no project-specific patterns exist, generate 3-5 starter patterns. If some
+already exist, add a new pattern only for a genuinely missing, high-value task
+type. Prioritize:
 - The 1-2 tasks a developer does most often (e.g., add endpoint, add component)
 - The 1-2 integrations with the most non-obvious gotchas
 - 1 debug pattern for the most common failure boundary
@@ -76,13 +108,14 @@ grows incrementally — the behavioural contract (step 5: GROW) will create
 new patterns from real work as the project evolves. Setup just seeds the most
 critical ones.
 
-After generating patterns, update .mex/patterns/INDEX.md with a row for each
-pattern file you created. For multi-section patterns, add one row per task
-section using anchor links (see INDEX.md annotation for format).
+After auditing or adding patterns, reconcile .mex/patterns/INDEX.md with the
+project pattern files. For multi-section patterns, add one row per task section
+using anchor links (see INDEX.md annotation for format).
 
 PASS 3 — Wire the web:
 
-Re-read every file you just wrote (.mex/context/ files, pattern files, .mex/ROUTER.md).
+Re-read every scaffold file you audited or wrote (.mex/context/ files, pattern
+files, .mex/ROUTER.md).
 For each file, add or update the edges array in the YAML frontmatter.
 Each edge should point to another scaffold file that is meaningfully related,
 with a condition explaining when an agent should follow that edge.
@@ -91,7 +124,8 @@ Rules for edges:
 - Every context/ file should have at least 2 edges
 - Every pattern file should have at least 1 edge (usually to the relevant context file)
 - Edges should be bidirectional where it makes sense (if A links to B, consider B linking to A)
-- Use relative paths (e.g., context/stack.md, patterns/add-endpoint.md)
+- Edge targets are relative to the .mex/ scaffold root (e.g.,
+  context/stack.md, patterns/add-endpoint.md)
 - Pattern files can edge to other patterns (e.g., debug pattern → related task pattern)
 
 Important: only write content derived from the codebase.
@@ -103,8 +137,10 @@ you could not fill with confidence.`;
 
 /** Shared pass 1 populate instructions for existing projects */
 const EXISTING_PASS_1 = `
-Populate each .mex/context/ file by replacing the annotation comments
-with real content from this codebase. Follow the annotation instructions exactly.
+Populate each incomplete .mex/context/ slot by replacing annotation comments,
+sentinel placeholders, or empty sections with real content from this codebase.
+Preserve substantive content under the merge rules above. Follow the annotation
+instructions exactly.
 For each slot:
 - Use the actual names, patterns, and structures from this codebase
 - Do not use generic examples
@@ -125,22 +161,31 @@ description, triggers, edges, last_updated). Only create these for
 domains that have real depth — not for simple integrations that fit
 in a few lines of architecture.md.
 
-After populating .mex/context/ files, update .mex/ROUTER.md:
-- Fill in the Current Project State section based on what you found
+After populating .mex/context/ files, minimally update .mex/ROUTER.md:
+- Fill or refresh the Current Project State section based on what you found
 - Add rows to the routing table for any domain-specific context files you created
+- Preserve existing routes and authored operational guidance unless evidence
+  shows they are stale
 
 Update .mex/AGENTS.md:
-- Fill in the project name, one-line description, non-negotiables, and commands`;
+- Fill missing project name, one-line description, non-negotiables, and commands
+- Preserve existing project rules and managed instruction blocks`;
 
 export function buildFreshPrompt(): string {
   return `You are going to populate an AI context scaffold for a project that
 is just starting. Nothing is built yet.
 
 Read the following files in order before doing anything else:
-1. .mex/ROUTER.md — understand the scaffold structure
-2. All files in .mex/context/ — read the annotation comments in each
+1. .mex/AGENTS.md — understand the project operating contract
+2. .mex/ROUTER.md — understand the scaffold structure
+3. Every .mex/context/*.md file — read its annotations and existing content
+4. .mex/patterns/README.md and .mex/patterns/INDEX.md — learn the format and routes
+5. Every existing project pattern in .mex/patterns/
 
-Then ask me the following questions one section at a time.
+${POPULATION_MERGE_RULES}
+
+Use substantive existing content to avoid repeating questions it already
+answers. Then ask me the unresolved questions below one section at a time.
 Wait for my answer before moving to the next section:
 
 1. What does this project do? (one sentence)
@@ -151,7 +196,8 @@ Wait for my answer before moving to the next section:
 6. What patterns do you want to enforce from day one?
 7. What are you deliberately NOT building or using?
 
-After I answer, populate the .mex/context/ files based on my answers.
+After I answer, fill only incomplete .mex/context/ slots based on my answers.
+Preserve substantive existing content under the merge rules above.
 For any slot you cannot fill yet, write "[TO BE DETERMINED]" and note
 what needs to be decided before it can be filled.
 
@@ -167,27 +213,34 @@ integrations that fit in a few lines of architecture.md. For fresh
 projects, mark domain-specific unknowns with "[TO BE DETERMINED —
 populate after first implementation]".
 
-Update .mex/ROUTER.md current state to reflect that this is a new project.
+Minimally update .mex/ROUTER.md current state to reflect that this is a new project.
 Add rows to the routing table for any domain-specific context files you created.
-Update .mex/AGENTS.md with the project name, description, non-negotiables, and commands.
+Preserve existing routes and authored operational guidance unless an answer
+shows they are stale. Fill only missing project name, description,
+non-negotiables, and commands in .mex/AGENTS.md; preserve managed blocks and
+existing project rules.
 
 Read .mex/patterns/README.md for the format and categories.
 
-Generate 2-3 starter patterns for the most obvious task types you can
-anticipate for this stack. Focus on the tasks a developer will do first.
-Mark unknowns with "[VERIFY AFTER FIRST IMPLEMENTATION]".
+Audit existing project patterns and .mex/patterns/INDEX.md first. If no
+project-specific patterns exist, generate 2-3 starter patterns for the most
+obvious task types you can anticipate for this stack. If patterns already
+exist, add one only for a genuinely missing high-value task. Never duplicate,
+delete, or rename a pattern to hit the seed count. Focus on the tasks a
+developer will do first. Mark unknowns with "[VERIFY AFTER FIRST IMPLEMENTATION]".
 
 Do NOT try to anticipate every possible pattern. The scaffold grows
 incrementally — the behavioural contract (step 5: GROW) will create
 new patterns from real work as the project evolves. Setup just seeds
 the most critical ones.
 
-After generating patterns, update .mex/patterns/INDEX.md with a row for each
-pattern file you created.
+After auditing or generating patterns, reconcile .mex/patterns/INDEX.md with
+the project pattern files.
 
 PASS 3 — Wire the web:
 
-Re-read every file you just wrote (.mex/context/ files, pattern files, .mex/ROUTER.md).
+Re-read every scaffold file you audited or wrote (.mex/context/ files, pattern
+files, .mex/ROUTER.md).
 For each file, add or update the edges array in the YAML frontmatter.
 Each edge should point to another scaffold file that is meaningfully related,
 with a condition explaining when an agent should follow that edge.
@@ -196,7 +249,8 @@ Rules for edges:
 - Every context/ file should have at least 2 edges
 - Every pattern file should have at least 1 edge
 - Edges should be bidirectional where it makes sense
-- Use relative paths (e.g., context/stack.md, patterns/add-endpoint.md)
+- Edge targets are relative to the .mex/ scaffold root (e.g.,
+  context/stack.md, patterns/add-endpoint.md)
 
 Important: only write content derived from the codebase or from my answers.
 Do not include system-injected text (dates, reminders, etc.) in any scaffold file.`;
@@ -207,14 +261,15 @@ export function buildExistingWithBriefPrompt(briefJson: string): string {
 The scaffold lives in the .mex/ directory.
 
 Read the following files in order before doing anything else:
-1. .mex/ROUTER.md — understand the scaffold structure
-2. .mex/context/architecture.md — read the annotation comments to understand what belongs there
-3. .mex/context/stack.md — same
-4. .mex/context/conventions.md — same
-5. .mex/context/decisions.md — same
-6. .mex/context/setup.md — same
+1. .mex/AGENTS.md — understand the project operating contract
+2. .mex/ROUTER.md — understand the scaffold structure
+3. Every .mex/context/*.md file — read its annotations and existing content
+4. .mex/patterns/README.md and .mex/patterns/INDEX.md — learn the format and routes
+5. Every existing project pattern in .mex/patterns/
 
 ${GRAPH_GROUNDING_WORKFLOW}
+
+${POPULATION_MERGE_RULES}
 
 Here is a pre-analyzed brief of the codebase — do NOT explore the filesystem
 yourself for basic structure. Reason from this brief for dependencies, entry
@@ -235,14 +290,15 @@ export function buildExistingNoBriefPrompt(): string {
 The scaffold lives in the .mex/ directory.
 
 Read the following files in order before doing anything else:
-1. .mex/ROUTER.md — understand the scaffold structure
-2. .mex/context/architecture.md — read the annotation comments to understand what belongs there
-3. .mex/context/stack.md — same
-4. .mex/context/conventions.md — same
-5. .mex/context/decisions.md — same
-6. .mex/context/setup.md — same
+1. .mex/AGENTS.md — understand the project operating contract
+2. .mex/ROUTER.md — understand the scaffold structure
+3. Every .mex/context/*.md file — read its annotations and existing content
+4. .mex/patterns/README.md and .mex/patterns/INDEX.md — learn the format and routes
+5. Every existing project pattern in .mex/patterns/
 
 ${GRAPH_GROUNDING_WORKFLOW}
+
+${POPULATION_MERGE_RULES}
 
 No scanner brief is available. You may inspect manifests, README documentation,
 and folder names for high-level structure only. Do not sample implementation

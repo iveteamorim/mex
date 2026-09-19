@@ -1,0 +1,29 @@
+.desktopOnly {
+  display: block;
+  min-height: 100vh;
+}
+
+.compactOnly {
+  display: none;
+}
+
+.fullPageState {
+  display: grid;
+  min-height: 100vh;
+  padding: 32px;
+  place-items: center;
+}
+
+.fullPageState > * {
+  width: min(100%, 680px);
+}
+
+@media (max-width: 1023px) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .compactOnly {
+    display: block;
+  }
+}

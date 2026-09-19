@@ -1,0 +1,4499 @@
+{
+  "schemaVersion": 1,
+  "kind": "telemetry-local-performance-characterization",
+  "generatedAt": "2026-09-09T13:35:22.436Z",
+  "environment": {
+    "node": "v22.17.1",
+    "platform": "darwin",
+    "release": "25.0.0",
+    "architecture": "arm64",
+    "cpu": "Apple M4"
+  },
+  "builds": [
+    {
+      "name": "baseline",
+      "cliSha256": "3a6d0d2d6682b011b86d71ebe1d5c9eccead4262f53e85743bcf34cc116d4832"
+    },
+    {
+      "name": "candidate",
+      "cliSha256": "66719ebce3f290134557cfa62533939093d5fa745ee8708a7e4afa1f03b366ea"
+    }
+  ],
+  "methodology": {
+    "samplesPerCondition": 20,
+    "warmupsPerCondition": 5,
+    "commandArguments": [
+      {
+        "name": "success",
+        "args": [
+          "commands"
+        ]
+      },
+      {
+        "name": "failure",
+        "args": [
+          "check",
+          "--json"
+        ]
+      }
+    ],
+    "conditionOrder": "rotated every round; baseline/candidate order alternates",
+    "measuredInterval": "spawn through child close, including loader, CLI, telemetry and natural process cleanup",
+    "transport": "harness-only preload redirects only the fixed PostHog HTTPS batch destination to real loopback HTTP; all other outbound sockets denied; TLS and external network latency excluded",
+    "repeatUse": "isolated preseeded installation identity and notice preferences",
+    "pristineRunsPerCondition": 3,
+    "lifetimeHangGuardMs": 5000,
+    "portablePerformanceGate": false,
+    "quantiles": "Nearest-rank p50/p95; raw samples retain execution order.",
+    "pairedDifferences": "Each sample subtracts the matching round; p95 of paired differences is distinct from subtracting two p95 values.",
+    "overheadTargets": {
+      "captureCallMs": 5,
+      "flushGraceCapMs": 50,
+      "status": "Observed capture p95 and flush maximum satisfy these local characterization targets; these are not cross-machine release budgets."
+    }
+  },
+  "groups": {
+    "baseline.success.disabled": {
+      "processMs": {
+        "samples": [
+          362.41,
+          358.193,
+          371.673,
+          359.724,
+          358.176,
+          357.403,
+          354.806,
+          379.359,
+          362.426,
+          368.501,
+          357.496,
+          370.951,
+          355.841,
+          368.307,
+          359.098,
+          363.083,
+          358.165,
+          356.168,
+          363.233,
+          358.339
+        ],
+        "p50": 359.098,
+        "p95": 371.673,
+        "min": 354.806,
+        "max": 379.359
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3672
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "baseline.success.healthy": {
+      "processMs": {
+        "samples": [
+          369.265,
+          367.187,
+          369.468,
+          366.215,
+          367.776,
+          368.019,
+          372.745,
+          373.579,
+          368.205,
+          366.065,
+          369.117,
+          368.857,
+          372.655,
+          367.902,
+          383.412,
+          369.821,
+          368.842,
+          370.436,
+          367.718,
+          372.219
+        ],
+        "p50": 368.857,
+        "p95": 373.579,
+        "min": 366.065,
+        "max": 383.412
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3672
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "command_run:": 25
+      }
+    },
+    "baseline.success.refused": {
+      "processMs": {
+        "samples": [
+          366.27,
+          370.094,
+          367.574,
+          379.547,
+          368.81,
+          370.803,
+          364.648,
+          367.796,
+          365.207,
+          370.999,
+          369.425,
+          365.463,
+          378.933,
+          371.87,
+          366.165,
+          365.692,
+          377.14,
+          381.442,
+          366.622,
+          371.664
+        ],
+        "p50": 368.81,
+        "p95": 379.547,
+        "min": 364.648,
+        "max": 381.442
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3672
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "baseline.success.hanging": {
+      "processMs": {
+        "samples": [
+          1025.125,
+          1029.003,
+          1028.454,
+          1029.53,
+          1019.748,
+          1041.964,
+          1041.955,
+          1024.062,
+          1034.911,
+          1033.47,
+          1026.647,
+          1033.285,
+          1031.96,
+          1028.656,
+          1031.78,
+          1028.87,
+          1033.056,
+          1028.405,
+          1041.108,
+          1033.703
+        ],
+        "p50": 1029.53,
+        "p95": 1041.955,
+        "min": 1019.748,
+        "max": 1041.964
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          },
+          {
+            "command_run:": 1
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3672
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "command_run:": 25
+      }
+    },
+    "baseline.failure.disabled": {
+      "processMs": {
+        "samples": [
+          349.439,
+          349.505,
+          350.601,
+          349.51,
+          363.477,
+          360.276,
+          348.896,
+          354.077,
+          370.83,
+          349.534,
+          348.042,
+          364.436,
+          363.603,
+          350.949,
+          355.422,
+          347.082,
+          362.865,
+          353.988,
+          352.612,
+          351.548
+        ],
+        "p50": 351.548,
+        "p95": 364.436,
+        "min": 347.082,
+        "max": 370.83
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "baseline.failure.healthy": {
+      "processMs": {
+        "samples": [
+          348.494,
+          348.619,
+          350.167,
+          349.808,
+          348.507,
+          352.879,
+          352.212,
+          350.32,
+          351.193,
+          365.214,
+          354.717,
+          351.71,
+          349.433,
+          355.963,
+          347.547,
+          349.456,
+          348.868,
+          349.774,
+          356.424,
+          353.232
+        ],
+        "p50": 350.167,
+        "p95": 356.424,
+        "min": 347.547,
+        "max": 365.214
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "baseline.failure.refused": {
+      "processMs": {
+        "samples": [
+          350.563,
+          347.52,
+          351.879,
+          351.615,
+          353.991,
+          363.443,
+          351.888,
+          348.884,
+          363.017,
+          353.045,
+          354.988,
+          347.511,
+          350.717,
+          348.388,
+          355.657,
+          351.444,
+          350.307,
+          346.58,
+          352.82,
+          350.881
+        ],
+        "p50": 351.444,
+        "p95": 363.017,
+        "min": 346.58,
+        "max": 363.443
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "baseline.failure.hanging": {
+      "processMs": {
+        "samples": [
+          369.926,
+          356.843,
+          353.634,
+          352.646,
+          358.203,
+          346.837,
+          350.801,
+          355.96,
+          351.155,
+          349.586,
+          349.935,
+          369.472,
+          356.183,
+          363.201,
+          346.591,
+          351.864,
+          361.112,
+          351.296,
+          352.088,
+          348.923
+        ],
+        "p50": 352.088,
+        "p95": 369.472,
+        "min": 346.591,
+        "max": 369.926
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "candidate.success.disabled": {
+      "processMs": {
+        "samples": [
+          371.941,
+          349.263,
+          359.335,
+          354.259,
+          357.033,
+          351.393,
+          381.427,
+          353.781,
+          370.784,
+          364.901,
+          368.309,
+          351.588,
+          369.128,
+          352.005,
+          368.16,
+          353.658,
+          366.437,
+          351.668,
+          367.127,
+          352.952
+        ],
+        "p50": 357.033,
+        "p95": 371.941,
+        "min": 349.263,
+        "max": 381.427
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3674
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "candidate.success.healthy": {
+      "processMs": {
+        "samples": [
+          364.829,
+          359.969,
+          362.419,
+          372.07,
+          361.056,
+          360.336,
+          359.881,
+          359.914,
+          360.396,
+          365.87,
+          362.573,
+          372.76,
+          359.702,
+          360.888,
+          358.509,
+          357.576,
+          358.917,
+          359.95,
+          363.621,
+          364.958
+        ],
+        "p50": 360.396,
+        "p95": 372.07,
+        "min": 357.576,
+        "max": 372.76
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:success": 1
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3674
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 0,
+        "payloadBytes": 0,
+        "activeClaims": 0,
+        "databaseBytes": 12288,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:success": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "cli.command_started:": 25,
+        "cli.command_completed:success": 25
+      }
+    },
+    "candidate.success.refused": {
+      "processMs": {
+        "samples": [
+          359.184,
+          364.803,
+          363.743,
+          364.208,
+          361.487,
+          356.99,
+          360.776,
+          365.465,
+          360.549,
+          363.775,
+          361.603,
+          359.176,
+          360.253,
+          361.681,
+          359.328,
+          374.244,
+          357.459,
+          444.672,
+          359.846,
+          359.07
+        ],
+        "p50": 360.776,
+        "p95": 374.244,
+        "min": 356.99,
+        "max": 444.672
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3674
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 50,
+        "payloadBytes": 22400,
+        "activeClaims": 0,
+        "databaseBytes": 45056,
+        "eventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:success": 25
+        },
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:success": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "candidate.success.hanging": {
+      "processMs": {
+        "samples": [
+          376.94,
+          389.217,
+          386.629,
+          392.233,
+          387.368,
+          395.765,
+          375.993,
+          379.174,
+          376.677,
+          395.916,
+          377.959,
+          394.605,
+          374.867,
+          389.988,
+          377.563,
+          393.149,
+          375.324,
+          402.266,
+          377.139,
+          401.836
+        ],
+        "p50": 386.629,
+        "p95": 401.836,
+        "min": 374.867,
+        "max": 402.266
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "cli.command_started:": 6,
+            "cli.command_completed:success": 6
+          },
+          {
+            "cli.command_started:": 7,
+            "cli.command_completed:success": 7
+          },
+          {
+            "cli.command_started:": 8,
+            "cli.command_completed:success": 8
+          },
+          {
+            "cli.command_started:": 9,
+            "cli.command_completed:success": 9
+          },
+          {
+            "cli.command_started:": 10,
+            "cli.command_completed:success": 10
+          },
+          {
+            "cli.command_started:": 11,
+            "cli.command_completed:success": 11
+          },
+          {
+            "cli.command_started:": 12,
+            "cli.command_completed:success": 12
+          },
+          {
+            "cli.command_started:": 13,
+            "cli.command_completed:success": 13
+          },
+          {
+            "cli.command_started:": 14,
+            "cli.command_completed:success": 14
+          },
+          {
+            "cli.command_started:": 15,
+            "cli.command_completed:success": 15
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:success": 16
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          0
+        ],
+        "stdoutBytes": [
+          3674
+        ],
+        "stderrBytes": [
+          0
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 50,
+        "payloadBytes": 22400,
+        "activeClaims": 0,
+        "databaseBytes": 45056,
+        "eventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:success": 25
+        },
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:success": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "cli.command_started:": 16,
+        "cli.command_completed:success": 16
+      }
+    },
+    "candidate.failure.disabled": {
+      "processMs": {
+        "samples": [
+          351.544,
+          351.692,
+          351.907,
+          352.923,
+          351.07,
+          351.24,
+          348.805,
+          351.057,
+          351.435,
+          353.82,
+          355.326,
+          352.845,
+          358.988,
+          364.01,
+          353.479,
+          365.605,
+          358.634,
+          350.073,
+          351.171,
+          354.3
+        ],
+        "p50": 351.907,
+        "p95": 364.01,
+        "min": 348.805,
+        "max": 365.605
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "candidate.failure.healthy": {
+      "processMs": {
+        "samples": [
+          359.458,
+          369.714,
+          361.999,
+          359.445,
+          360.66,
+          358.36,
+          364.692,
+          358.863,
+          361.25,
+          360.146,
+          362.149,
+          359.033,
+          359.962,
+          372.446,
+          358.985,
+          356.267,
+          359.87,
+          359.114,
+          363.329,
+          376.76
+        ],
+        "p50": 359.962,
+        "p95": 372.446,
+        "min": 356.267,
+        "max": 376.76
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "clientHttpResponseCompletions": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          },
+          {
+            "cli.command_started:": 1,
+            "cli.command_completed:failure": 1
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 0,
+        "payloadBytes": 0,
+        "activeClaims": 0,
+        "databaseBytes": 12288,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:failure": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "cli.command_started:": 25,
+        "cli.command_completed:failure": 25
+      }
+    },
+    "candidate.failure.refused": {
+      "processMs": {
+        "samples": [
+          364.267,
+          369.547,
+          361.693,
+          357.14,
+          371.899,
+          360.18,
+          374.066,
+          359.741,
+          361.145,
+          356.6,
+          358.709,
+          358.266,
+          359.994,
+          360.965,
+          359.256,
+          358.979,
+          362.363,
+          364.98,
+          375.809,
+          360.677
+        ],
+        "p50": 360.677,
+        "p95": 374.066,
+        "min": 356.6,
+        "max": 375.809
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {}
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 50,
+        "payloadBytes": 22250,
+        "activeClaims": 0,
+        "databaseBytes": 45056,
+        "eventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:failure": 25
+        },
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:failure": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {}
+    },
+    "candidate.failure.hanging": {
+      "processMs": {
+        "samples": [
+          373.44,
+          389.113,
+          379.181,
+          378.198,
+          377.171,
+          369.636,
+          377.562,
+          373.853,
+          374.655,
+          378.843,
+          377.619,
+          374.173,
+          380.015,
+          372.743,
+          379.189,
+          377.435,
+          373.696,
+          381.673,
+          374.801,
+          375.492
+        ],
+        "p50": 377.171,
+        "p95": 381.673,
+        "min": 369.636,
+        "max": 389.113
+      },
+      "delivery": {
+        "serverReceivedRequests": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "requestErrors": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "clientHttpResponseCompletions": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "openSocketsAfterExit": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "serverReceivedEventCountsPerRun": [
+          {
+            "cli.command_started:": 6,
+            "cli.command_completed:failure": 6
+          },
+          {
+            "cli.command_started:": 7,
+            "cli.command_completed:failure": 7
+          },
+          {
+            "cli.command_started:": 8,
+            "cli.command_completed:failure": 8
+          },
+          {
+            "cli.command_started:": 9,
+            "cli.command_completed:failure": 9
+          },
+          {
+            "cli.command_started:": 10,
+            "cli.command_completed:failure": 10
+          },
+          {
+            "cli.command_started:": 11,
+            "cli.command_completed:failure": 11
+          },
+          {
+            "cli.command_started:": 12,
+            "cli.command_completed:failure": 12
+          },
+          {
+            "cli.command_started:": 13,
+            "cli.command_completed:failure": 13
+          },
+          {
+            "cli.command_started:": 14,
+            "cli.command_completed:failure": 14
+          },
+          {
+            "cli.command_started:": 15,
+            "cli.command_completed:failure": 15
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          },
+          {
+            "cli.command_started:": 16,
+            "cli.command_completed:failure": 16
+          }
+        ]
+      },
+      "output": {
+        "exitCodes": [
+          1
+        ],
+        "stdoutBytes": [
+          0
+        ],
+        "stderrBytes": [
+          56
+        ]
+      },
+      "files": [
+        ".mex/config.json",
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 50,
+        "payloadBytes": 22250,
+        "activeClaims": 0,
+        "databaseBytes": 45056,
+        "eventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:failure": 25
+        },
+        "receivedOrQueuedEventCounts": {
+          "cli.command_started:": 25,
+          "cli.command_completed:failure": 25
+        }
+      },
+      "uniqueServerReceivedEventsIncludingWarmups": {
+        "cli.command_started:": 16,
+        "cli.command_completed:failure": 16
+      }
+    }
+  },
+  "pairedDeltasMs": {
+    "baseline.success.healthy-disabled": {
+      "samples": [
+        6.855,
+        8.994,
+        -2.205,
+        6.49,
+        9.6,
+        10.616,
+        17.939,
+        -5.78,
+        5.78,
+        -2.436,
+        11.621,
+        -2.094,
+        16.813,
+        -0.405,
+        24.315,
+        6.738,
+        10.677,
+        14.269,
+        4.485,
+        13.88
+      ],
+      "p50": 6.855,
+      "p95": 17.939,
+      "min": -5.78,
+      "max": 24.315
+    },
+    "baseline.success.refused-disabled": {
+      "samples": [
+        3.86,
+        11.901,
+        -4.099,
+        19.823,
+        10.634,
+        13.4,
+        9.842,
+        -11.563,
+        2.781,
+        2.499,
+        11.929,
+        -5.488,
+        23.092,
+        3.564,
+        7.067,
+        2.609,
+        18.976,
+        25.274,
+        3.388,
+        13.325
+      ],
+      "p50": 7.067,
+      "p95": 23.092,
+      "min": -11.563,
+      "max": 25.274
+    },
+    "baseline.success.hanging-disabled": {
+      "samples": [
+        662.715,
+        670.81,
+        656.78,
+        669.806,
+        661.571,
+        684.561,
+        687.149,
+        644.702,
+        672.485,
+        664.969,
+        669.151,
+        662.334,
+        676.119,
+        660.35,
+        672.683,
+        665.787,
+        674.892,
+        672.237,
+        677.875,
+        675.364
+      ],
+      "p50": 669.806,
+      "p95": 684.561,
+      "min": 644.702,
+      "max": 687.149
+    },
+    "baseline.failure.healthy-disabled": {
+      "samples": [
+        -0.945,
+        -0.886,
+        -0.434,
+        0.298,
+        -14.969,
+        -7.397,
+        3.316,
+        -3.758,
+        -19.637,
+        15.68,
+        6.675,
+        -12.726,
+        -14.17,
+        5.015,
+        -7.875,
+        2.373,
+        -13.997,
+        -4.214,
+        3.811,
+        1.684
+      ],
+      "p50": -0.945,
+      "p95": 6.675,
+      "min": -19.637,
+      "max": 15.68
+    },
+    "baseline.failure.refused-disabled": {
+      "samples": [
+        1.123,
+        -1.985,
+        1.278,
+        2.106,
+        -9.486,
+        3.167,
+        2.992,
+        -5.193,
+        -7.813,
+        3.51,
+        6.947,
+        -16.925,
+        -12.887,
+        -2.561,
+        0.235,
+        4.361,
+        -12.558,
+        -7.408,
+        0.207,
+        -0.667
+      ],
+      "p50": -0.667,
+      "p95": 4.361,
+      "min": -16.925,
+      "max": 6.947
+    },
+    "baseline.failure.hanging-disabled": {
+      "samples": [
+        20.486,
+        7.337,
+        3.034,
+        3.137,
+        -5.274,
+        -13.439,
+        1.905,
+        1.883,
+        -19.674,
+        0.052,
+        1.893,
+        5.036,
+        -7.421,
+        12.252,
+        -8.83,
+        4.782,
+        -1.754,
+        -2.692,
+        -0.524,
+        -2.625
+      ],
+      "p50": 0.052,
+      "p95": 12.252,
+      "min": -19.674,
+      "max": 20.486
+    },
+    "candidate.success.healthy-disabled": {
+      "samples": [
+        -7.112,
+        10.705,
+        3.084,
+        17.811,
+        4.023,
+        8.943,
+        -21.546,
+        6.132,
+        -10.388,
+        0.97,
+        -5.736,
+        21.171,
+        -9.426,
+        8.883,
+        -9.651,
+        3.918,
+        -7.52,
+        8.282,
+        -3.506,
+        12.006
+      ],
+      "p50": 3.084,
+      "p95": 17.811,
+      "min": -21.546,
+      "max": 21.171
+    },
+    "candidate.success.refused-disabled": {
+      "samples": [
+        -12.757,
+        15.54,
+        4.408,
+        9.949,
+        4.455,
+        5.598,
+        -20.651,
+        11.684,
+        -10.235,
+        -1.126,
+        -6.706,
+        7.588,
+        -8.875,
+        9.676,
+        -8.831,
+        20.586,
+        -8.978,
+        93.004,
+        -7.282,
+        6.118
+      ],
+      "p50": 4.408,
+      "p95": 20.586,
+      "min": -20.651,
+      "max": 93.004
+    },
+    "candidate.success.hanging-disabled": {
+      "samples": [
+        4.998,
+        39.953,
+        27.294,
+        37.974,
+        30.335,
+        44.372,
+        -5.434,
+        25.393,
+        5.893,
+        31.016,
+        9.649,
+        43.016,
+        5.739,
+        37.983,
+        9.404,
+        39.491,
+        8.887,
+        50.598,
+        10.012,
+        48.884
+      ],
+      "p50": 27.294,
+      "p95": 48.884,
+      "min": -5.434,
+      "max": 50.598
+    },
+    "candidate.failure.healthy-disabled": {
+      "samples": [
+        7.914,
+        18.022,
+        10.091,
+        6.523,
+        9.59,
+        7.12,
+        15.887,
+        7.806,
+        9.815,
+        6.325,
+        6.823,
+        6.188,
+        0.974,
+        8.436,
+        5.506,
+        -9.338,
+        1.235,
+        9.041,
+        12.158,
+        22.46
+      ],
+      "p50": 7.806,
+      "p95": 18.022,
+      "min": -9.338,
+      "max": 22.46
+    },
+    "candidate.failure.refused-disabled": {
+      "samples": [
+        12.723,
+        17.855,
+        9.785,
+        4.218,
+        20.829,
+        8.94,
+        25.261,
+        8.685,
+        9.71,
+        2.779,
+        3.384,
+        5.42,
+        1.005,
+        -3.045,
+        5.778,
+        -6.626,
+        3.729,
+        14.908,
+        24.638,
+        6.377
+      ],
+      "p50": 6.377,
+      "p95": 24.638,
+      "min": -6.626,
+      "max": 25.261
+    },
+    "candidate.failure.hanging-disabled": {
+      "samples": [
+        21.895,
+        37.421,
+        27.274,
+        25.275,
+        26.101,
+        18.396,
+        28.756,
+        22.797,
+        23.22,
+        25.023,
+        22.294,
+        21.328,
+        21.027,
+        8.733,
+        25.71,
+        11.83,
+        15.061,
+        31.6,
+        23.63,
+        21.191
+      ],
+      "p50": 22.797,
+      "p95": 31.6,
+      "min": 8.733,
+      "max": 37.421
+    },
+    "candidate-baseline.success.disabled": {
+      "samples": [
+        9.531,
+        -8.93,
+        -12.338,
+        -5.466,
+        -1.143,
+        -6.01,
+        26.621,
+        -25.578,
+        8.358,
+        -3.6,
+        10.813,
+        -19.362,
+        13.287,
+        -16.301,
+        9.062,
+        -9.425,
+        8.273,
+        -4.499,
+        3.894,
+        -5.387
+      ],
+      "p50": -4.499,
+      "p95": 13.287,
+      "min": -25.578,
+      "max": 26.621
+    },
+    "candidate-baseline.success.healthy": {
+      "samples": [
+        -4.436,
+        -7.219,
+        -7.049,
+        5.855,
+        -6.72,
+        -7.684,
+        -12.863,
+        -13.665,
+        -7.81,
+        -0.195,
+        -6.544,
+        3.903,
+        -12.953,
+        -7.014,
+        -24.903,
+        -12.245,
+        -9.924,
+        -10.486,
+        -4.097,
+        -7.261
+      ],
+      "p50": -7.261,
+      "p95": 3.903,
+      "min": -24.903,
+      "max": 5.855
+    },
+    "candidate-baseline.success.refused": {
+      "samples": [
+        -7.086,
+        -5.29,
+        -3.832,
+        -15.34,
+        -7.323,
+        -13.812,
+        -3.872,
+        -2.331,
+        -4.658,
+        -7.224,
+        -7.822,
+        -6.287,
+        -18.68,
+        -10.189,
+        -6.836,
+        8.553,
+        -19.681,
+        63.23,
+        -6.776,
+        -12.594
+      ],
+      "p50": -7.086,
+      "p95": 8.553,
+      "min": -19.681,
+      "max": 63.23
+    },
+    "candidate-baseline.success.hanging": {
+      "samples": [
+        -648.185,
+        -639.786,
+        -641.824,
+        -637.297,
+        -632.38,
+        -646.199,
+        -665.962,
+        -644.888,
+        -658.234,
+        -637.554,
+        -648.688,
+        -638.681,
+        -657.093,
+        -638.668,
+        -654.217,
+        -635.721,
+        -657.732,
+        -626.139,
+        -663.969,
+        -631.867
+      ],
+      "p50": -644.888,
+      "p95": -631.867,
+      "min": -665.962,
+      "max": -626.139
+    },
+    "candidate-baseline.failure.disabled": {
+      "samples": [
+        2.105,
+        2.187,
+        1.307,
+        3.413,
+        -12.406,
+        -9.036,
+        -0.091,
+        -3.02,
+        -19.395,
+        4.286,
+        7.284,
+        -11.591,
+        -4.615,
+        13.061,
+        -1.943,
+        18.523,
+        -4.231,
+        -3.916,
+        -1.442,
+        2.753
+      ],
+      "p50": -1.442,
+      "p95": 13.061,
+      "min": -19.395,
+      "max": 18.523
+    },
+    "candidate-baseline.failure.healthy": {
+      "samples": [
+        10.964,
+        21.095,
+        11.832,
+        9.638,
+        12.153,
+        5.481,
+        12.481,
+        8.543,
+        10.057,
+        -5.068,
+        7.432,
+        7.323,
+        10.529,
+        16.483,
+        11.438,
+        6.812,
+        11.001,
+        9.339,
+        6.905,
+        23.529
+      ],
+      "p50": 10.057,
+      "p95": 21.095,
+      "min": -5.068,
+      "max": 23.529
+    },
+    "candidate-baseline.failure.refused": {
+      "samples": [
+        13.705,
+        22.027,
+        9.814,
+        5.525,
+        17.909,
+        -3.263,
+        22.178,
+        10.857,
+        -1.871,
+        3.555,
+        3.721,
+        10.755,
+        9.277,
+        12.577,
+        3.599,
+        7.535,
+        12.056,
+        18.4,
+        22.989,
+        9.797
+      ],
+      "p50": 9.814,
+      "p95": 22.178,
+      "min": -3.263,
+      "max": 22.989
+    },
+    "candidate-baseline.failure.hanging": {
+      "samples": [
+        3.514,
+        32.271,
+        25.547,
+        25.551,
+        18.968,
+        22.799,
+        26.761,
+        17.893,
+        23.5,
+        29.257,
+        27.684,
+        4.701,
+        23.833,
+        9.542,
+        32.597,
+        25.571,
+        12.584,
+        30.377,
+        22.712,
+        26.569
+      ],
+      "p50": 23.833,
+      "p95": 32.271,
+      "min": 3.514,
+      "max": 32.597
+    }
+  },
+  "pristine": [
+    {
+      "build": "baseline",
+      "condition": "disabled",
+      "elapsedMs": 357.031,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "baseline",
+      "condition": "healthy",
+      "elapsedMs": 372.936,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "command_run:": 1
+      }
+    },
+    {
+      "build": "candidate",
+      "condition": "disabled",
+      "elapsedMs": 351.751,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "candidate",
+      "condition": "healthy",
+      "elapsedMs": 361.629,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 1,
+      "files": [
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 0,
+        "payloadBytes": 0,
+        "activeClaims": 0,
+        "databaseBytes": 12288,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "cli.command_started:": 1,
+        "cli.command_completed:success": 1
+      }
+    },
+    {
+      "build": "candidate",
+      "condition": "disabled",
+      "elapsedMs": 351.168,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "candidate",
+      "condition": "healthy",
+      "elapsedMs": 363.231,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 1,
+      "files": [
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 0,
+        "payloadBytes": 0,
+        "activeClaims": 0,
+        "databaseBytes": 12288,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "cli.command_started:": 1,
+        "cli.command_completed:success": 1
+      }
+    },
+    {
+      "build": "baseline",
+      "condition": "disabled",
+      "elapsedMs": 363.139,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "baseline",
+      "condition": "healthy",
+      "elapsedMs": 381.691,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "command_run:": 1
+      }
+    },
+    {
+      "build": "baseline",
+      "condition": "disabled",
+      "elapsedMs": 366.359,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "baseline",
+      "condition": "healthy",
+      "elapsedMs": 369.855,
+      "exitCode": 0,
+      "stdoutBytes": 3672,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [
+        ".mex/telemetry-id"
+      ],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "command_run:": 1
+      }
+    },
+    {
+      "build": "candidate",
+      "condition": "disabled",
+      "elapsedMs": 352.129,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 0,
+      "openSocketsAfterExit": 0,
+      "redirected": 0,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 0,
+      "files": [],
+      "queue": {
+        "state": "absent",
+        "events": 0,
+        "payloadBytes": 0,
+        "databaseBytes": 0,
+        "activeClaims": 0,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {}
+    },
+    {
+      "build": "candidate",
+      "condition": "healthy",
+      "elapsedMs": 363.715,
+      "exitCode": 0,
+      "stdoutBytes": 3674,
+      "stderrBytes": 0,
+      "requests": 1,
+      "openSocketsAfterExit": 0,
+      "redirected": 1,
+      "blocked": 0,
+      "blockedKind": null,
+      "requestErrors": 0,
+      "responseCompletions": 1,
+      "files": [
+        ".mex/telemetry-id",
+        ".mex/telemetry/outbox.db"
+      ],
+      "queue": {
+        "state": "available",
+        "events": 0,
+        "payloadBytes": 0,
+        "activeClaims": 0,
+        "databaseBytes": 12288,
+        "eventCounts": {},
+        "receivedOrQueuedEventCounts": {}
+      },
+      "serverReceivedEventCounts": {
+        "cli.command_started:": 1,
+        "cli.command_completed:success": 1
+      }
+    }
+  ],
+  "moduleProbe": {
+    "methodology": "Separately bundled current internal telemetry module; direct synchronous capture-call and awaited flush timings. Module/compiler startup excluded. Each repetition resets transport handles and keeps its isolated durable queue; first capture includes queue initialization. This does not replace built-CLI lifetime measurements.",
+    "bundleSha256": "592f98a3406bd0238400134f5421bebfd83b2ee209e8c2549777e8aac982b751",
+    "conditions": {
+      "disabled": {
+        "captureStartedMs": {
+          "samples": [
+            0.002,
+            0.002,
+            0.001,
+            0.001,
+            0.003,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001
+          ],
+          "p50": 0.001,
+          "p95": 0.002,
+          "min": 0.001,
+          "max": 0.003
+        },
+        "captureCompletedMs": {
+          "samples": [
+            0.003,
+            0.002,
+            0.001,
+            0.001,
+            0.002,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001
+          ],
+          "p50": 0.001,
+          "p95": 0.002,
+          "min": 0.001,
+          "max": 0.003
+        },
+        "flushMs": {
+          "samples": [
+            0.001,
+            0.001,
+            0.001,
+            0.043,
+            0.005,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001
+          ],
+          "p50": 0.001,
+          "p95": 0.005,
+          "min": 0.001,
+          "max": 0.043
+        },
+        "firstCaptureStartedMs": 0.096,
+        "queue": {
+          "state": "absent",
+          "events": 0,
+          "bytes": 0
+        },
+        "requests": 0,
+        "redirected": 0,
+        "blocked": 0,
+        "blockedKind": null,
+        "requestErrors": 0,
+        "responseCompletions": 0
+      },
+      "healthy": {
+        "captureStartedMs": {
+          "samples": [
+            0.504,
+            0.68,
+            0.577,
+            0.647,
+            0.511,
+            0.483,
+            0.576,
+            0.499,
+            0.704,
+            0.543,
+            0.602,
+            0.488,
+            0.508,
+            0.46,
+            0.669,
+            0.527,
+            0.553,
+            0.565,
+            0.487,
+            0.466
+          ],
+          "p50": 0.527,
+          "p95": 0.68,
+          "min": 0.46,
+          "max": 0.704
+        },
+        "captureCompletedMs": {
+          "samples": [
+            0.375,
+            0.427,
+            0.408,
+            0.408,
+            0.376,
+            0.398,
+            0.392,
+            0.374,
+            0.428,
+            0.391,
+            0.42,
+            0.36,
+            0.37,
+            0.357,
+            0.438,
+            0.372,
+            0.388,
+            0.367,
+            0.366,
+            0.37
+          ],
+          "p50": 0.376,
+          "p95": 0.428,
+          "min": 0.357,
+          "max": 0.438
+        },
+        "flushMs": {
+          "samples": [
+            1.352,
+            1.325,
+            1.427,
+            1.992,
+            1.069,
+            1.063,
+            1.102,
+            1.199,
+            1.177,
+            1.205,
+            1.099,
+            0.917,
+            0.883,
+            0.916,
+            1.334,
+            1.265,
+            1.099,
+            0.969,
+            0.925,
+            0.959
+          ],
+          "p50": 1.099,
+          "p95": 1.427,
+          "min": 0.883,
+          "max": 1.992
+        },
+        "firstCaptureStartedMs": 3.21,
+        "queue": {
+          "state": "available",
+          "events": 0,
+          "bytes": 0
+        },
+        "requests": 25,
+        "redirected": 25,
+        "blocked": 0,
+        "blockedKind": null,
+        "requestErrors": 0,
+        "responseCompletions": 25
+      },
+      "refused": {
+        "captureStartedMs": {
+          "samples": [
+            0.505,
+            0.528,
+            0.553,
+            0.617,
+            0.527,
+            0.493,
+            0.486,
+            0.547,
+            0.585,
+            0.488,
+            0.677,
+            0.681,
+            0.586,
+            0.508,
+            0.505,
+            0.542,
+            0.502,
+            0.567,
+            0.606,
+            0.506
+          ],
+          "p50": 0.528,
+          "p95": 0.677,
+          "min": 0.486,
+          "max": 0.681
+        },
+        "captureCompletedMs": {
+          "samples": [
+            0.426,
+            0.381,
+            0.383,
+            0.383,
+            0.36,
+            0.373,
+            0.359,
+            0.363,
+            0.402,
+            0.373,
+            0.503,
+            0.51,
+            0.376,
+            0.396,
+            0.383,
+            0.4,
+            0.378,
+            0.385,
+            0.425,
+            0.377
+          ],
+          "p50": 0.383,
+          "p95": 0.503,
+          "min": 0.359,
+          "max": 0.51
+        },
+        "flushMs": {
+          "samples": [
+            0.994,
+            1.28,
+            1.376,
+            1.895,
+            1.216,
+            1.186,
+            1.075,
+            1.278,
+            1.287,
+            1.435,
+            1.532,
+            1.351,
+            1.146,
+            1.204,
+            1.291,
+            1.282,
+            1.183,
+            1.434,
+            1.181,
+            1.122
+          ],
+          "p50": 1.278,
+          "p95": 1.532,
+          "min": 0.994,
+          "max": 1.895
+        },
+        "firstCaptureStartedMs": 2.943,
+        "queue": {
+          "state": "available",
+          "events": 50,
+          "bytes": 22400
+        },
+        "requests": 0,
+        "redirected": 25,
+        "blocked": 0,
+        "blockedKind": null,
+        "requestErrors": 25,
+        "responseCompletions": 0
+      },
+      "hanging": {
+        "captureStartedMs": {
+          "samples": [
+            1.126,
+            1.42,
+            1.419,
+            1.912,
+            1.683,
+            1.744,
+            2.568,
+            2.119,
+            1.833,
+            1.643,
+            2.079,
+            2.08,
+            1.911,
+            2.05,
+            2.41,
+            1.573,
+            1.417,
+            2.011,
+            1.947,
+            2.082
+          ],
+          "p50": 1.911,
+          "p95": 2.41,
+          "min": 1.126,
+          "max": 2.568
+        },
+        "captureCompletedMs": {
+          "samples": [
+            0.773,
+            0.775,
+            0.889,
+            0.97,
+            0.925,
+            0.932,
+            1.227,
+            1.747,
+            1.328,
+            1.292,
+            1.075,
+            1.364,
+            1.861,
+            1.486,
+            1.466,
+            0.9,
+            0.879,
+            0.986,
+            1.383,
+            1.282
+          ],
+          "p50": 1.075,
+          "p95": 1.747,
+          "min": 0.773,
+          "max": 1.861
+        },
+        "flushMs": {
+          "samples": [
+            26.198,
+            28.279,
+            27.975,
+            28.356,
+            27.915,
+            28.268,
+            27.006,
+            27.365,
+            25.831,
+            27.025,
+            27.085,
+            28.019,
+            27.445,
+            27.542,
+            28.312,
+            27.45,
+            28.072,
+            29.114,
+            27.12,
+            27.869
+          ],
+          "p50": 27.542,
+          "p95": 28.356,
+          "min": 25.831,
+          "max": 29.114
+        },
+        "firstCaptureStartedMs": 3.011,
+        "queue": {
+          "state": "available",
+          "events": 50,
+          "bytes": 22400
+        },
+        "requests": 25,
+        "redirected": 25,
+        "blocked": 0,
+        "blockedKind": null,
+        "requestErrors": 25,
+        "responseCompletions": 0
+      }
+    }
+  },
+  "limitations": [
+    "Single local host; paired differences include scheduler and module-loading noise.",
+    "Server receipt is not client acknowledgement: hanging ingestion receives bodies but never acknowledges them. Client HTTP response completions and durable retained events are reported separately; receipt/retention accounting deduplicates UUIDs in memory and retains no identifiers.",
+    "Local HTTP ingestion does not measure production TLS or Internet latency.",
+    "Candidate offline queues accumulate across the repeated invocations; the queue remains bounded and is inspected only after timed runs.",
+    "First-command runs are bounded observations, not a statistically stable p95.",
+    "This command scenario accumulates up to 50 queued events. Maximum-cap queue performance and production network delivery rates are not measured here.",
+    "The wrapper measures real built-CLI main execution but adds the same preload instrumentation to baseline/candidate and enabled/disabled runs. Embedded Yoga WASM data-URL loading is allowed because it performs no network I/O."
+  ],
+  "provenance": {
+    "baselineCommit": "d64f171054e09149bf79790a91a0077a07975828",
+    "candidate": "working-tree telemetry implementation on codex/0.8.1-telemetry; built CLI SHA-256 is recorded above",
+    "rawReportSha256": "05520b33b65449120a76d0eccf9621165c790e1f625fd3bd287a54d1fd8ea023",
+    "harnessSha256": "857bb371755accb0cbd4567b4e3b1c58f91778c0f3480fa8f2762c883d38de10",
+    "rawReportBytes": 244536,
+    "recording": "Full raw timing and paired-difference samples retained here; repeated server event bodies are replaced by per-run closed event counts. No identifiers, tokens or absolute local paths are retained."
+  },
+  "findings": {
+    "candidateEnabledMinusDisabledMs": {
+      "success": {
+        "healthy": {
+          "p50": 3.084,
+          "p95": 17.811
+        },
+        "refused": {
+          "p50": 4.408,
+          "p95": 20.586
+        },
+        "hanging": {
+          "p50": 27.294,
+          "p95": 48.884
+        }
+      },
+      "failure": {
+        "healthy": {
+          "p50": 7.806,
+          "p95": 18.022
+        },
+        "refused": {
+          "p50": 6.377,
+          "p95": 24.638
+        },
+        "hanging": {
+          "p50": 22.797,
+          "p95": 31.6
+        }
+      }
+    },
+    "candidateMinusBaselineMs": {
+      "success": {
+        "disabled": {
+          "p50": -4.499,
+          "p95": 13.287
+        },
+        "healthy": {
+          "p50": -7.261,
+          "p95": 3.903
+        },
+        "refused": {
+          "p50": -7.086,
+          "p95": 8.553
+        },
+        "hanging": {
+          "p50": -644.888,
+          "p95": -631.867
+        }
+      },
+      "failure": {
+        "disabled": {
+          "p50": -1.442,
+          "p95": 13.061
+        },
+        "healthy": {
+          "p50": 10.057,
+          "p95": 21.095
+        },
+        "refused": {
+          "p50": 9.814,
+          "p95": 22.178
+        },
+        "hanging": {
+          "p50": 23.833,
+          "p95": 32.271
+        }
+      }
+    },
+    "captureCallP95MaxMs": 2.41,
+    "firstCaptureMaxMs": 3.21,
+    "flushObservedMaxMs": 29.114,
+    "healthyOutcomeEvidence": "For each candidate command, all 25 started and 25 completed events reached local ingestion across warmups and measured runs; the queue was empty afterward. Both success and failure outcomes were present. The old failure path sent no event.",
+    "offlineEvidence": "Refused and hanging candidate conditions retained all 50 events per command in a 45,056-byte SQLite store with zero active claims at final inspection. Hanging server receipts were unacknowledged and remain queued; UUID-union accounting avoids double counting.",
+    "isolationAndCleanup": "All disabled runs made zero telemetry requests. All child processes exited naturally with expected output/exit code; no server sockets remained after exit. Disabled pristine homes stayed empty.",
+    "failureCost": "The new failure path now records and attempts delivery of an outcome. Its extra healthy median cost was about 10ms versus the old failure path, which exited without sending an event."
+  }
+}

@@ -75,6 +75,9 @@ The build copies every vendored `.wasm` file into `dist/wasm/`. A new grammar mu
 - Emit resolved `contains` edges when both endpoints are known in the file.
 - Leave cross-file targets unresolved with `targetName` and optional candidates.
 - Include signatures, documentation, visibility, export state, and type information when the grammar exposes them reliably.
+- Preserve call receivers in `targetName`; a same-named method in lexical scope does not prove the target of `other.Method()`. Test unresolved persistence as well as extraction.
+- Use grammar name/operator/type fields for declaration names. Include operator tokens, conversion target types, and indexer signatures so reordering does not swap identities.
+- Verify traversal ownership: file-scoped namespace siblings must be visited once, and field initializers/indexer bodies must retain their declaring symbol as the reference source.
 - Prefer stable semantic assertions over exact node/edge counts that make fixtures hard to extend.
 
 Use [`src/graph/__tests__/extractor.test.ts`](../src/graph/__tests__/extractor.test.ts) and its `sample.ts` fixture as the test pattern. Cover at least:
@@ -114,6 +117,15 @@ When adding a language, document the grammar source and version.
 - **Binary package license:** Unlicense
 - **Upstream grammar:** [tree-sitter/tree-sitter-rust](https://github.com/tree-sitter/tree-sitter-rust)
 - **Upstream grammar license:** MIT
+
+### C#
+- **Binary source:** `tree-sitter-c-sharp` package, version `0.23.5` (the grammar's own published package, not `tree-sitter-wasms` — see note below)
+- **Vendored path:** `src/graph/wasm/tree-sitter-c-sharp.wasm`
+- **SHA-256:** matches `node_modules/tree-sitter-c-sharp@0.23.5/tree-sitter-c_sharp.wasm` exactly
+- **Binary package license:** MIT
+- **Upstream grammar:** [tree-sitter/tree-sitter-c-sharp](https://github.com/tree-sitter/tree-sitter-c-sharp)
+- **Upstream grammar license:** MIT
+- **Note:** `tree-sitter-wasms@0.1.12` also ships a `tree-sitter-c_sharp.wasm`, but it is built from a different grammar revision than the `node-types.json` published with `tree-sitter-c-sharp@0.23.5`. Several fields that `node-types.json` declares (`variable_declarator.name`, `using_directive.name`) return `undefined` via `childForFieldName` against that older build. The extractor is written and tested against 0.23.5's own field layout — use the grammar's own published wasm for this language, not `tree-sitter-wasms`'s copy.
 
 ## Pull request proof
 

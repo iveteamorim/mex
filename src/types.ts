@@ -39,12 +39,75 @@ export interface WatchConfig {
 }
 
 export interface HeartbeatConfig {
-  /** Days since `last_updated` before heartbeat reports stale context */
+  /**
+   * Days since `last_updated` before heartbeat reports stale context. `0`
+   * means stale as soon as a file is older than today (#42); negatives and
+   * other garbage fall back to the default.
+   */
   staleDays?: number;
-  /** Days since memory cleanup before heartbeat reports cleanup due */
+  /**
+   * Days since memory cleanup before heartbeat reports cleanup due. `0`
+   * means due every day; negatives fall back to the default.
+   */
   memoryCleanupDays?: number;
-  /** Daily memory files older than this are considered cleanup candidates */
+  /**
+   * Daily memory files older than this are considered cleanup candidates.
+   * `0` flags yesterday's file; negatives fall back to the default.
+   */
   dailyMemoryRetentionDays?: number;
+}
+
+/**
+ * Wiki engine indexing scope (implementation plan, D10).
+ *
+ * Both lists are ordered globs matched against scaffold-relative POSIX paths.
+ * They are always present on a loaded config, with the D10 defaults, so no
+ * consumer has to remember what the default was — that is how a default drifts
+ * between the two places that apply it.
+ */
+/**
+ * Scope knobs for §12's synthesis pipeline.
+ *
+ * **Every field here changes what mex *looks at*. None of them changes what
+ * mex *accepts*.** The confidence gates and the relationship thresholds are
+ * deliberately absent: a setting that lowers the bar for writing into a user's
+ * files has exactly one use, and it would make two checkouts of one repository
+ * disagree about what counts as knowledge with no record of why. Those numbers
+ * live in `src/wiki/synthesis/` as constants and are asserted by tests.
+ */
+export interface WikiSynthesisConfig {
+  /** Source files a folder needs before it is worth proposing knowledge about. */
+  minFiles: number;
+  /** Token ceiling for one cluster context. Supporting evidence is dropped first. */
+  maxTokens: number;
+  /** Lines of surrounding context around a primary symbol's span. */
+  primaryContextLines: number;
+  /** Upper bound on lines in any file-level code block. */
+  maxFileLines: number;
+  /** Tighter bound for supporting file-level blocks. */
+  supportingMaxLines: number;
+  /** Cap on relationship candidate pairs proposed in one pass. */
+  maxCandidates: number;
+  /** Cap on candidates referencing any one entity, so a hub cannot flood the batch. */
+  maxPerUnit: number;
+  /** Cap on consolidation groups proposed in one pass. */
+  maxGroups: number;
+  /** Cap on symbols listed in one cluster context — what may be grounded to. */
+  maxNodes: number;
+}
+
+export interface WikiConfig {
+  /** Paths never indexed. Default: node_modules anywhere under the scaffold. */
+  exclude: string[];
+  /**
+   * Reserved read-only prefixes. Files matching these are parsed, indexed,
+   * queried and grounded exactly like any other; what changes is that P5
+   * rejects any operation whose patch plan targets one. Loaded and exposed
+   * here, enforced there.
+   */
+  readOnly: string[];
+  /** §12 scope knobs. Always present, with defaults, like the two lists above. */
+  synthesis: WikiSynthesisConfig;
 }
 
 /**
@@ -78,6 +141,8 @@ export interface MexConfig {
   heartbeat?: HeartbeatConfig;
   /** Scaffold identity, when present in config.json. See {@link getScaffoldIdentity}. */
   identity?: ScaffoldIdentity;
+  /** Wiki indexing scope. Always populated with D10's defaults. */
+  wiki?: WikiConfig;
 }
 
 // ── Claims (extracted from markdown) ──
@@ -115,6 +180,11 @@ export type IssueCode =
   | "TOOL_CONFIG_DRIFT"
   | "TODO_FIXME"
   | "BROKEN_LINK"
+  | "MISSING_FRONTMATTER_FIELD"
+  | "STALE_PATTERN"
+  // Populated scaffold that no always-loaded tool config points at, so no
+  // agent ever reads it. See src/drift/checkers/anchor-link.ts and #106.
+  | "SCAFFOLD_ORPHANED"
   // ── Code-graph grounding (checker #12; emitted by src/drift/checkers/grounding.ts) ──
   // Added in Phase 0 so the grounding-checker contract typechecks and Track B
   // never has to reopen this shared union. See src/graph/grounding.ts.
@@ -153,13 +223,36 @@ export interface DriftReport {
  * grounds_to:
  *   - node: "function:a3f8...c21"
  *     fingerprint: "mh:64:9f2a..."
+ *     bodyHash: "sha256:7c1d..."
  * ```
  */
 export interface Grounding {
   /** The grounded node's Tier-1 id, `${kind}:sha256(filePath:kind:name)[:32]`. */
   node: string;
-  /** Serialized Tier-2 fingerprint (`mh:<K>:<hex>`) captured when grounded. */
+  /**
+   * Serialized Tier-2 fingerprint (`mh:<K>:<hex>`) captured when grounded.
+   *
+   * An **identity** signal, not a change signal: it is what finds the symbol
+   * again after it moves. It is deliberately insensitive to an edited constant
+   * or a renamed local, so it must never be asked "did this change?".
+   */
   fingerprint: string;
+  /**
+   * The grounded node's body hash when the baseline was captured.
+   *
+   * **The change signal, and canonical because it is committed in Markdown.**
+   * The same value is cached in `_mex_grounded_source` inside `.mex/graph.db`,
+   * but that index is gitignored and disposable by invariant — a rebuild
+   * re-captures it from the current code, so comparing against the cache
+   * compares current against current and drift disappears. Only the copy in
+   * Git survives a rebuild and reaches a teammate who clones.
+   *
+   * Optional, and it has to be: every grounding written before this field
+   * existed lacks it, and requiring it would turn each of those scaffolds into
+   * a parse error. A grounding without it still resolves, through the coarser
+   * structural comparator, and `mex sync` backfills it on the next capture.
+   */
+  bodyHash?: string;
 }
 
 export interface ScaffoldFrontmatter {

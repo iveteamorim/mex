@@ -17,12 +17,30 @@
 // Synchronous reads are what let the grounding checker match the existing
 // (synchronous) drift-checker signature exactly (`src/graph/grounding.ts`).
 
-import type { GraphNode, NodeKind, Language } from "./types.js";
+import type { EdgeKind, GraphEdge, GraphNode, NodeKind, Language } from "./types.js";
 import { NotImplementedError } from "./errors.js";
 
 // ----------------------------------------------------------------------------
 // Value types
 // ----------------------------------------------------------------------------
+
+/**
+ * One repository file the bounded corpus policy declined to index.
+ *
+ * A skipped file is a reported outcome, not a failure: the rest of the
+ * repository indexed normally. It is surfaced so a user learns why a symbol is
+ * missing from the graph instead of concluding the graph is wrong.
+ */
+export interface SkippedSourceFile {
+  filePath: string;
+  reason: "corpus-limit";
+  /** The bounded-policy limit the file breached. */
+  limit: string;
+  limitBytes: number;
+  /** Observed size, when it was measured. */
+  observedBytes?: number;
+  message: string;
+}
 
 /** Summary of a build/sync pass — for the `mex graph` CLI. */
 export interface BuildResult {
@@ -30,6 +48,31 @@ export interface BuildResult {
   nodesCreated: number;
   edgesCreated: number;
   durationMs: number;
+  health?: {
+    ok: number;
+    partial: number;
+    failed: number;
+  };
+  /**
+   * Files discovered but deliberately not indexed. Sits beside `health`
+   * rather than inside it: `health` counts files that *are* in the graph and
+   * how well they parsed, and a skipped file is in none of those buckets.
+   */
+  skipped?: SkippedSourceFile[];
+  /**
+   * Compiler config inputs outside the project corpus that were declined.
+   *
+   * Distinct from `skipped`: no source file is missing from the graph, but the
+   * affected project's type resolution is less complete than it looks.
+   */
+  declinedInputs?: DeclinedCompilerInput[];
+}
+
+/** A compiler input the containment policy declined to read. */
+export interface DeclinedCompilerInput {
+  filePath: string;
+  reason: "outside-project-corpus";
+  message: string;
 }
 
 /** Options for {@link GraphEngine.searchNodes}. */
@@ -40,6 +83,32 @@ export interface NodeSearchOptions {
   languages?: Language[];
   /** Cap the number of results. */
   limit?: number;
+}
+
+/** One typed graph edge and the node at its opposite endpoint. */
+export interface GraphNeighbor {
+  node: GraphNode;
+  edge: GraphEdge;
+}
+
+export interface IndexedFileInfo {
+  path: string;
+  contentHash: string;
+  parseStatus: "ok" | "partial" | "failed";
+  diagnosticCount: number;
+  errorCoverage: number;
+  nodeCount: number;
+}
+
+export interface SourceChunkMatch {
+  filePath: string;
+  startLine: number;
+  endLine: number;
+  contentHash: string;
+  rank: number;
+  matchedTerms?: string[];
+  /** Named structural declarations overlapping this source window, in deterministic relevance order. */
+  nodeIds?: string[];
 }
 
 // ----------------------------------------------------------------------------
@@ -88,6 +157,18 @@ export interface GraphEngine {
   /** Nodes with an outgoing `calls` edge from `id` (its callees). Synchronous. */
   getCallees(id: string): GraphNode[];
 
+  /** Incoming relationships of any requested kinds, preserving edge metadata. */
+  getIncoming(id: string, kinds?: EdgeKind[]): GraphNeighbor[];
+
+  /** Outgoing relationships of any requested kinds, preserving edge metadata. */
+  getOutgoing(id: string, kinds?: EdgeKind[]): GraphNeighbor[];
+
+  /** File-level lexical evidence used by one-call retrieval and parser fallback. */
+  searchSource?(query: string, limit?: number): SourceChunkMatch[];
+
+  /** Indexed file health and hashes. */
+  getIndexedFiles?(): IndexedFileInfo[];
+
   /** Release the underlying database handle. */
   close(): void;
 }
@@ -115,6 +196,18 @@ export const notImplementedGraphEngine: GraphEngine = {
   },
   getCallees(): GraphNode[] {
     throw new NotImplementedError("GraphEngine.getCallees");
+  },
+  getIncoming(): GraphNeighbor[] {
+    throw new NotImplementedError("GraphEngine.getIncoming");
+  },
+  getOutgoing(): GraphNeighbor[] {
+    throw new NotImplementedError("GraphEngine.getOutgoing");
+  },
+  searchSource(): SourceChunkMatch[] {
+    throw new NotImplementedError("GraphEngine.searchSource");
+  },
+  getIndexedFiles(): IndexedFileInfo[] {
+    throw new NotImplementedError("GraphEngine.getIndexedFiles");
   },
   close(): void {
     throw new NotImplementedError("GraphEngine.close");

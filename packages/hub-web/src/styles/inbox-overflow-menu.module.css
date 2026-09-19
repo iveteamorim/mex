@@ -1,0 +1,16 @@
+.menu {
+  width: min(320px, calc(100vw - 32px));
+}
+
+.actionCopy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  white-space: normal;
+}
+
+.actionCopy small {
+  color: var(--muted-foreground);
+  font-size: 9px;
+  line-height: 1.4;
+}

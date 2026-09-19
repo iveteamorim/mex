@@ -1,10 +1,16 @@
+---
+name: patterns
+description: Guide to creating and maintaining project-specific patterns without duplicating existing guidance.
+last_updated: 2026-09-06
+---
+
 # Patterns
 
 This folder contains task-specific guidance — the things you would tell your agent if you were sitting next to it. Not generic instructions. Project-specific accumulated wisdom.
 
 ## How patterns get created
 
-**During setup:** After the context/ files are populated, the agent generates starter patterns based on the project's actual stack, architecture, and conventions. These are stack-specific — a Flask API project gets different patterns than a React SPA or a CLI tool.
+**During setup:** After the context files are populated, a fresh repository seeds 2-3 high-value patterns. An existing repository audits its pattern corpus first and uses 3-5 only as a seed target when no substantive patterns exist. Any addition must cover a genuine project-specific gap.
 
 **Over time:** You or your agent add patterns as they emerge from real work — when something breaks, when a task has a non-obvious gotcha, when you've explained the same thing twice.
 
@@ -18,13 +24,20 @@ A pattern file is worth creating when:
 
 ## When to skip a pattern
 
-Default to generating a pattern. Only skip if:
-- The exact same guidance is already in `context/conventions.md` with concrete examples
-- The task truly has no project-specific gotchas (e.g. "how to write a for loop")
+Audit the existing pattern and index before creating anything. Update the
+matching pattern when the task is already covered; create a new one only when:
+- The workflow recurs and has project-specific steps or failure modes
+- The guidance is not already concrete in `context/conventions.md`
+- No existing pattern covers the same task under a different name
 
-If in doubt, generate the pattern. A pattern that turns out to be obvious costs nothing. A missing pattern costs a broken codebase.
+An overlapping pattern fragments the operating contract. Prefer one well-routed,
+evidence-backed pattern over multiple near-duplicates.
 
 ## Format
+
+The examples below use the pre-Wiki grounding shape. In migrated files, keep
+groundings under `mex.grounds_to`. Use graph-produced fingerprints and retain
+captured `bodyHash` baselines; a review date alone does not verify a grounding.
 
 ### Single-task pattern (one file = one task)
 
@@ -73,6 +86,7 @@ Read the broad task neighborhood, but ground only nodes that embody this pattern
 
 Use this when tasks share context but differ in steps. Each task gets its own
 `## Task: ...` heading with sub-sections. The Context section is shared at the top.
+Point the index entry at the task anchor, for example `[file.md#task-name]`.
 
 ```markdown
 ---
@@ -124,7 +138,9 @@ Only group tasks that genuinely share context.
 
 ## How many patterns to generate
 
-Do not use a fixed number. Generate one pattern per:
+After the initial seed, do not use a fixed number. Consider an additional
+pattern only for an uncovered, high-value task in these areas:
+
 - Each major task type a developer does repeatedly in this project
 - Each external dependency with non-obvious integration gotchas
 - Each major failure boundary in the architecture flow
@@ -135,7 +151,7 @@ Do not cap based on a number — cap based on whether the pattern adds real valu
 ## Pattern categories
 
 Walk through each category below. For each one, check the relevant context files
-and generate patterns for everything that applies to this project.
+and existing patterns for gaps; add only guidance justified by recurring work.
 
 ### Category 1 — Common task patterns
 
@@ -157,7 +173,8 @@ How to work with the external dependencies in this project.
 
 Every entry in `context/stack.md` "Key Libraries" or `context/architecture.md`
 "External Dependencies" that has non-obvious setup, gotchas, or failure modes
-deserves a pattern. These are the most dangerous areas — the agent will
+is a candidate for a pattern if existing guidance does not cover it. These are
+the most dangerous areas — the agent will
 confidently write integration code that looks right but misses project-specific
 configuration, error handling, or rate limiting.
 
@@ -169,7 +186,8 @@ Examples: "calling the payments API", "running database migrations",
 When something breaks, where do you look?
 
 Derive from the architecture flow — each boundary between components is a
-potential failure point. One debug pattern per major boundary.
+potential failure point. Add debug guidance to the matching pattern before
+creating a separate file.
 
 Examples: "debug webhook failures", "debug pipeline stage failures",
 "diagnose auth/permission issues", "debug background job failures"
