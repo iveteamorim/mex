@@ -75,20 +75,28 @@ export function checkPaths(
 }
 
 /**
- * True when a slash-separated value names no file type, does not end in a
- * directory separator, and its first segment does not exist at either root.
- * API routes and placeholders take this shape; a real relative path almost
- * always starts from a directory that is actually there.
+ * True when a value names no file type and its first segment does not exist at
+ * either root. API routes and placeholders take this shape; a real relative
+ * path almost always starts from a directory that is actually there.
+ *
+ * A trailing separator marks a directory reference rather than disqualifying
+ * the value. `screenshots/` in a layout note is prose when nothing by that name
+ * is there, while `.mex/local/` still roots at a directory that exists and so
+ * remains a claim the checker is entitled to test.
  */
 function isUnrootedReference(
   value: string,
   projectRoot: string,
   scaffoldRoot: string
 ): boolean {
-  if (!value.includes("/") || value.startsWith("/") || value.endsWith("/")) return false;
-  if (/\.[A-Za-z0-9]+$/.test(value)) return false;
+  if (value.startsWith("/")) return false;
 
-  const first = value.split("/")[0];
+  const trimmed = value.replace(/\/+$/, "");
+  const isDirectoryRef = trimmed !== value;
+  if (!trimmed.includes("/") && !isDirectoryRef) return false;
+  if (/\.[A-Za-z0-9]+$/.test(trimmed)) return false;
+
+  const first = trimmed.split("/")[0];
   if (!first || first.startsWith("@") || first === "." || first === "..") return false;
 
   if (existsSync(resolve(projectRoot, first))) return false;
@@ -234,10 +242,13 @@ function pathExists(
 
   // Bare filenames: search recursively — the file may exist in a subdirectory
   if (!value.includes("/")) {
+    // `dot: true` so a file that lives in a hidden directory is found:
+    // a backticked `deploy.yml` normally sits in `.github/workflows/`.
     const matches = globSync(`**/${value}`, {
       cwd: projectRoot,
       ignore: ["node_modules/**", ".mex/**", "dist/**", ".git/**"],
       maxDepth: 5,
+      dot: true,
     });
     if (matches.length > 0) return true;
 
@@ -249,6 +260,7 @@ function pathExists(
         cwd: scaffoldRoot,
         ignore: ["node_modules/**"],
         maxDepth: 5,
+        dot: true,
       });
       if (inScaffold.length > 0) return true;
     }
@@ -265,6 +277,7 @@ function pathExists(
       cwd: projectRoot,
       ignore: ["node_modules/**", "dist/**", ".git/**"],
       maxDepth: 6,
+      dot: true,
     });
     if (matches.length > 0) return true;
   }
