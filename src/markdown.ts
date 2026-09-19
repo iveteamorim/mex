@@ -179,6 +179,26 @@ export function getTextContent(node: Content | Root): string {
   return "";
 }
 
+/**
+ * Words that mark surrounding prose as describing something that is gone or
+ * deliberately absent. A heading is not always the right scope: a changelog
+ * bullet naming a deleted file sits under an ordinary heading yet still refers
+ * to something that should not exist on disk.
+ */
+const NEGATED_TEXT =
+  /\b(?:deleted|removed|dropped|retired|orphaned|unreferenced|absent|no longer|does not exist|never created)\b/i;
+
+/**
+ * True when this passage describes a path as deleted or deliberately absent.
+ * Callers pass a whole block rather than one line: markdown wraps prose freely,
+ * so the word and the reference it governs routinely sit on different lines of
+ * the same sentence.
+ */
+export function isNegatedText(text: string | undefined): boolean {
+  if (!text) return false;
+  return NEGATED_TEXT.test(text);
+}
+
 /** Check if a heading or its ancestors suggest negation */
 export function isNegatedSection(heading: string | null): boolean {
   if (!heading) return false;

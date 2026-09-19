@@ -1,8 +1,13 @@
 import { readFileSync } from "node:fs";
 import { visit } from "unist-util-visit";
-import { parseMarkdown, getHeadingAtLine, isNegatedSection } from "../markdown.js";
+import {
+  parseMarkdown,
+  getHeadingAtLine,
+  isNegatedSection,
+  isNegatedText,
+} from "../markdown.js";
 import type { Claim } from "../types.js";
-import type { Root, Code, InlineCode, ListItem, Strong, Text } from "mdast";
+import type { Root, Code, Content, InlineCode, ListItem, Strong, Text } from "mdast";
 
 const KNOWN_EXTENSIONS = /\.(ts|js|tsx|jsx|py|go|rs|rb|java|json|yaml|yml|toml|md|css|scss|html|vue|svelte|sh)$/;
 const COMMAND_PREFIXES = /^(npm|yarn|pnpm|bun|make|cargo|python|pip|go|node|npx|tsx)\s/;
@@ -95,6 +100,14 @@ export function extractClaims(filePath: string, source: string): Claim[] {
   const tree = parseMarkdown(content);
   const claims: Claim[] = [];
 
+  // Negation is not always heading-scoped: a bullet that records a deletion
+  // sits under an ordinary heading. Nor is a raw line the right unit, because
+  // markdown wraps prose freely and the word and the reference it governs
+  // routinely land on different lines. The sentence is the unit that actually
+  // governs: a paragraph describing an unrelated removal elsewhere must not
+  // silence every path it happens to mention.
+  const negatedByContext = collectNegatedReferences(tree);
+
   // A stack doc declares a dependency as `- **name** — description`, so only
   // bold that opens a list item is a declaration. Collected up front because
   // both the inline-code pass and the bold pass need to know which nodes are
@@ -121,7 +134,7 @@ export function extractClaims(filePath: string, source: string): Claim[] {
   visit(tree, "inlineCode", (node: InlineCode) => {
     const line = node.position?.start.line ?? 0;
     const heading = getHeadingAtLine(tree, line);
-    const negated = isNegatedSection(heading);
+    const negated = isNegatedSection(heading) || negatedByContext.has(node);
 
     // A package named inside a dependency entry is not a file. `youtubei.js`
     // ends in a known extension, so without this it was reported as a
@@ -247,6 +260,57 @@ export function extractClaims(filePath: string, source: string): Claim[] {
   });
 
   return claims;
+}
+
+/**
+ * Inline-code nodes whose own sentence describes them as deleted or absent.
+ *
+ * The paragraph text is rebuilt in reading order while recording where each
+ * reference sits inside it, so a cue can be attributed to the sentence that
+ * contains it. A sentence ends at `.`, `!` or `?` followed by whitespace,
+ * which leaves version numbers such as `0.8.1` intact and keeps a colon inside
+ * its sentence -- "Deleted orphaned files: `check_commands.js`" is one clause.
+ */
+function collectNegatedReferences(tree: Root): Set<InlineCode> {
+  const negated = new Set<InlineCode>();
+
+  visit(tree, "paragraph", (paragraph) => {
+    let text = "";
+    const positions: Array<{ node: InlineCode; at: number }> = [];
+
+    const walk = (node: Content): void => {
+      if (node.type === "inlineCode") {
+        positions.push({ node, at: text.length });
+        text += node.value;
+        return;
+      }
+      if ("value" in node && typeof node.value === "string") {
+        text += node.value;
+        return;
+      }
+      if ("children" in node) (node.children as Content[]).forEach(walk);
+    };
+    (paragraph.children as Content[]).forEach(walk);
+    if (positions.length === 0) return;
+
+    const spans: Array<[number, number]> = [];
+    let start = 0;
+    const boundary = /[.!?](?=\s|$)/g;
+    let match: RegExpExecArray | null;
+    while ((match = boundary.exec(text)) !== null) {
+      spans.push([start, match.index + 1]);
+      start = match.index + 1;
+    }
+    spans.push([start, text.length]);
+
+    for (const { node, at } of positions) {
+      const span = spans.find(([from, to]) => at >= from && at < to);
+      const sentence = span ? text.slice(span[0], span[1]) : text;
+      if (isNegatedText(sentence)) negated.add(node);
+    }
+  });
+
+  return negated;
 }
 
 function getStrongText(node: Strong): string | null {
