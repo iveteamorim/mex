@@ -610,6 +610,66 @@ describe("checkDependencies", () => {
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("DEPENDENCY_MISSING");
   });
+
+  it("does not report architectural labels or concept acronyms (#4)", () => {
+    writeFileSync(
+      join(tmpDir, "package.json"),
+      JSON.stringify({ dependencies: { express: "^4.18.0" } })
+    );
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "Frontend" }),
+      claim({ kind: "dependency", value: "Middleware" }),
+      claim({ kind: "dependency", value: "Observability" }),
+      claim({ kind: "dependency", value: "SPA" }),
+      claim({ kind: "dependency", value: "CRUD" }),
+      claim({ kind: "dependency", value: "SSR" }),
+      claim({ kind: "dependency", value: "Express" }),
+      claim({ kind: "dependency", value: "fastify" }),
+    ], tmpDir);
+    expect(issues.map((i) => i.claim.value)).toEqual(["fastify"]);
+  });
+
+  it("keeps checking capitalized package spellings that carry separators (#4)", () => {
+    writeFileSync(
+      join(tmpDir, "package.json"),
+      JSON.stringify({ dependencies: { express: "^4.18.0" } })
+    );
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "PINO-HTTP" }),
+      claim({ kind: "dependency", value: "GRAPHQL-WS" }),
+      claim({ kind: "dependency", value: "YOUTUBE.JS" }),
+      claim({ kind: "dependency", value: "@SCOPE/PKG" }),
+    ], tmpDir);
+    expect(issues.map((i) => i.claim.value)).toEqual([
+      "PINO-HTTP", "GRAPHQL-WS", "YOUTUBE.JS", "@SCOPE/PKG",
+    ]);
+  });
+
+  it("a label that is a declared dependency is still verified (#4)", () => {
+    writeFileSync(
+      join(tmpDir, "package.json"),
+      JSON.stringify({ dependencies: { middleware: "^1.0.0" } })
+    );
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "middleware" }),
+      claim({ kind: "version", value: "middleware 2.0" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("VERSION_MISMATCH");
+  });
+
+  it("a version claim on a capitalized package is still compared (#4)", () => {
+    writeFileSync(
+      join(tmpDir, "package.json"),
+      JSON.stringify({ dependencies: { d3: "^6.2.0" } })
+    );
+    const issues = checkDependencies([
+      claim({ kind: "dependency", value: "D3" }),
+      claim({ kind: "version", value: "D3 7.0" }),
+    ], tmpDir);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("VERSION_MISMATCH");
+  });
 });
 
 // ── Cross-file Checker ──
