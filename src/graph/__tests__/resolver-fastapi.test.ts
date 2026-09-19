@@ -3,7 +3,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
 import { extractFile, loadGrammars } from "../extraction/index.js";
-import { generateNodeId } from "../extraction/node-id.js";
 import { fastAPIResolver } from "../resolution/frameworks/fastapi.js";
 import { FRAMEWORK_RESOLVERS } from "../resolution/frameworks/index.js";
 import type { GraphNode } from "../types.js";
@@ -24,38 +23,54 @@ describe("FastAPI framework resolver", () => {
     }));
   });
 
+  // Detection reads the staged corpus, which holds source and never holds a
+  // dependency manifest, so the import is the observable (#113 review).
   it.each([
-    ["pyproject project dependencies", { "pyproject.toml": "[project]\ndependencies = [\"fastapi>=0.115\"]\n" }],
-    ["Poetry dependencies", { "pyproject.toml": "[tool.poetry.dependencies]\nfastapi = \"^0.115\"\n" }],
-    ["requirements file", { "requirements-dev.txt": "pytest==8.0\nfastapi[standard]>=0.115\n" }],
+    ["a from-import of the app class", { "src/app.py": "from fastapi import FastAPI\napp = FastAPI()\n" }],
+    ["a plain module import", { "src/app.py": "import fastapi\n\napp = fastapi.FastAPI()\n" }],
+    ["a submodule import", { "src/deps.py": "from fastapi.security import OAuth2PasswordBearer\n" }],
   ])("detects FastAPI from %s", (_name, files) => {
     expect(fastAPIResolver.detect(fakeContext([], files))).toBe(true);
   });
 
-  it("does not detect similarly named or unrelated dependencies", () => {
+  it("does not detect similarly named packages or unrelated Python", () => {
     const context = fakeContext([], {
-      "pyproject.toml": "[project]\ndependencies = [\"flask\"]\n",
-      "requirements.txt": "fastapi-utils==0.8.0\n",
+      "src/app.py": "import fastapi_utils\nfrom fastapi_utils.cbv import cbv\n",
+      "src/other.py": "from flask import Flask\n",
     });
     expect(fastAPIResolver.detect(context)).toBe(false);
   });
 
-  it("extracts stable route nodes and endpoint references", () => {
+  it("does not detect from a dependency manifest alone", () => {
+    // A manifest is not a staged corpus file; if one ever is, a declared
+    // dependency still says nothing about a module using it.
+    const context = fakeContext([], {
+      "pyproject.toml": "[project]\ndependencies = [\"fastapi>=0.115\"]\n",
+      "requirements.txt": "fastapi[standard]>=0.115\n",
+    });
+    expect(fastAPIResolver.detect(context)).toBe(false);
+  });
+
+  it("extracts stable route nodes with path parameters preserved", () => {
     const result = fastAPIResolver.extract!(FILE_PATH, source);
-    const expectedRoutes = [
+
+    expect(result.nodes.map((node) => node.name)).toEqual([
       "GET /health",
       "POST /users/{user_id}",
       "PATCH /users/{user_id}",
       "PUT /users/{user_id}",
       "OPTIONS /users",
       "HEAD /users",
-      "DELETE /admin/{user_id}",
-    ];
-
-    expect(result.nodes.map((node) => node.name)).toEqual(expectedRoutes);
+      "GET /reports/{report_id}",
+      "GET /legacy",
+      "POST /legacy",
+      "GET /files/{file_path:path}",
+      "DELETE /admin/users/{user_id}",
+    ]);
     for (const node of result.nodes) {
       expect(node).toMatchObject({ kind: "route", language: "python", filePath: FILE_PATH });
-      expect(node.id).toBe(generateNodeId(FILE_PATH, "route", node.name));
+      expect(node.id.startsWith("route:")).toBe(true);
+      expect(node.signature).toBe(`${node.name} -> ${handlerFor(node.name)}`);
     }
     expect(result.references.map((ref) => [ref.referenceName, ref.referenceKind])).toEqual([
       ["health", "function_ref"],
@@ -64,8 +79,58 @@ describe("FastAPI framework resolver", () => {
       ["replace_user", "function_ref"],
       ["inspect_users", "function_ref"],
       ["inspect_users", "function_ref"],
+      ["read_report", "function_ref"],
+      ["legacy", "function_ref"],
+      ["legacy", "function_ref"],
+      ["read_file", "function_ref"],
       ["delete_user", "function_ref"],
     ]);
+  });
+
+  it("gives a route declared twice in one file distinct ids (#113 review)", () => {
+    const custom = [
+      "import os",
+      "from fastapi import APIRouter",
+      "v1 = APIRouter(prefix='/v1')",
+      "v2 = APIRouter(prefix='/v1')",
+      "@v1.get('/items')",
+      "def list_items(): pass",
+      "@v2.get('/items')",
+      "def list_items(): pass",
+      "",
+    ].join("\n");
+
+    const result = fastAPIResolver.extract!("src/versioned.py", custom);
+    expect(result.nodes.map((node) => node.name)).toEqual(["GET /v1/items", "GET /v1/items"]);
+    expect(new Set(result.nodes.map((node) => node.id)).size).toBe(2);
+    expect(new Set(result.nodes.map((node) => node.identityKey)).size).toBe(2);
+  });
+
+  it("ignores a decorator that only appears inside a docstring", () => {
+    const custom = [
+      "from fastapi import FastAPI",
+      "app = FastAPI()",
+      "EXAMPLE = \"\"\"",
+      "@app.get('/doc-only')\"\"\"",
+      "def loader(): pass",
+      "",
+    ].join("\n");
+
+    expect(fastAPIResolver.extract!("src/docs.py", custom).nodes).toEqual([]);
+  });
+
+  it("reads a router imported from another module", () => {
+    const custom = [
+      "from fastapi import APIRouter",
+      "from .routers import users",
+      "from app.api import router",
+      "@router.get('/imported')",
+      "def imported(): pass",
+      "",
+    ].join("\n");
+
+    const result = fastAPIResolver.extract!("src/routes.py", custom);
+    expect(result.nodes.map((node) => node.name)).toEqual(["GET /imported"]);
   });
 
   it("recognizes custom instance names and skips dynamic or unrelated routes", () => {
@@ -79,12 +144,29 @@ describe("FastAPI framework resolver", () => {
       "def external(): pass",
       "@api.get(route_path)",
       "def dynamic(): pass",
+      "@api.get(f'/{prefix}/interpolated')",
+      "def interpolated(): pass",
       "",
     ].join("\n");
 
     const result = fastAPIResolver.extract!("src/custom.py", customSource);
     expect(result.nodes).toMatchObject([{ kind: "route", name: "GET /ready" }]);
     expect(result.references).toMatchObject([{ referenceName: "ready" }]);
+  });
+
+  it("skips an api_route whose methods cannot be read", () => {
+    const custom = [
+      "from fastapi import FastAPI",
+      "app = FastAPI()",
+      "VERBS = ['GET']",
+      "@app.api_route('/guessed', methods=VERBS)",
+      "def guessed(): pass",
+      "@app.api_route('/bare')",
+      "def bare(): pass",
+      "",
+    ].join("\n");
+
+    expect(fastAPIResolver.extract!("src/api_route.py", custom).nodes).toEqual([]);
   });
 
   it("resolves unambiguous same-file functions and methods", () => {
@@ -96,8 +178,8 @@ describe("FastAPI framework resolver", () => {
       const target = pythonNodes.find((node) => node.name === endpoint)!;
       expect(fastAPIResolver.resolve(ref, context)).toMatchObject({
         targetNodeId: target.id,
-        confidence: 1,
-        resolvedBy: "framework",
+        confidence: 0.8,
+        resolvedBy: "fastapi-route-handler",
       });
     }
   });
@@ -119,6 +201,23 @@ describe("FastAPI framework resolver", () => {
     expect(FRAMEWORK_RESOLVERS).toContain(fastAPIResolver);
   });
 });
+
+function handlerFor(routeName: string): string {
+  const handlers: Record<string, string> = {
+    "GET /health": "health",
+    "POST /users/{user_id}": "update_user",
+    "PATCH /users/{user_id}": "update_user",
+    "PUT /users/{user_id}": "replace_user",
+    "OPTIONS /users": "inspect_users",
+    "HEAD /users": "inspect_users",
+    "GET /reports/{report_id}": "read_report",
+    "GET /legacy": "legacy",
+    "POST /legacy": "legacy",
+    "GET /files/{file_path:path}": "read_file",
+    "DELETE /admin/users/{user_id}": "delete_user",
+  };
+  return handlers[routeName]!;
+}
 
 function node(
   id: string,
