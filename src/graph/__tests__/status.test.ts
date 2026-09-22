@@ -776,12 +776,18 @@ describe("inspectGraphStatus", () => {
       ...snapshot,
       sourceCorpusDigest: "0".repeat(64),
     }));
+    source(digestRoot, "src/a.ts", "export const a = 2;\n");
     const digestMismatch = await inspect(digestRoot);
     expect(digestMismatch.status).toBe("corrupt");
     expect(digestMismatch.diagnostics).toContainEqual(expect.objectContaining({
       code: "GRAPH_SNAPSHOT_CONTENT_MISMATCH",
     }));
     expect(executableRemediations(digestMismatch)).toContain("mex graph rebuild");
+    // Sources were never compared and the index timestamps never populated:
+    // the placeholder changes and null timestamp must not read as measured.
+    expect(digestMismatch.inspected).toBe(false);
+    expect(digestMismatch.lastSuccessfulIndexAt).toBeNull();
+    expect(digestMismatch.changes.total).toBe(0);
 
     const inconsistentRoot = temporaryRoot("mex-graph-snapshot-mismatch-");
     source(inconsistentRoot, "src/a.ts", "export const a = 1;\n");

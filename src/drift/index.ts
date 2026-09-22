@@ -363,6 +363,7 @@ function unavailableGraphStatus(message: string): GraphStatus {
   const observedAt = new Date().toISOString();
   return {
     status: "degraded",
+    inspected: false,
     observedAt,
     currentRepo: { branch: null, head: null, dirty: false, observedAt },
     lastSuccessfulIndexAt: null,

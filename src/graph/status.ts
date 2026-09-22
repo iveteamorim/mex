@@ -896,11 +896,16 @@ async function inspectGraphStatusAttempt(
         severity: "error",
         message: "Graph snapshot source or parse-health totals disagree with the published SQLite rows.",
       });
+      // Parse health was read, but sources were never compared against the
+      // snapshot and the index timestamps were never populated, so the
+      // aggregate is a partial inspection: report it as not inspected rather
+      // than presenting the placeholder changes and null timestamps as facts.
       return finishDatabaseResult(graphStatus({
           status: "corrupt",
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth,
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,

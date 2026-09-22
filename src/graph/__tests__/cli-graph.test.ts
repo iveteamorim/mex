@@ -4,6 +4,12 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { GraphSourceChanges } from "../../team/contracts/graph.js";
 import { runGraphScope } from "../cli-agent.js";
+import { openSqlite } from "../db/sqlite.js";
+import {
+  GRAPH_SNAPSHOT_METADATA_KEY,
+  parseGraphSnapshot,
+  serializeGraphSnapshot,
+} from "../snapshot.js";
 import {
   formatGraphSourceChanges,
   runGraph,
@@ -62,6 +68,50 @@ describe("graph CLI status formatting", () => {
       output.length = 0;
       await runGraphStatus({ root, json: true });
       expect(JSON.parse(output.join(""))).toMatchObject({ status: "degraded", inspected: false });
+    } finally {
+      log.mockRestore();
+      rmSync(root, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it("prints not inspected when a snapshot digest mismatch stops source comparison", async () => {
+    const root = mkdtempSync(join(tmpdir(), "mex-status-snapshot-cli-"));
+    const output: string[] = [];
+    const log = vi.spyOn(console, "log").mockImplementation((line) => output.push(String(line)));
+    try {
+      writeFileSync(join(root, "api.ts"), "export const api = true;");
+      await runGraph({ root, json: true });
+      const db = openSqlite(join(root, ".mex", "graph.db"));
+      try {
+        const row = db.prepare("SELECT value FROM project_metadata WHERE key = ?")
+          .get(GRAPH_SNAPSHOT_METADATA_KEY) as { value: string };
+        const snapshot = parseGraphSnapshot(row.value);
+        if (!snapshot) throw new Error("test fixture has no valid graph snapshot");
+        db.prepare("UPDATE project_metadata SET value = ? WHERE key = ?").run(
+          serializeGraphSnapshot({ ...snapshot, sourceCorpusDigest: "0".repeat(64) }),
+          GRAPH_SNAPSHOT_METADATA_KEY,
+        );
+      } finally {
+        db.close();
+      }
+      writeFileSync(join(root, "api.ts"), "export const api = false;");
+
+      output.length = 0;
+      await runGraphStatus({ root });
+      expect(output).toContain("Graph status: corrupt");
+      expect(output).toContain("Last successful index: not inspected");
+      expect(output).toContain("Sources: not inspected");
+      expect(output).toContain("Parse health: not inspected");
+      expect(output.some((line) => line.startsWith("ERROR GRAPH_SNAPSHOT_CONTENT_MISMATCH"))).toBe(true);
+      expect(output.some((line) => line.includes("0 changed") || line.includes("never"))).toBe(false);
+
+      output.length = 0;
+      await runGraphStatus({ root, json: true });
+      expect(JSON.parse(output.join(""))).toMatchObject({
+        status: "corrupt",
+        inspected: false,
+        lastSuccessfulIndexAt: null,
+      });
     } finally {
       log.mockRestore();
       rmSync(root, { recursive: true, force: true });

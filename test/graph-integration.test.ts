@@ -163,6 +163,27 @@ describe("code-graph grounding integration", () => {
     expect(warning).not.toHaveBeenCalled();
   });
 
+  it("marks the fallback status as not inspected when the status loader throws", async () => {
+    const { config } = fixture();
+    const warning = vi.fn();
+
+    const report = await runDriftCheckWithGraphStatus(config, {
+      scaffoldPatterns: ["ROUTER.md"],
+      readOnlyGroundingRuntimeLoader: async () => {
+        throw new Error("simulated status loader failure");
+      },
+      graphWarning: warning,
+    });
+
+    expect(report.graphStatus.status).toBe("degraded");
+    expect(report.graphStatus.inspected).toBe(false);
+    expect(report.graphStatus.diagnostics).toContainEqual(expect.objectContaining({
+      code: "GRAPH_STATUS_UNAVAILABLE",
+      message: "simulated status loader failure",
+    }));
+    expect(warning).toHaveBeenCalledWith(expect.stringContaining("Code graph status unavailable"));
+  });
+
   it("leaves graph-aware output to first-party renderers unless a warning sink is supplied", async () => {
     const { config } = fixture();
     const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
