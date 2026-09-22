@@ -508,6 +508,7 @@ describe("inspectGraphStatus", () => {
     const corruptBefore = treeState(corruptRoot);
     const corrupt = await inspect(corruptRoot);
     expect(corrupt.status).toBe("corrupt");
+    expect(corrupt.inspected).toBe(false);
     expect(corrupt.changes.total).toBe(0);
     expect(corrupt.diagnostics).toContainEqual(expect.objectContaining({ code: "GRAPH_INDEX_CORRUPT" }));
     expect(executableRemediations(corrupt)).toContain("mex graph rebuild");
@@ -524,6 +525,7 @@ describe("inspectGraphStatus", () => {
       expect(statSync(`${dbPath}-wal`).size).toBeGreaterThan(0);
       const transient = await inspect(transientRoot);
       expect(transient.status).toBe("degraded");
+      expect(transient.inspected).toBe(false);
       expect(transient.changes.total).toBe(0);
       expect(transient.diagnostics).toContainEqual(expect.objectContaining({ code: "GRAPH_INDEX_SIDECAR_ACTIVE" }));
       expect(transient.diagnostics).not.toContainEqual(expect.objectContaining({ code: "GRAPH_INDEX_CORRUPT" }));
@@ -531,6 +533,15 @@ describe("inspectGraphStatus", () => {
     } finally {
       writer.close();
     }
+    const checkpointed = openSqlite(dbPath);
+    try {
+      checkpointed.exec("PRAGMA wal_checkpoint(TRUNCATE)");
+    } finally {
+      checkpointed.close();
+    }
+    const measured = await inspect(transientRoot);
+    expect(measured.inspected).toBe(true);
+    expect(measured.parseHealth.total).toBe(1);
   });
 
   it("reports sidecars deterministically and refuses immutable interpretation while one is active or unavailable", async () => {
@@ -765,12 +776,18 @@ describe("inspectGraphStatus", () => {
       ...snapshot,
       sourceCorpusDigest: "0".repeat(64),
     }));
+    source(digestRoot, "src/a.ts", "export const a = 2;\n");
     const digestMismatch = await inspect(digestRoot);
     expect(digestMismatch.status).toBe("corrupt");
     expect(digestMismatch.diagnostics).toContainEqual(expect.objectContaining({
       code: "GRAPH_SNAPSHOT_CONTENT_MISMATCH",
     }));
     expect(executableRemediations(digestMismatch)).toContain("mex graph rebuild");
+    // Sources were never compared and the index timestamps never populated:
+    // the placeholder changes and null timestamp must not read as measured.
+    expect(digestMismatch.inspected).toBe(false);
+    expect(digestMismatch.lastSuccessfulIndexAt).toBeNull();
+    expect(digestMismatch.changes.total).toBe(0);
 
     const inconsistentRoot = temporaryRoot("mex-graph-snapshot-mismatch-");
     source(inconsistentRoot, "src/a.ts", "export const a = 1;\n");

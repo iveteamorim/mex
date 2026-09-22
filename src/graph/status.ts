@@ -491,6 +491,7 @@ async function inspectGraphStatusAttempt(
         status: "degraded",
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: emptySourceChanges(),
         diagnostics: [contained.diagnostic],
@@ -534,6 +535,7 @@ async function inspectGraphStatusAttempt(
           status: "missing",
           observedAt,
           currentRepo,
+          inspected: true,
           parseHealth: emptyParseHealth(),
           changes,
           diagnostics,
@@ -548,6 +550,7 @@ async function inspectGraphStatusAttempt(
         status: classified.status,
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -566,6 +569,7 @@ async function inspectGraphStatusAttempt(
         status: "corrupt",
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -586,6 +590,7 @@ async function inspectGraphStatusAttempt(
         status: "degraded",
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -602,6 +607,7 @@ async function inspectGraphStatusAttempt(
         status: "degraded",
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -667,6 +673,7 @@ async function inspectGraphStatusAttempt(
           status: partialSchema ? "corrupt" : "rebuild_required",
           observedAt,
           currentRepo,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -685,6 +692,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -716,6 +724,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -737,6 +746,7 @@ async function inspectGraphStatusAttempt(
         observedAt,
         currentRepo,
         schemaVersion,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -755,6 +765,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -781,6 +792,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -801,6 +813,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -821,6 +834,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -845,6 +859,7 @@ async function inspectGraphStatusAttempt(
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth: emptyParseHealth(),
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -881,11 +896,16 @@ async function inspectGraphStatusAttempt(
         severity: "error",
         message: "Graph snapshot source or parse-health totals disagree with the published SQLite rows.",
       });
+      // Parse health was read, but sources were never compared against the
+      // snapshot and the index timestamps were never populated, so the
+      // aggregate is a partial inspection: report it as not inspected rather
+      // than presenting the placeholder changes and null timestamps as facts.
       return finishDatabaseResult(graphStatus({
           status: "corrupt",
           observedAt,
           currentRepo,
           schemaVersion,
+          inspected: false,
           parseHealth,
           changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
           diagnostics,
@@ -1121,6 +1141,7 @@ async function inspectGraphStatusAttempt(
         status: classified.status,
         observedAt,
         currentRepo,
+        inspected: false,
         parseHealth: emptyParseHealth(),
         changes: changesWithoutIndex(live, currentRepo, maxChangedPaths),
         diagnostics,
@@ -1148,12 +1169,14 @@ function graphStatus(input: {
   schemaVersion?: number | null;
   extractorVersion?: string | null;
   grammarVersion?: string | null;
+  inspected?: boolean;
   parseHealth: GraphParseHealth;
   changes: GraphSourceChanges;
   diagnostics: readonly Diagnostic[];
 }): GraphStatus {
   return {
     status: input.status,
+    inspected: input.inspected ?? true,
     observedAt: input.observedAt,
     currentRepo: input.currentRepo,
     lastSuccessfulIndexAt: input.lastSuccessfulIndexAt ?? null,
