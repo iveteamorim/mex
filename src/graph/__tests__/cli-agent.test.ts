@@ -1332,6 +1332,89 @@ describe("runGraphGet", () => {
     expect(records).toHaveLength(1);
     expect(records[0]).toMatchObject({ type: "error", code: "INVALID_OUTPUT_BUDGET" });
   });
+
+  function oversizedGetFixture(): {
+    isolated: string;
+    primary: GraphNode;
+    getDeps: AgentCommandDeps;
+  } {
+    const isolated = mkdtempSync(join(tmpdir(), "mex-graph-get-budget-"));
+    const sourceLines = Array.from({ length: 185 }, (_, index) => `// primary body ${index + 1}`);
+    sourceLines[0] = "export function PrimaryProcedure(): void {";
+    sourceLines[184] = "}";
+    const source = sourceLines.join("\n");
+    writeFileSync(join(isolated, "primary.ts"), source);
+    const primary: GraphNode = {
+      id: "function:primary-procedure", kind: "function", name: "PrimaryProcedure",
+      qualifiedName: "PrimaryProcedure", filePath: "primary.ts", language: "typescript",
+      startLine: 1, endLine: 185, startColumn: 0, endColumn: 1, updatedAt: 1,
+    };
+    const graph = syntheticScopeGraph({
+      nodes: [primary], sources: [{ path: primary.filePath, content: source }],
+      searchNodes: () => [primary],
+    });
+    return {
+      isolated, primary,
+      getDeps: {
+        open: () => ({ graph, db: deps.open!(root).db, close: () => {} }),
+        write: (line) => lines.push(line),
+      },
+    };
+  }
+
+  it("does not report no-match when a matched node's source exceeds the output budget", () => {
+    const { isolated, primary, getDeps } = oversizedGetFixture();
+    try {
+      const records = capture(() => runGraphGet([primary.id], isolated, getDeps, {
+        maxOutputTokens: 1500, maxSourceLines: 200,
+      }));
+      const summary = records.at(-1)!;
+      expect(summary.matchedNodes).toBeGreaterThan(0);
+      expect(records.some((record) => record.type === "fact" && record.id === primary.id)).toBe(true);
+      const prefixRanges = records.filter((record) => record.type === "source")
+        .flatMap((record) => record.ranges as Array<{
+          startLine: number; endLine: number; truncated: boolean; nodeIds: string[];
+        }>);
+      expect(prefixRanges).toEqual([expect.objectContaining({
+        nodeIds: [primary.id], truncated: true,
+      })]);
+      expect(prefixRanges[0]!.endLine - prefixRanges[0]!.startLine + 1).toBeLessThan(185);
+      expect(summary).toMatchObject({
+        status: "partial", truncated: true, evidenceStrength: "strong", returnedNodes: 1,
+      });
+      expect(summary.estimatedOutputTokens as number).toBeLessThanOrEqual(1500);
+      const retry = (summary.suggestedNextCommands as string[])[0] ?? "";
+      const budget = Number((/ --max-output-tokens (\d+)/.exec(retry) ?? [])[1]);
+      expect(retry).toContain(`mex graph get ${primary.id}`);
+      expect(budget).toBeGreaterThan(1500);
+      const retryRecords = capture(() => runGraphGet([primary.id], isolated, getDeps, {
+        maxOutputTokens: budget, maxSourceLines: 200,
+      }));
+      expect(retryRecords.filter((record) => record.type === "source")
+        .flatMap((record) => record.ranges as Array<{ endLine: number; truncated: boolean }>))
+        .toEqual([expect.objectContaining({ endLine: 185, truncated: false })]);
+      expect(retryRecords.at(-1)).toMatchObject({ status: "ok", returnedNodes: 1 });
+    } finally {
+      rmSync(isolated, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps a tight valid get budget honest when full source cannot fit", () => {
+    const { isolated, primary, getDeps } = oversizedGetFixture();
+    try {
+      const records = capture(() => runGraphGet([primary.id], isolated, getDeps, {
+        maxOutputTokens: 800, maxSourceLines: 200,
+      }));
+      const summary = records.at(-1)!;
+      expect(summary.matchedNodes).toBeGreaterThan(0);
+      expect(summary.status).not.toBe("no-match");
+      expect(summary).toMatchObject({ status: "partial", truncated: true });
+      expect(summary.estimatedOutputTokens as number).toBeLessThanOrEqual(800);
+      expect(records.some((record) => record.type === "fact" && record.id === primary.id)).toBe(true);
+    } finally {
+      rmSync(isolated, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("runGraphQuery", () => {
