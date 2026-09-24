@@ -17,7 +17,7 @@ import {
 import { FingerprintStore } from "./fingerprint-store.js";
 import { serializeFingerprint } from "./fingerprint.js";
 import {
-  BudgetLedger, estimateTokens, resolveOptions, resolveScopeOptions, SCHEMA_VERSION, type AgentOptions,
+  BudgetLedger, DEFAULT_OPTIONS, estimateTokens, resolveOptions, resolveScopeOptions, SCHEMA_VERSION, type AgentOptions,
 } from "./agent-protocol.js";
 import { identifierComponents, isLowValueGraphPath, planGraphQuery } from "./retrieval/query.js";
 import {
@@ -827,13 +827,15 @@ export function runGraphGet(
     const factRecords: Rec[] = [];
     let retry: { id: string; full: Rec } | undefined;
     if (omittedNodes.length > 0) truncated = true;
-    const reserve = estimateTokens(summarySkeleton([])) + RESERVE_PAD;
+    // Every omitted node keeps its fact before any prefix spends the budget.
     for (const node of omittedNodes) {
       const fact = factFor(session, node.id, opts.detail, opts.fingerprint);
-      if (fact) {
-        const record: Rec = { type: "fact", ...agentFactFields(fact, opts) };
-        if (ledger.tryAdd(record)) factRecords.push(record);
-      }
+      if (!fact) continue;
+      const record: Rec = { type: "fact", ...agentFactFields(fact, opts) };
+      if (ledger.tryAdd(record)) factRecords.push(record);
+    }
+    const reserve = estimateTokens(summarySkeleton([])) + RESERVE_PAD;
+    for (const node of omittedNodes) {
       const full = sourceRecordForGetNode(session, node, rootDir, opts);
       if (!full) continue;
       retry ??= { id: node.id, full };
@@ -846,11 +848,15 @@ export function runGraphGet(
         }
       }
     }
+    // The retry budget is sized for the current line cap, so a non-default cap travels with it.
+    const sourceLines = opts.maxSourceLines === DEFAULT_OPTIONS.maxSourceLines
+      ? ""
+      : ` --max-source-lines ${opts.maxSourceLines}`;
     const suggestions = retry
       ? [`mex graph get ${retry.id} --max-output-tokens ${Math.max(
         graphGetFullSourceBudget(opts, retry.full),
         opts.maxOutputTokens + 1,
-      )}`]
+      )}${sourceLines}`]
       : [];
 
     // `get` returns declarations and their proven source bytes only, so the
